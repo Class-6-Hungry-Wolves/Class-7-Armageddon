@@ -130,6 +130,16 @@ resource "aws_vpc_security_group_ingress_rule" "allow_port_80" {
   to_port           = 80
 }
 
+
+resource "aws_vpc_security_group_ingress_rule" "allow_port_22" {
+  security_group_id = aws_security_group.lab_1a_ec2_sg.id
+  cidr_ipv4         = "71.45.133.250/32"
+  from_port         = 22
+  ip_protocol       = "tcp"
+  to_port           = 22
+}
+
+
 resource "aws_vpc_security_group_egress_rule" "allow_all_traffic_from_port_80_ipv4" {
   security_group_id = aws_security_group.lab_1a_ec2_sg.id
   cidr_ipv4         = "0.0.0.0/0"
@@ -154,3 +164,56 @@ resource "aws_vpc_security_group_egress_rule" "allow_all_traffic_from_port_3306_
 }
 
 
+data "aws_ami" "amazon_linux" {
+  most_recent = true
+  filter {
+    name   = "name"
+    values = ["al2023-ami-2023.*-x86_64"]
+  }
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+  owners = ["amazon"]
+}
+
+
+resource "aws_instance" "class-7-instance-from-terraform" {
+  ami                    = data.aws_ami.amazon_linux.id
+  instance_type          = var.instance_type
+  subnet_id              = aws_subnet.lab-1a-public-subnet["lab_1a_subnet_1"].id
+  user_data              = file("./startup.sh")
+  vpc_security_group_ids = [aws_security_group.lab_1a_ec2_sg.id]
+  tags = {
+    Name = "${local.project_name_prefix}-${local.environment}-ec2-labapp-instance"
+  }
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "aws_db_subnet_group" "chewbacca_rds_subnet_group01" {
+  name       = "${local.project_name_prefix}-${local.environment}-rds-subnet-group01"
+  subnet_ids = [for i in aws_subnet.lab-1a-database-subnet : i.id]
+
+  tags = {
+    Name = "${local.project_name_prefix}-${local.environment}-rds-subnet-group01"
+  }
+}
+
+
+resource "aws_db_instance" "lab1-rds01" {
+  identifier             = "${local.environment}rds01"
+  engine                 = var.db-engine
+  instance_class         = var.db_instance_class
+  allocated_storage      = 20
+  db_name                = var.db_name
+  username               = var.db_username
+  password               = var.db_password
+
+  db_subnet_group_name   = aws_db_subnet_group.chewbacca_rds_subnet_group01.name
+  vpc_security_group_ids = [aws_security_group.lab_1a_rds_sg.id]
+
+  publicly_accessible    = false
+  skip_final_snapshot    = true
+}

@@ -71,6 +71,41 @@ variable "database_subnet_config" {
 }
 
 
-# variable "" {
-  
-# }
+variable "instance_type" {
+  description = "Instance type that EC2 lab app is using"
+  type = string
+  default = "t3.micro"
+}
+
+
+variable "db-engine" {
+  description = "Database engine that RDS will be using"
+  type = string 
+  default = "mysql"
+}
+
+variable "db_instance_class" {
+  description = "RDS instance class."
+  type        = string
+  default     = "db.t3.micro"
+}
+
+
+variable "db_name" {
+  description = "Initial database name."
+  type        = string
+  default     = "rds01" 
+}
+
+variable "db_username" {
+  description = "DB master username (students should use Secrets Manager in 1B/1C)."
+  type        = string
+  default     = "admin" 
+}
+
+variable "db_password" {
+  description = "DB master password (DO NOT hardcode in real life; for lab only)."
+  type        = string
+  sensitive   = true
+  default     = "X4uU2UFiWgZA3x59S8we" 
+}
