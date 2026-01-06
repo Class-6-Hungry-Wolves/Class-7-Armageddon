@@ -109,19 +109,21 @@ resource "aws_route_table_association" "lab_1a_private_rtb_association" {
   route_table_id = aws_route_table.lab_1a_private_rtb.id
 }
 
-
+# Security group for our note inserting app
 resource "aws_security_group" "lab_1a_ec2_sg" {
   name        = "${local.project_name_prefix}-${local.environment}-lab1a-ec2-sg"
   description = "This is the EC2 Security Group that will allow the EC2 to have public internet access"
   vpc_id      = aws_vpc.lab-1a-vpc.id
 }
 
+# Security Group for our RDS MYSQL Database
 resource "aws_security_group" "lab_1a_rds_sg" {
   name        = "${local.project_name_prefix}-${local.environment}-lab1a-rds-sg"
   description = "This is the RDS Security Group that will only allow inbound access from our EC2"
   vpc_id      = aws_vpc.lab-1a-vpc.id
 }
 
+# Ingress/inbound rule for our App Security Group that allows web traffic on port 80
 resource "aws_vpc_security_group_ingress_rule" "allow_port_80" {
   security_group_id = aws_security_group.lab_1a_ec2_sg.id
   cidr_ipv4         = "0.0.0.0/0"
@@ -130,16 +132,16 @@ resource "aws_vpc_security_group_ingress_rule" "allow_port_80" {
   to_port           = 80
 }
 
-
+# Optional ingress/inbound rule for our App Security Group that allows SSH access on port 22
 resource "aws_vpc_security_group_ingress_rule" "allow_port_22" {
   security_group_id = aws_security_group.lab_1a_ec2_sg.id
-  cidr_ipv4         = "71.45.133.250/32"
+  cidr_ipv4         = "0.0.0.0/0"
   from_port         = 22
   ip_protocol       = "tcp"
   to_port           = 22
 }
 
-
+# Default outbound rule for our App Security Group, do not touch
 resource "aws_vpc_security_group_egress_rule" "allow_all_traffic_from_port_80_ipv4" {
   security_group_id = aws_security_group.lab_1a_ec2_sg.id
   cidr_ipv4         = "0.0.0.0/0"
@@ -147,7 +149,7 @@ resource "aws_vpc_security_group_egress_rule" "allow_all_traffic_from_port_80_ip
 }
 
 
-
+# Ingress/inbound rule for our Database Security Group that is allowing only the App Security Group to access it
 resource "aws_vpc_security_group_ingress_rule" "allow_port_3306" {
   security_group_id            = aws_security_group.lab_1a_rds_sg.id 
   referenced_security_group_id = aws_security_group.lab_1a_ec2_sg.id
@@ -156,7 +158,7 @@ resource "aws_vpc_security_group_ingress_rule" "allow_port_3306" {
   to_port                      = 3306
 }
 
-
+# Default outbound rule for our Database Security Group, do not touch
 resource "aws_vpc_security_group_egress_rule" "allow_all_traffic_from_port_3306_ipv4" {
   security_group_id = aws_security_group.lab_1a_rds_sg.id
   cidr_ipv4         = "0.0.0.0/0"
@@ -182,7 +184,7 @@ resource "aws_instance" "class-7-instance-from-terraform" {
   ami                    = data.aws_ami.amazon_linux.id
   instance_type          = var.instance_type
   subnet_id              = aws_subnet.lab-1a-public-subnet["lab_1a_subnet_1"].id
-  user_data              = file("./startup.sh")
+  user_data              = file("./userdata.sh")
   vpc_security_group_ids = [aws_security_group.lab_1a_ec2_sg.id]
   tags = {
     Name = "${local.project_name_prefix}-${local.environment}-ec2-labapp-instance"
@@ -216,4 +218,24 @@ resource "aws_db_instance" "lab1-rds01" {
 
   publicly_accessible    = false
   skip_final_snapshot    = true
+}
+
+
+
+# Explanation: Secrets Manager is Chewbacca’s locked holster—credentials go here, not in code.
+resource "aws_secretsmanager_secret" "armageddon_db_secret01" {
+  name = "${local.project_name_prefix}/rds/mysql"
+}
+
+# Explanation: Secret payload—students should align this structure with their app (and support rotation later).
+resource "aws_secretsmanager_secret_version" "armageddon_db_secret_version01" {
+  secret_id = aws_secretsmanager_secret.armageddon_db_secret01.id 
+
+  secret_string = jsonencode({
+    username = var.db_username
+    password = var.db_password
+    host     = aws_db_instance.lab1-rds01.address
+    port     = aws_db_instance.lab1-rds01.port
+    dbname   = var.db_name
+  })
 }

@@ -12,7 +12,7 @@ import pymysql
 from flask import Flask, request
 
 REGION = os.environ.get("AWS_REGION", "us-east-1")
-SECRET_ID = os.environ.get("SECRET_ID", "lab/rds/mysql")
+SECRET_ID = os.environ.get("SECRET_ID", "class7-armageddon/rds/mysql")
 
 secrets = boto3.client("secretsmanager", region_name=REGION)
 
