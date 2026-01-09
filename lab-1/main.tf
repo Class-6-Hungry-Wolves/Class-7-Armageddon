@@ -179,6 +179,7 @@ data "aws_ami" "amazon_linux" {
   owners = ["amazon"]
 }
 
+# IAM role for EC2 RDS Notes App to assume
 resource "aws_iam_role" "ec2_read_rds_secret_role" {
   name = "${local.project_name_prefix}-${local.environment}-ec2-read-rds-secret"
 
@@ -187,38 +188,61 @@ resource "aws_iam_role" "ec2_read_rds_secret_role" {
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [{
-      Action    = "sts:AssumeRole"
+      Action    = ["sts:AssumeRole"]
       Effect    = "Allow"
       Principal = { Service = "ec2.amazonaws.com" }
     }]
   })
 }
 
-resource "aws_iam_policy" "ec2_read_rds_secret_policy" {
-  name = "test_policy"
+# IAM Policy document to pass gates in validation folder
+data "aws_iam_policy_document" "ec2_read_rds_secret" {
+  statement {
+    sid    = "ReadSpecificSecret"
+    effect = "Allow"
+    actions = [
+      "secretsmanager:GetSecretValue",
+      "secretsmanager:DescribeSecret",
+    ]
+    resources = [
+      "arn:aws:secretsmanager:us-east-1:082258817095:secret:armageddon/rds/mysql*"
+    ]
+  }
 
-  # Terraform's "jsonencode" function converts a
-  # Terraform expression result to valid JSON syntax.
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [{
-      "Sid"    = "ReadSpecificSecret",
-      Action   = ["secretsmanager:GetSecretValue"]
-      Effect   = "Allow"
-      Resource = "arn:aws:secretsmanager:us-east-1:082258817095:secret:armageddon/rds/mysql*"
-    }]
-  })
+  statement {
+    sid     = "DescribeInstances"
+    effect  = "Allow"
+    actions = ["ec2:DescribeInstances"]
+    resources = ["*"]
+  }
+
+    statement {
+    sid     = "GetInstanceProfile"
+    effect  = "Allow"
+    actions = ["iam:GetInstanceProfile"]
+    resources = ["arn:aws:iam::082258817095:instance-profile/lab1-dev-ec2-instance-profile"]
+  }
 }
 
+# IAM policy for EC2 RDS Notes App
+resource "aws_iam_policy" "ec2_read_rds_secret_policy" {
+  name   = "ec2-read-rds-secret-policy"
+  policy = data.aws_iam_policy_document.ec2_read_rds_secret.json
+}
+
+# IAM policy attachment for EC2 RDS Notes App
 resource "aws_iam_role_policy_attachment" "ec2_read_rds_secret_role_attachment" {
   role       = aws_iam_role.ec2_read_rds_secret_role.name
   policy_arn = aws_iam_policy.ec2_read_rds_secret_policy.arn
 }
 
-
+# IAM instance profile for EC2 RDS Notes App to use to perform Secrets Manager operations
 resource "aws_iam_instance_profile" "lab1_ec2_instance_profile" {
   role = aws_iam_role.ec2_read_rds_secret_role.name
+  name = "lab1-${local.environment}-ec2-instance-profile"
 }
+
+# EC2 instance that will house our RDS Notes App
 resource "aws_instance" "lab1_ec2_instance" {
   ami                    = data.aws_ami.amazon_linux.id
   instance_type          = var.instance_type
@@ -234,6 +258,7 @@ resource "aws_instance" "lab1_ec2_instance" {
   }
 }
 
+# Private Database Subnet group for our RDS database
 resource "aws_db_subnet_group" "chewbacca_rds_subnet_group01" {
   name       = "${local.project_name_prefix}-${local.environment}-rds-subnet-group01"
   subnet_ids = [for i in aws_subnet.lab-1a-database-subnet : i.id]
@@ -243,7 +268,7 @@ resource "aws_db_subnet_group" "chewbacca_rds_subnet_group01" {
   }
 }
 
-
+# RDS MYSQL Database that will house our notes table
 resource "aws_db_instance" "lab1-rds01" {
   identifier        = "${local.environment}rds01"
   engine            = var.db-engine
