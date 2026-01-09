@@ -179,12 +179,52 @@ data "aws_ami" "amazon_linux" {
   owners = ["amazon"]
 }
 
+resource "aws_iam_role" "ec2_read_rds_secret_role" {
+  name = "${local.project_name_prefix}-${local.environment}-ec2-read-rds-secret"
 
-resource "aws_instance" "class-7-instance-from-terraform" {
+  # Terraform's "jsonencode" function converts a
+  # Terraform expression result to valid JSON syntax.
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = { Service = "ec2.amazonaws.com"}
+      }]
+  })
+}
+
+resource "aws_iam_policy" "ec2_read_rds_secret_policy" {
+  name = "test_policy"
+
+  # Terraform's "jsonencode" function converts a
+  # Terraform expression result to valid JSON syntax.
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+        "Sid" = "ReadSpecificSecret",
+        Action = ["secretsmanager:GetSecretValue"]
+        Effect   = "Allow"
+        Resource = "arn:aws:secretsmanager:us-east-1:082258817095:secret:armageddon/rds/mysql*"
+      }]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "ec2_read_rds_secret_role_attachment" {
+  role = aws_iam_role.ec2_read_rds_secret_role.name 
+  policy_arn = aws_iam_policy.ec2_read_rds_secret_policy.arn
+}
+
+
+resource "aws_iam_instance_profile" "lab1_ec2_instance_profile" {
+  role = aws_iam_role.ec2_read_rds_secret_role.name
+}
+resource "aws_instance" "lab1_ec2_instance" {
   ami                    = data.aws_ami.amazon_linux.id
   instance_type          = var.instance_type
   subnet_id              = aws_subnet.lab-1a-public-subnet["lab_1a_subnet_1"].id
   user_data              = file("./userdata.sh")
+  iam_instance_profile   = aws_iam_instance_profile.lab1_ec2_instance_profile.name
   vpc_security_group_ids = [aws_security_group.lab_1a_ec2_sg.id]
   tags = {
     Name = "${local.project_name_prefix}-${local.environment}-ec2-labapp-instance"
@@ -224,7 +264,7 @@ resource "aws_db_instance" "lab1-rds01" {
 
 # Explanation: Secrets Manager is Chewbacca’s locked holster—credentials go here, not in code.
 resource "aws_secretsmanager_secret" "armageddon_db_secret01" {
-  name = "${local.project_name_prefix}/rds/mysql"
+  name = "armageddon/rds/mysql"
 }
 
 # Explanation: Secret payload—students should align this structure with their app (and support rotation later).
