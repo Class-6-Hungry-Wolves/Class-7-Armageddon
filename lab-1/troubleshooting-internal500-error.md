@@ -197,7 +197,7 @@ aws secretsmanager put-secret-value \
     "password": "REDACTED",
     "host": "<rds-endpoint>",
     "port": 3306,
-    "dbname": "labdb"
+    "dbname": "DBNAME in variables.tf"
   }'
 ```
 
@@ -249,6 +249,7 @@ Initialized labdb + notes table.
   * Correct secret name
   * Correct IAM permissions
   * An `AWSCURRENT` version
+  * Correct dbname
 * Always verify with:
 
 ```bash

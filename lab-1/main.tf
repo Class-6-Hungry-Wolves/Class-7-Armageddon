@@ -151,7 +151,7 @@ resource "aws_vpc_security_group_egress_rule" "allow_all_traffic_from_port_80_ip
 
 # Ingress/inbound rule for our Database Security Group that is allowing only the App Security Group to access it
 resource "aws_vpc_security_group_ingress_rule" "allow_port_3306" {
-  security_group_id            = aws_security_group.lab_1a_rds_sg.id 
+  security_group_id            = aws_security_group.lab_1a_rds_sg.id
   referenced_security_group_id = aws_security_group.lab_1a_ec2_sg.id
   from_port                    = 3306
   ip_protocol                  = "tcp"
@@ -187,10 +187,10 @@ resource "aws_iam_role" "ec2_read_rds_secret_role" {
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [{
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Principal = { Service = "ec2.amazonaws.com"}
-      }]
+      Action    = "sts:AssumeRole"
+      Effect    = "Allow"
+      Principal = { Service = "ec2.amazonaws.com" }
+    }]
   })
 }
 
@@ -202,16 +202,16 @@ resource "aws_iam_policy" "ec2_read_rds_secret_policy" {
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [{
-        "Sid" = "ReadSpecificSecret",
-        Action = ["secretsmanager:GetSecretValue"]
-        Effect   = "Allow"
-        Resource = "arn:aws:secretsmanager:us-east-1:082258817095:secret:armageddon/rds/mysql*"
-      }]
+      "Sid"    = "ReadSpecificSecret",
+      Action   = ["secretsmanager:GetSecretValue"]
+      Effect   = "Allow"
+      Resource = "arn:aws:secretsmanager:us-east-1:082258817095:secret:armageddon/rds/mysql*"
+    }]
   })
 }
 
 resource "aws_iam_role_policy_attachment" "ec2_read_rds_secret_role_attachment" {
-  role = aws_iam_role.ec2_read_rds_secret_role.name 
+  role       = aws_iam_role.ec2_read_rds_secret_role.name
   policy_arn = aws_iam_policy.ec2_read_rds_secret_policy.arn
 }
 
@@ -245,31 +245,32 @@ resource "aws_db_subnet_group" "chewbacca_rds_subnet_group01" {
 
 
 resource "aws_db_instance" "lab1-rds01" {
-  identifier             = "${local.environment}rds01"
-  engine                 = var.db-engine
-  instance_class         = var.db_instance_class
-  allocated_storage      = 20
-  db_name                = var.db_name
-  username               = var.db_username
-  password               = var.db_password
+  identifier        = "${local.environment}rds01"
+  engine            = var.db-engine
+  instance_class    = var.db_instance_class
+  allocated_storage = 20
+  db_name           = var.db_name
+  username          = var.db_username
+  password          = var.db_password
 
   db_subnet_group_name   = aws_db_subnet_group.chewbacca_rds_subnet_group01.name
   vpc_security_group_ids = [aws_security_group.lab_1a_rds_sg.id]
 
-  publicly_accessible    = false
-  skip_final_snapshot    = true
+  publicly_accessible = false
+  skip_final_snapshot = true
 }
 
 
 
 # Explanation: Secrets Manager is Chewbacca’s locked holster—credentials go here, not in code.
 resource "aws_secretsmanager_secret" "armageddon_db_secret01" {
-  name = "armageddon/rds/mysql"
+  name                    = "armageddon/rds/mysql"
+  recovery_window_in_days = 0
 }
 
 # Explanation: Secret payload—students should align this structure with their app (and support rotation later).
 resource "aws_secretsmanager_secret_version" "armageddon_db_secret_version01" {
-  secret_id = aws_secretsmanager_secret.armageddon_db_secret01.id 
+  secret_id = aws_secretsmanager_secret.armageddon_db_secret01.id
 
   secret_string = jsonencode({
     username = var.db_username
