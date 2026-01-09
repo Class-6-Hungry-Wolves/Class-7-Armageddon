@@ -11,13 +11,16 @@ output "lab_1a_private_subnet_ids" {
   value = [for i in aws_subnet.lab-1a-database-subnet : i.id]
 }
 
-# output "chewbacca_ec2_instance_id" {
-#   value = aws_instance.chewbacca_ec201.id
-# }
+output "lab1_ec2_instance_id" {
+  value = aws_instance.lab1_ec2_instance.id
+}
 
-# output "chewbacca_rds_endpoint" {
-#   value = aws_db_instance.chewbacca_rds01.address
-# }
+output "lab1_ec2_public_ip" {
+  value = aws_instance.lab1_ec2_instance.public_ip
+}
+output "lab1_rds_endpoint" {
+  value = aws_db_instance.lab1-rds01.address
+}
 
 # output "chewbacca_sns_topic_arn" {
 #   value = aws_sns_topic.chewbacca_sns_topic01.arn
