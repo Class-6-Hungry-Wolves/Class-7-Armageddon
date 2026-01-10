@@ -8,7 +8,7 @@ terraform {
     }
   }
   backend "s3" {
-    key = "lab-1/1a/112026.tfstate"
+    key    = "lab-1/1a/112026.tfstate"
     region = "us-east-1"
     bucket = "class7-armageddon-tf-bucket"
   }
