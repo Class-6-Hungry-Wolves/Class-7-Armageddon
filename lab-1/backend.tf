@@ -8,6 +8,6 @@ terraform {
   backend "s3" {
     bucket = "class7-armageddon-backend"
     key    = "state_files/010926/terraform.tfstate" # Path in S3 bucket -- NOTE: This is NOT a file path -- S3 is flat - an Object storage service
-    region = "us-east-1"                           # NOTE: can be in a different region provider block below -- can also be in different account
+    region = "us-east-1"                            # NOTE: can be in a different region provider block below -- can also be in different account
   }
 }

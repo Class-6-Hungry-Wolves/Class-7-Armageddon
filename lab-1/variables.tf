@@ -92,14 +92,14 @@ variable "azs" {
   default     = ["us-east-1a", "us-east-1b", "us-east-1c"] # TODO: student supplies
 }
 
-# #######################
-# #### EC2 Variables ####
-# #######################
-# variable "ec2_instance_type" {
-#   description = "EC2 instance size for the app."
-#   type        = string
-#   default     = "t3.micro"
-# }
+#######################
+#### EC2 Variables ####
+#######################
+variable "ec2_instance_type" {
+  description = "EC2 instance size for the app."
+  type        = string
+  default     = "t3.micro"
+}
 
 # ############################
 # #### Database Variables ####
