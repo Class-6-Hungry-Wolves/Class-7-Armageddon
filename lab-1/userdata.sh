@@ -24,13 +24,33 @@ def get_db_creds():
     return s
 
 def get_conn():
-    c = get_db_creds()
-    host = c["host"]
-    user = c["username"]
-    password = c["password"]
-    port = int(c.get("port", 3306))
-    db = c.get("dbname", "rds01")  # we'll create this if it doesn't exist
-    return pymysql.connect(host=host, user=user, password=password, port=port, database=db, autocommit=True)
+    last_exc = None
+
+    for attempt in range(2):
+        try:
+            c = get_db_creds()
+            
+            return pymysql.connect(
+                host=c["host"],
+                user=c["username"],
+                password=c["password"],
+                port=int(c.get("port, 3306")),
+                database=c.get("dbname", "rds01"),
+                autocommit=True,
+                connect_timeout=5,
+                read_timeout=10,
+                write_timeout=10, 
+            )
+        except pymysql_err.OperationalError as e:
+            last_exc = e 
+            if attempt == 0:
+                time.sleep(0.4)
+                continue
+            raise
+    raise last_exc
+            
+            
+            
 
 app = Flask(__name__)
 
