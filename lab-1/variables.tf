@@ -1,21 +1,21 @@
 variable "aws_region" {
   description = "Region where AWS architecture is housed"
-  type = string
-  default = "us-east-1"
+  type        = string
+  default     = "us-east-1"
 }
 
 
 variable "project_name" {
   description = "The name of the project"
-  type = string
-  default = "class7-armageddon"
+  type        = string
+  default     = "class7-armageddon"
 }
 
 
 variable "environment" {
-    description = "Enviroment to deploy infra structure"
-    type = string 
-    default = "dev"
+  description = "Enviroment to deploy infra structure"
+  type        = string
+  default     = "dev"
 }
 
 
@@ -73,15 +73,15 @@ variable "database_subnet_config" {
 
 variable "instance_type" {
   description = "Instance type that EC2 lab app is using"
-  type = string
-  default = "t3.micro"
+  type        = string
+  default     = "t3.micro"
 }
 
 
 variable "db-engine" {
   description = "Database engine that RDS will be using"
-  type = string 
-  default = "mysql"
+  type        = string
+  default     = "mysql"
 }
 
 variable "db_instance_class" {
@@ -94,18 +94,18 @@ variable "db_instance_class" {
 variable "db_name" {
   description = "Initial database name."
   type        = string
-  default     = "rds01" 
+  default     = "rds01"
 }
 
 variable "db_username" {
   description = "DB master username (students should use Secrets Manager in 1B/1C)."
   type        = string
-  default     = "admin" 
+  default     = "admin"
 }
 
 variable "db_password" {
   description = "DB master password (DO NOT hardcode in real life; for lab only)."
   type        = string
   sensitive   = true
-  default     = "X4uU2UFiWgZA3x59S8we" 
+  default     = "X4uU2UFiWgZA3x59S8we"
 }
