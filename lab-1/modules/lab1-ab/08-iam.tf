@@ -6,14 +6,20 @@
 resource "aws_iam_role" "chewbacca_ec2_role01" {
   name = "${local.name_prefix}-ec2-role01"
 
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [{
-      Effect = "Allow"
-      Principal = { Service = "ec2.amazonaws.com" }
-      Action = "sts:AssumeRole"
-    }]
-  })
+  assume_role_policy = jsonencode(
+    {
+      Version = "2012-10-17"
+      Statement = [
+        {
+          Effect = "Allow"
+          Principal = { Service = "ec2.amazonaws.com" }
+          Action = [
+            "sts:AssumeRole"
+          ]
+        }
+      ]
+    }
+  )
 }
 
 # Explanation: These policies are your Wookiee toolbelt—tighten them (least privilege) as a stretch goal.

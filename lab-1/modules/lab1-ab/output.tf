@@ -1,0 +1,62 @@
+#Outputs selected insfrastructure region
+output "aws_region" {
+  value = data.aws_region.chewbacca_region01.region
+}
+
+# Outputs the ID to your current terminal
+output "account_id" {
+  value = data.aws_caller_identity.chewbacca_self01.id
+}
+
+# VPC ID
+output "vpc_id" {
+  value = aws_vpc.chewbacca_vpc01.id
+}
+
+#Privtate subnet list IDs
+output "private_subnet_ids" {
+  value = aws_subnet.chewbacca_private_subnets[*].id
+}
+
+#Privtate subnet ID for LAB1-c EC2 isntance
+output "ec2_private_subnet_id" {
+  value = aws_subnet.chewbacca_private_subnets[0].id
+}
+
+# SG ID for EC2 instance (to be applied to private LAB1-c private EC2)
+output "ec2_sg" {
+  value = aws_security_group.chewbacca_ec2_sg01.id
+}
+
+# SG ID for VPC Endpoint instance
+output "vpce_sg" {
+  value = aws_security_group.chewbacca_vpce_sg01.id
+}
+
+# IAM Profile for EC2 (to be applied to private LAB1-c private EC2)
+output "iam_instance_profile" {
+  value = aws_iam_instance_profile.chewbacca_instance_profile01.id
+}
+
+# Secrets Manager name
+output "secrets_manager_name" {
+  value = aws_secretsmanager_secret.chewbacca_db_secret01.id
+}
+
+output "aws_cloudwatch_log_group_arn" {
+  value = aws_cloudwatch_log_group.chewbacca_log_group01.arn
+}
+
+output "iam_role_name" {
+  value = aws_iam_role.chewbacca_ec2_role01.name
+}
+
+# Secrets Manager name (i.e., peterock/rds/mysql)
+# output "secret_manager_name" {
+#     value = data.aws_secretsmanager_secret.by_name
+# }
+
+# Secret Manager ARN string
+# output "secret_manager_arn" {
+#     value = data.aws_secretsmanager_secret.by_arn
+# }

@@ -22,7 +22,16 @@ resource "aws_vpc_security_group_ingress_rule" "http" {
   from_port   = 80
   to_port     = 80
   ip_protocol = "tcp"
-  description = "Allow HTTP from anywhere"
+  description = "Allow HTTP from MY PUBLIC IP"
+}
+
+resource "aws_vpc_security_group_ingress_rule" "https" {
+  security_group_id = aws_security_group.chewbacca_ec2_sg01.id
+  cidr_ipv4   = local.my_public_ip
+  from_port   = 443
+  to_port     = 443
+  ip_protocol = "tcp"
+  description = "Allow HTTPS from MY PUBLIC IP"
 }
 
 resource "aws_vpc_security_group_ingress_rule" "ssh" {

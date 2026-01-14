@@ -1,18 +1,18 @@
 ############################################
-# Locals (naming convention: Chewbacca-*)
+# Locals (naming convention: peterock-*)
 ############################################
+
 locals {
-  name_prefix = var.project_name
-  my_public_ip = "108.56.232.140/32"
-  all_ips = "0.0.0.0/0"
+  # Explanation: Name prefix is the roar that echoes through every tag.
+  chewbacca_prefix = var.project_name
+
+  # TODO: Students should lock this down after apply using the real secret ARN from outputs/state
+  chewbacca_secret_arn_guess = "arn:aws:secretsmanager:${module.lab1-ab.aws_region}:${module.lab1-ab.account_id}:secret:${local.chewbacca_prefix}/rds/mysql*"
 }
 
 locals {
   services = [
-    "ssm", 
-    "ssmmessages", 
-    "ec2messages", 
-    "secretsmanager", 
-    "logs"
+    "s3", 
+    "kms"
   ]
 }
