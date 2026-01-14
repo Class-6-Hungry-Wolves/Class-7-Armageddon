@@ -101,39 +101,39 @@ variable "ec2_instance_type" {
   default     = "t3.micro"
 }
 
-# ############################
-# #### Database Variables ####
-# ############################
-# variable "db_engine" {
-#   description = "RDS engine."
-#   type        = string
-#   default     = "mysql"
-# }
+############################
+#### Database Variables ####
+############################
+variable "db_engine" {
+  description = "RDS engine."
+  type        = string
+  default     = "mysql"
+}
 
-# variable "db_instance_class" {
-#   description = "RDS instance class."
-#   type        = string
-#   default     = "db.t3.micro"
-# }
+variable "db_instance_class" {
+  description = "RDS instance class."
+  type        = string
+  default     = "db.t3.micro"
+}
 
-# variable "db_name" {
-#   description = "Initial database name."
-#   type        = string
-#   default     = "lab-1a" # Students can change
-# }
+variable "db_name" {
+  description = "Initial database name."
+  type        = string
+  default     = "rds" # Students can change
+}
 
-# variable "db_username" {
-#   description = "DB master username (students should use Secrets Manager in 1B/1C)."
-#   type        = string
-#   default     = "admin" # TODO: student supplies
-# }
+variable "db_username" {
+  description = "DB master username (students should use Secrets Manager in 1B/1C)."
+  type        = string
+  default     = "admin" # TODO: student supplies
+}
 
-# variable "db_password" {
-#   description = "DB master password (DO NOT hardcode in real life; for lab only)."
-#   type        = string
-#   sensitive   = true
-#   default     = "TKOrpxKjGyu36956kJ" # TODO: student supplies
-# }
+variable "db_password" {
+  description = "DB master password (DO NOT hardcode in real life; for lab only)."
+  type        = string
+  sensitive   = true
+  default     = "TKOrpxKjGyu36956kJ" # TODO: student supplies
+}
 
 
 # ##############################
