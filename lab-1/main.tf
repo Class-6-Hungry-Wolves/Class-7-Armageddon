@@ -278,10 +278,10 @@ resource "aws_instance" "armageddon-ec2" {
   instance_type          = var.ec2_instance_type
   subnet_id              = aws_subnet.armageddon-public-subnets[0].id
   vpc_security_group_ids = [aws_security_group.armageddon-ec2-sg.id]
-  # iam_instance_profile    = aws_iam_instance_profile.armageddon-instance-profile.name
+  iam_instance_profile    = aws_iam_instance_profile.armageddon-instance-profile.name
 
   # TODO: student supplies user_data to install app + CW agent + configure log shipping
-  # user_data = file("${path.module}/user_data.sh")
+  user_data = file("${path.module}/1a_user_data.sh")
 
   lifecycle {
     create_before_destroy = true
@@ -364,31 +364,55 @@ resource "aws_iam_role" "armageddon-ec2-iam-role" {
   }
 }
 
-# # Attaches policy to the role
-# resource "aws_iam_role_policy_attachment" "policy-attachment" {
-#   role       = aws_iam_role.armageddon-ec2-iam-role.name
-#   policy_arn = aws_iam_policy.armageddon-iam-policy.arn
-# }
+# Attaches policy to the role
+resource "aws_iam_role_policy_attachment" "policy-attachment" {
+  role       = aws_iam_role.armageddon-ec2-iam-role.name
+  policy_arn = aws_iam_policy.armageddon-iam-policy.arn
+}
 
-# # Generates IAM policy
-# resource "aws_iam_policy" "armageddon-iam-policy" {
-#   name        = "armageddon-iam-policy"
-#   description = "Provides permissions to retrieve secrets from Secrets Manager"
+# Generates IAM policy
+resource "aws_iam_policy" "armageddon-iam-policy" {
+  name        = "armageddon-iam-policy"
+  description = "Provides permissions to retrieve secrets from Secrets Manager"
 
-#   # Terraform's "jsonencode" function converts a
-#   # Terraform expression result to valid JSON syntax.
-#   policy = jsonencode({
-#     Version = "2012-10-17"
-#     Statement = [
-#       {
-#         Action = ["secretsmanager:GetSecretValue"] # Using jsonencode for Theo's in-line policy json document
-#         Effect = "Allow"
-#         Sid    = "SecretsPolicyPermissions"
-#         Resource = aws_secretsmanager_secret.armageddon-db-secret.arn # Resouces are referneced in ARN format -- Not as hardcoded as Theo's
-#       },
-#     ]
-#   })
-# }
+  # Terraform's "jsonencode" function converts a
+  # Terraform expression result to valid JSON syntax.
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action   = ["secretsmanager:GetSecretValue"] # Using jsonencode for Theo's in-line policy json document
+        Effect   = "Allow"
+        Sid      = "SecretsPolicyPermissions"
+        Resource = aws_secretsmanager_secret.armageddon-db-secret.arn # Resouces are referneced in ARN format -- Not as hardcoded as Theo's
+      },
+    ]
+  })
+}
+
+#############################################################################################
+#### ================================= Secrets Manager ================================= ####
+#############################################################################################
+
+# Explanation: Secrets Manager is lab_1a’s locked holster—credentials go here, not in code.
+resource "aws_secretsmanager_secret" "armageddon-db-secret" {
+  name                           = "${local.name_prefix}/rds/mysql01" # delete the '01' or added if the previous secret is still not deleted
+  recovery_window_in_days        = 0
+  force_overwrite_replica_secret = true
+}
+
+# Explanation: Secret payload—students should align this structure with their app (and support rotation later).
+resource "aws_secretsmanager_secret_version" "armageddon-db-secret-version" {
+  secret_id = aws_secretsmanager_secret.armageddon-db-secret.id
+
+  secret_string = jsonencode({
+    username = var.db_username
+    password = var.db_password
+    host     = aws_db_instance.armageddon-rds.address
+    port     = aws_db_instance.armageddon-rds.port
+    dbname   = var.db_name
+  })
+}
 
 
 
