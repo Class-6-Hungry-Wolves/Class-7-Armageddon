@@ -101,7 +101,7 @@ resource "aws_route_table" "lab_1a_private_rtb" {
     gateway_id = aws_nat_gateway.lab_1a_nat_gateway.id
   }
   tags = {
-    Name = "${local.project_name_prefix}-${local.environment}-lab_1a_public_rtb"
+    Name = "${local.project_name_prefix}-${local.environment}-lab_1a_private_rtb"
   }
 }
 
@@ -288,6 +288,27 @@ data "aws_iam_policy_document" "ec2_read_rds_secret" {
     actions   = ["iam:GetInstanceProfile"]
     resources = ["arn:aws:iam::082258817095:instance-profile/lab1-dev-ec2-instance-profile"]
   }
+  statement {
+    sid    = "CloudWatchLogPerms"
+    effect = "Allow"
+    actions = ["logs:CreateLogGroup", 
+    "logs:CreateLogStream", 
+    "logs:DescribeLogGroups", 
+    "logs:DescribeLogStreams", 
+    "logs:PutLogEvents"]
+    resources = ["*"]
+  }
+
+  statement {
+    sid = "ReadDBValueParamsFromSSM"
+    effect = "Allow"
+    actions = [ 
+          "ssm:GetParameters",
+          "ssm:GetParameter",
+          "ssm:GetParametersByPath"
+     ]
+     resources = ["arn:aws:ssm:us-east-1:082258817095:parameter/armageddon/rds/mysql/*"]
+  }
 }
 
 # IAM Policy Document for Lambda that will rotate DB password
@@ -403,7 +424,7 @@ resource "aws_instance" "lab1_ec2_instance" {
 #################################
 
 # Private Database Subnet group for our RDS database
-resource "aws_db_subnet_group" "chewbacca_rds_subnet_group01" {
+resource "aws_db_subnet_group" "lab1b_rds_subnet_group01" {
   name       = "${local.project_name_prefix}-${local.environment}-rds-subnet-group01"
   subnet_ids = [for i in aws_subnet.lab-1a-database-subnet : i.id]
 
@@ -422,13 +443,52 @@ resource "aws_db_instance" "lab1-rds01" {
   username          = var.db_username
   password          = var.db_password
 
-  db_subnet_group_name   = aws_db_subnet_group.chewbacca_rds_subnet_group01.name
+  db_subnet_group_name   = aws_db_subnet_group.lab1b_rds_subnet_group01.name
   vpc_security_group_ids = [aws_security_group.lab_1a_rds_sg.id]
 
   publicly_accessible = false
   skip_final_snapshot = true
+  lifecycle {
+    ignore_changes = [password] # Prevents overwriting state when rotation occurs
+  }
 }
 
+############################################
+# PARAMETER STORE (SSM Parameters)
+############################################
+
+# Explanation: Parameter Store is the database's map. Endpoints and config live here for fast recovery.
+resource "aws_ssm_parameter" "lab1b_db_endpoint_param" {
+  name  = "/armageddon/rds/mysql/host"
+  type  = "String"
+  value = aws_db_instance.lab1-rds01.address
+
+  tags = {
+    Name = "${local.project_name_prefix}-param-db-endpoint"
+  }
+}
+
+# Explanation: DB port is the secret handshake. Without it, no entry.
+resource "aws_ssm_parameter" "lab1b_db_port_param" {
+  name  = "/armageddon/rds/mysql/port"
+  type  = "String"
+  value = tostring(aws_db_instance.lab1-rds01.port)
+
+  tags = {
+    Name = "${local.project_name_prefix}-param-db-port"
+  }
+}
+
+# Explanation: DB name is the label on the crate—without it, you’re rummaging in the dark.
+resource "aws_ssm_parameter" "lab1b_db_name_param" {
+  name  = "/armageddon/rds/mysql/dbname"
+  type  = "String"
+  value = var.db_name
+
+  tags = {
+    Name = "${local.project_name_prefix}-param-db-name"
+  }
+}
 
 
 
@@ -441,7 +501,7 @@ resource "aws_db_instance" "lab1-rds01" {
 
 
 
-# Explanation: Secrets Manager is Chewbacca’s locked holster—credentials go here, not in code.
+# Explanation: Secrets Manager is lab1b’s locked holster—credentials go here, not in code.
 resource "aws_secretsmanager_secret" "armageddon_db_secret01" {
   name                    = "armageddon/rds/mysql"
   recovery_window_in_days = 0
@@ -455,18 +515,18 @@ resource "aws_secretsmanager_secret_version" "armageddon_db_secret_version01" {
     engine   = var.db-engine
     username = var.db_username
     password = var.db_password
-    host     = aws_db_instance.lab1-rds01.address
-    port     = aws_db_instance.lab1-rds01.port
-    dbname   = var.db_name
   })
+  lifecycle {
+    ignore_changes = [secret_string] # Prevents overwriting state when rotation occurs
+  }
 }
 
 
 
 resource "aws_secretsmanager_secret_rotation" "rotation" {
-  secret_id           = "armageddon/rds/mysql"
+  secret_id           = aws_secretsmanager_secret.armageddon_db_secret01.id
   rotation_lambda_arn = aws_lambda_function.lab1a_lambda_secret_rotation_function.arn
-  rotate_immediately  = true
+  rotate_immediately  = true # For lab testing purposes only; remove for production
 
   rotation_rules {
     automatically_after_days = 30
@@ -512,3 +572,21 @@ resource "aws_lambda_permission" "secretsmanager_invoke" {
   principal     = "secretsmanager.amazonaws.com"
   source_arn    = "arn:aws:secretsmanager:us-east-1:082258817095:secret:armageddon/rds/mysql*"
 }
+
+
+
+############################################
+# CLOUDWATCH LOGS (Log Group)
+############################################
+
+# Log Group for RDS Notes App
+resource "aws_cloudwatch_log_group" "lab1b_log_group01" {
+  name              = "/aws/ec2/armageddon-rds-app"
+  retention_in_days = 7
+
+  tags = {
+    Name = "${local.project_name_prefix}-log-group01"
+  }
+}
+
+
