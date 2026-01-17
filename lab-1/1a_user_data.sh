@@ -12,7 +12,7 @@ import pymysql
 from flask import Flask, request
 
 REGION = os.environ.get("AWS_REGION", "us-east-1")
-SECRET_ID = os.environ.get("SECRET_ID", "lab/rds/mysql")
+SECRET_ID = os.environ.get("SECRET_ID", "lab-1a/rds/mysql01")
 
 secrets = boto3.client("secretsmanager", region_name=REGION)
 
@@ -29,7 +29,7 @@ def get_conn():
     user = c["username"]
     password = c["password"]
     port = int(c.get("port", 3306))
-    db = c.get("dbname", "labdb")  # we'll create this if it doesn't exist
+    db = c.get("dbname", "rds")  # we'll create this if it doesn't exist
     return pymysql.connect(host=host, user=user, password=password, port=port, database=db, autocommit=True)
 
 app = Flask(__name__)
@@ -53,8 +53,8 @@ def init_db():
     # connect without specifying a DB first
     conn = pymysql.connect(host=host, user=user, password=password, port=port, autocommit=True)
     cur = conn.cursor()
-    cur.execute("CREATE DATABASE IF NOT EXISTS labdb;")
-    cur.execute("USE labdb;")
+    cur.execute("CREATE DATABASE IF NOT EXISTS rds;")
+    cur.execute("USE rds;")
     cur.execute("""
         CREATE TABLE IF NOT EXISTS notes (
             id INT AUTO_INCREMENT PRIMARY KEY,
@@ -63,7 +63,7 @@ def init_db():
     """)
     cur.close()
     conn.close()
-    return "Initialized labdb + notes table."
+    return "Initialized rds + notes table."
 
 @app.route("/add", methods=["POST", "GET"])
 def add_note():
@@ -102,7 +102,7 @@ After=network.target
 
 [Service]
 WorkingDirectory=/opt/rdsapp
-Environment=SECRET_ID=lab/rds/mysql
+Environment=SECRET_ID=lab-1a/rds/mysql01
 ExecStart=/usr/bin/python3 /opt/rdsapp/app.py
 Restart=always
 

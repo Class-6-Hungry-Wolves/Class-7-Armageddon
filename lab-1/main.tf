@@ -31,11 +31,11 @@ resource "aws_vpc" "armageddon-vpc" {
 
 # Explanation: Public subnets are like docking bays—ships can land directly from space (internet).
 resource "aws_subnet" "armageddon-public-subnets" {
-  count                   = length(var.public_subnet_cidrs) # This a is 'length' function that count the number of items in the variable list
-  vpc_id                  = aws_vpc.armageddon-vpc.id
-  cidr_block              = var.public_subnet_cidrs[count.index]
-  availability_zone       = var.azs[count.index]
-  map_public_ip_on_launch = true
+  count             = length(var.public_subnet_cidrs) # This a is 'length' function that count the number of items in the variable list
+  vpc_id            = aws_vpc.armageddon-vpc.id
+  cidr_block        = var.public_subnet_cidrs[count.index]
+  availability_zone = var.azs[count.index]
+  # map_public_ip_on_launch = true # Best to attach to EC2 as you need to retrive the public IP to run the test
 
   tags = {
     Name = "${local.name_prefix}-public-subnet-${count.index + 1}" # count.index tells you the postion of the item within the list
@@ -257,6 +257,13 @@ resource "aws_vpc_security_group_ingress_rule" "rds-rdp-ingress" {
   }
 }
 
+# Default -- Allow outbound traffic to all ports and IPs
+resource "aws_vpc_security_group_egress_rule" "rdp-egress-to-all" {
+  security_group_id = aws_security_group.armageddon-rds-sg.id
+  cidr_ipv4         = "0.0.0.0/0"
+  ip_protocol       = "-1" # semantically equivalent to all ports
+}
+
 ####################################################################################################
 #### ================================= EC2 Instance (Web App) ================================= ####
 ####################################################################################################
@@ -274,11 +281,12 @@ data "aws_ami" "amzn-linux-2023-ami" {
 
 # Explanation: This is your “Han Solo box”—it talks to RDS and complains loudly when the DB is down.
 resource "aws_instance" "armageddon-ec2" {
-  ami                    = data.aws_ami.amzn-linux-2023-ami.id
-  instance_type          = var.ec2_instance_type
-  subnet_id              = aws_subnet.armageddon-public-subnets[0].id
-  vpc_security_group_ids = [aws_security_group.armageddon-ec2-sg.id]
-  iam_instance_profile    = aws_iam_instance_profile.armageddon-instance-profile.name
+  ami                         = data.aws_ami.amzn-linux-2023-ami.id
+  instance_type               = var.ec2_instance_type
+  subnet_id                   = aws_subnet.armageddon-public-subnets[0].id
+  vpc_security_group_ids      = [aws_security_group.armageddon-ec2-sg.id]
+  iam_instance_profile        = aws_iam_instance_profile.armageddon-instance-profile.name
+  associate_public_ip_address = true # Best to attach to EC2 as you need to retrive the public IP to run the test
 
   # TODO: student supplies user_data to install app + CW agent + configure log shipping
   user_data = file("${path.module}/1a_user_data.sh")
@@ -320,7 +328,11 @@ resource "aws_db_instance" "armageddon-rds" {
 
   publicly_accessible = false
   skip_final_snapshot = true
-  multi_az            = true # ensures that DB is resilient across multiple AZs
+  multi_az            = true # ensures that DB is resilient across multiple AZs -- takes a while to deploy if enabled
+
+  lifecycle {
+    ignore_changes = [password]
+  }
 
   # TODO: student sets multi_az / backups / monitoring as stretch goals
 
@@ -412,6 +424,10 @@ resource "aws_secretsmanager_secret_version" "armageddon-db-secret-version" {
     port     = aws_db_instance.armageddon-rds.port
     dbname   = var.db_name
   })
+
+  lifecycle {
+    ignore_changes = [secret_string]
+  }
 }
 
 
