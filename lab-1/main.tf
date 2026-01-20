@@ -25,9 +25,9 @@ resource "aws_vpc" "armageddon-vpc" {
   }
 }
 
-##################
-#### Subnets  ####
-###################
+#################
+#### Subnets ####
+#################
 
 # Explanation: Public subnets are like docking bays—ships can land directly from space (internet).
 resource "aws_subnet" "armageddon-public-subnets" {
@@ -54,9 +54,9 @@ resource "aws_subnet" "armageddon-private-subnets" {
   }
 }
 
-############################
-####  Internet Gateway  ####
-############################
+###########################
+####  Internet Gateway ####
+###########################
 
 # Explanation: Even Wookiees need to reach the wider galaxy—IGW is your door to the public internet.
 resource "aws_internet_gateway" "armageddon-igw" {
@@ -67,9 +67,9 @@ resource "aws_internet_gateway" "armageddon-igw" {
   }
 }
 
-######################
-####  Elastic IP  ####
-######################
+####################
+#### Elastic IP ####
+####################
 
 # Explanation: lab_1a wants the private base to call home—EIP gives the NAT a stable “holonet address.”
 resource "aws_eip" "armageddon-eip" {
@@ -80,9 +80,9 @@ resource "aws_eip" "armageddon-eip" {
   }
 }
 
-######################
-#### NAT Gateway  ####
-######################
+#####################
+#### NAT Gateway ####
+#####################
 
 # Explanation: NAT is lab_1a’s smuggler tunnel—private subnets can reach out without being seen.
 resource "aws_nat_gateway" "armageddon-regional-nat" {
@@ -99,9 +99,9 @@ resource "aws_nat_gateway" "armageddon-regional-nat" {
   depends_on = [aws_internet_gateway.armageddon-igw]
 }
 
-#######################
-####  Route Tables ####
-#######################
+######################
+#### Route Tables ####
+######################
 
 ################## Public Route Table ##################
 ### Controls routing for public subnets ###
@@ -167,23 +167,23 @@ resource "aws_security_group" "armageddon-ec2-sg" {
   }
 }
 
-# Allow ingress traffic via RDP
-resource "aws_vpc_security_group_ingress_rule" "ec2-rdp-ingress" {
-  security_group_id = aws_security_group.armageddon-ec2-sg.id
-  cidr_ipv4         = "0.0.0.0/0" # How do I specify it to be from my IP??
-  from_port         = 3389
-  ip_protocol       = "tcp"
-  to_port           = 3389
+# # Allow ingress traffic via RDP  # This did not need to be here as I coppied some code from BAMC and forgot to delete this ingress rule
+# resource "aws_vpc_security_group_ingress_rule" "ec2-rdp-ingress" {
+#   security_group_id = aws_security_group.armageddon-ec2-sg.id
+#   cidr_ipv4         = "0.0.0.0/0" 
+#   from_port         = 3389
+#   ip_protocol       = "tcp"
+#   to_port           = 3389
 
-  tags = {
-    Name = "Allow RDP from my IP"
-  }
-}
+#   tags = {
+#     Name = "Allow RDP from my IP"
+#   }
+# }
 
 # Allow all ingress traffic to EC2 via SSH
 resource "aws_vpc_security_group_ingress_rule" "ec2-ssh-ingress" {
   security_group_id = aws_security_group.armageddon-ec2-sg.id
-  cidr_ipv4         = "0.0.0.0/0"
+  cidr_ipv4         = "0.0.0.0/0" # How do I specify it to be from my IP??
   from_port         = 22
   ip_protocol       = "tcp"
   to_port           = 22
@@ -208,17 +208,17 @@ resource "aws_vpc_security_group_ingress_rule" "ec2-http-ingress" {
 
 # TODO: student ensures outbound allows DB port to RDS SG (or allow all outbound)
 # Allow Outbound Traffic to Backend Server
-resource "aws_vpc_security_group_egress_rule" "ec2-http-egress" {
-  security_group_id            = aws_security_group.armageddon-ec2-sg.id
-  referenced_security_group_id = aws_security_group.armageddon-rds-sg.id # Reference the Destination SG -- Allows Outbound traffic to RDS SG
-  from_port                    = 80
-  ip_protocol                  = "tcp"
-  to_port                      = 80
+# resource "aws_vpc_security_group_egress_rule" "ec2-http-egress" { # This is redunent as the outbound rule below allows traffic to all ports and IPs
+#   security_group_id            = aws_security_group.armageddon-ec2-sg.id
+#   referenced_security_group_id = aws_security_group.armageddon-rds-sg.id # Reference the Destination SG -- Allows Outbound traffic to RDS SG
+#   from_port                    = 80
+#   ip_protocol                  = "tcp"
+#   to_port                      = 80
 
-  tags = {
-    Name = "Allow all outbound HTTP traffic to Backend Server"
-  }
-}
+#   tags = {
+#     Name = "Allow all outbound HTTP traffic to Backend Server"
+#   }
+# }
 
 # Default -- Allow outbound traffic to all ports and IPs
 resource "aws_vpc_security_group_egress_rule" "allow-egress-to-all" {
@@ -290,6 +290,7 @@ resource "aws_instance" "armageddon-ec2" {
 
   # TODO: student supplies user_data to install app + CW agent + configure log shipping
   user_data = file("${path.module}/1a_user_data.sh")
+  key_name  = aws_key_pair.armageddon-key-pair.id
 
   lifecycle {
     create_before_destroy = true
@@ -331,7 +332,7 @@ resource "aws_db_instance" "armageddon-rds" {
   multi_az            = true # ensures that DB is resilient across multiple AZs -- takes a while to deploy if enabled
 
   lifecycle {
-    ignore_changes = [password]
+    ignore_changes = [password] # Must add to prevent drift
   }
 
   # TODO: student sets multi_az / backups / monitoring as stretch goals
@@ -357,7 +358,7 @@ resource "aws_iam_role" "armageddon-ec2-iam-role" {
 
   # Terraform's "jsonencode" function converts a
   # Terraform expression result to valid JSON syntax.
-  assume_role_policy = jsonencode({
+  assume_role_policy = jsonencode({ # This is the trust policy that is in-line with the IAM role
     Version = "2012-10-17"
     Statement = [
       {
@@ -409,8 +410,8 @@ resource "aws_iam_policy" "armageddon-iam-policy" {
 # Explanation: Secrets Manager is lab_1a’s locked holster—credentials go here, not in code.
 resource "aws_secretsmanager_secret" "armageddon-db-secret" {
   name                           = "${local.name_prefix}/rds/mysql01" # delete the '01' or added if the previous secret is still not deleted
-  recovery_window_in_days        = 0
-  force_overwrite_replica_secret = true
+  recovery_window_in_days        = 0                                  # Number of days that AWS Secrets Manager waits before it can delete the secret. 
+  force_overwrite_replica_secret = true                               # Specify whether to overwrite a secret with the same name
 }
 
 # Explanation: Secret payload—students should align this structure with their app (and support rotation later).
@@ -426,7 +427,7 @@ resource "aws_secretsmanager_secret_version" "armageddon-db-secret-version" {
   })
 
   lifecycle {
-    ignore_changes = [secret_string]
+    ignore_changes = [secret_string] # Must add to prevent drift
   }
 }
 
