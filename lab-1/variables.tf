@@ -109,3 +109,10 @@ variable "db_password" {
   sensitive   = true
   default     = "X4uU2UFiWgZA3x59S8we"
 }
+
+
+variable "sns_email_endpoint" {
+  description = "Email endpoint for SNS topic subscription"
+  type = string 
+  default = "nicholasdfoster645@gmail.com"
+}
