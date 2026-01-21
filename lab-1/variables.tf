@@ -22,12 +22,15 @@ variable "endpoint_policy_json" {
   default     = null
 }
 
-#--------------------------------------------
+############################################
+# Variables for Bonus C
+############################################
 
 variable "domain_name" {
   description = "Base domain students registered (e.g., chewbacca-growl.com)."
   type        = string
-  default     = "chewbacca-growl.com"
+  #default     = "chewbacca-growl.com"
+  default     = "resilienetsolutions.com"
 }
 
 variable "app_subdomain" {
@@ -64,4 +67,17 @@ variable "alb_5xx_evaluation_periods" {
   description = "Evaluation periods for alarm."
   type        = number
   default     = 1
+}
+
+# Explanation: Used to specify Terraform-managed Zone (instead of pre-exisiting Zone ID)
+variable "manage_route53_in_terraform" {
+  description = "Terraform-managed Route 53 Zone"
+  type = bool
+  default = true
+}
+
+variable "route53_hosted_zone_id" {
+  description = "Non-R53 Hosted Zone ID"
+  type = string
+  default = null
 }

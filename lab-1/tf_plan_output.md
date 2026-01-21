@@ -1,7 +1,7 @@
-module.lab1-ab.data.aws_caller_identity.chewbacca_self01: Reading...0m
-module.lab1-ab.data.aws_region.chewbacca_region01: Reading...0m
+module.lab1-ab.data.aws_region.chewbacca_region01: Reading...[0m[0m
+module.lab1-ab.data.aws_caller_identity.chewbacca_self01: Reading...[0m[0m
 module.lab1-ab.data.aws_region.chewbacca_region01: Read complete after 0s [id=sa-east-1][0m
-module.lab1-ab.data.aws_caller_identity.chewbacca_self01: Read complete after 0s [id=630400242534][0m
+module.lab1-ab.data.aws_caller_identity.chewbacca_self01: Read complete after 1s [id=630400242534][0m
 
 Terraform used the selected providers to generate the following execution
 plan. Resource actions are indicated with the following symbols:
@@ -9,7 +9,7 @@ plan. Resource actions are indicated with the following symbols:
 
 Terraform will perform the following actions:
 
-  # aws_iam_policy.chewbacca_leastpriv_cwlogs01[0m will be created
+  # aws_iam_policy.chewbacca_leastpriv_cwlogs01 will be created
   + resource "aws_iam_policy" "chewbacca_leastpriv_cwlogs01" {
       + arn              = (known after apply)
       + attachment_count = (known after apply)
@@ -278,7 +278,7 @@ Terraform will perform the following actions:
       + owner_id              = (known after apply)
       + policy                = (known after apply)
       + prefix_list_id        = (known after apply)
-      + private_dns_enabled   = true
+      + private_dns_enabled   = false
       + region                = "sa-east-1"
       + requester_managed     = (known after apply)
       + route_table_ids       = (known after apply)
@@ -293,7 +293,7 @@ Terraform will perform the following actions:
       + tags_all              = {
           + "Name" = "peterock-vpce-s3"
         }
-      + vpc_endpoint_type     = "Interface"
+      + vpc_endpoint_type     = "Gateway"
       + vpc_id                = (known after apply)
 
       + dns_options (known after apply)
@@ -450,6 +450,35 @@ Terraform will perform the following actions:
       + unique_id   = (known after apply)
     }
 
+  # module.lab1-ab.aws_iam_policy.chewbacca_ec2_read_secret01 will be created
+  + resource "aws_iam_policy" "chewbacca_ec2_read_secret01" {
+      + arn              = (known after apply)
+      + attachment_count = (known after apply)
+      + description      = "Least-privilege read for the lab DB secret"
+      + id               = (known after apply)
+      + name             = "peterock-ec2-secrets-read01"
+      + name_prefix      = (known after apply)
+      + path             = "/"
+      + policy           = jsonencode(
+            {
+              + Statement = [
+                  + {
+                      + Action   = [
+                          + "secretsmanager:GetSecretValue",
+                          + "secretsmanager:DescribeSecret",
+                        ]
+                      + Effect   = "Allow"
+                      + Resource = "arn:aws:secretsmanager:sa-east-1:630400242534:secret:peterock/rds/mysql*"
+                      + Sid      = "ReadSpecificSecret"
+                    },
+                ]
+              + Version   = "2012-10-17"
+            }
+        )
+      + policy_id        = (known after apply)
+      + tags_all         = (known after apply)
+    }
+
   # module.lab1-ab.aws_iam_role.chewbacca_ec2_role01 will be created
   + resource "aws_iam_role" "chewbacca_ec2_role01" {
       + arn                   = (known after apply)
@@ -457,10 +486,14 @@ Terraform will perform the following actions:
             {
               + Statement = [
                   + {
-                      + Action   = "secretsmanager:GetSecretValue"
-                      + Effect   = "Allow"
-                      + Resource = "arn:aws:secretsmanager:sa-east-1:630400242534:secret:peterock/rds/mysql*"
-                      + Sid      = "ReadSpecificSecret"
+                      + Action    = [
+                          + "sts:AssumeRole",
+                        ]
+                      + Effect    = "Allow"
+                      + Principal = {
+                          + Service = "ec2.amazonaws.com"
+                        }
+                      + Sid       = ""
                     },
                 ]
               + Version   = "2012-10-17"
@@ -478,6 +511,13 @@ Terraform will perform the following actions:
       + unique_id             = (known after apply)
 
       + inline_policy (known after apply)
+    }
+
+  # module.lab1-ab.aws_iam_role_policy_attachment.chewbacca_attach_lp_secret01 will be created
+  + resource "aws_iam_role_policy_attachment" "chewbacca_attach_lp_secret01" {
+      + id         = (known after apply)
+      + policy_arn = (known after apply)
+      + role       = "peterock-ec2-role01"
     }
 
   # module.lab1-ab.aws_iam_role_policy_attachment.chewbacca_ec2_cw_attach will be created
@@ -1342,6 +1382,21 @@ Terraform will perform the following actions:
   + resource "aws_vpc_security_group_ingress_rule" "http" {
       + arn                    = (known after apply)
       + cidr_ipv4              = "108.56.232.140/32"
+      + description            = "Allow HTTP from MY PUBLIC IP"
+      + from_port              = 80
+      + id                     = (known after apply)
+      + ip_protocol            = "tcp"
+      + region                 = "sa-east-1"
+      + security_group_id      = (known after apply)
+      + security_group_rule_id = (known after apply)
+      + tags_all               = {}
+      + to_port                = 80
+    }
+
+  # module.lab1-ab.aws_vpc_security_group_ingress_rule.https will be created
+  + resource "aws_vpc_security_group_ingress_rule" "https" {
+      + arn                    = (known after apply)
+      + cidr_ipv4              = "108.56.232.140/32"
       + description            = "Allow HTTPS from MY PUBLIC IP"
       + from_port              = 443
       + id                     = (known after apply)
@@ -1398,7 +1453,7 @@ Terraform will perform the following actions:
       + to_port                      = 443
     }
 
-Plan: 55 to add, 0 to change, 0 to destroy.
+Plan: 58 to add, 0 to change, 0 to destroy.
 [90m
 ─────────────────────────────────────────────────────────────────────────────
 

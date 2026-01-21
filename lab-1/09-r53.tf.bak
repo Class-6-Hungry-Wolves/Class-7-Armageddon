@@ -1,0 +1,37 @@
+############################################
+# Hosted Zone (optional creation)
+############################################
+
+# Explanation: A hosted zone is like claiming Kashyyyk in DNS—names here become law across the galaxy.
+resource "aws_route53_zone" "chewbacca_zone01" {
+  count = var.manage_route53_in_terraform ? 1 : 0
+
+  name = local.chewbacca_zone_name
+
+  tags = {
+    Name = "${var.project_name}-zone01"
+  }
+}
+
+############################################
+# ACM DNS Validation Records
+############################################
+
+# Explanation: ACM asks “prove you own this planet”—DNS validation is Chewbacca roaring in the right place.
+resource "aws_route53_record" "chewbacca_acm_validation_records01" {
+  for_each = var.certificate_validation_method == "DNS" ? {
+    for dvo in aws_acm_certificate.chewbacca_acm_cert01.domain_validation_options :
+    dvo.domain_name => {
+      name   = dvo.resource_record_name
+      type   = dvo.resource_record_type
+      record = dvo.resource_record_value
+    }
+  } : {}
+
+  zone_id = local.chewbacca_zone_id
+  name    = each.value.name
+  type    = each.value.type
+  ttl     = 60
+
+  records = [each.value.record]
+}

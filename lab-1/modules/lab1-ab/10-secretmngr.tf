@@ -20,3 +20,12 @@ resource "aws_secretsmanager_secret_version" "chewbacca_db_secret_version01" {
     dbname   = var.db_name
   })
 }
+
+resource "aws_secretsmanager_secret_rotation" "chewbacca_db_secret_rotate" {
+  secret_id           = aws_secretsmanager_secret.chewbacca_db_secret01.id
+  rotation_lambda_arn = aws_lambda_function.lambda_rotator.arn
+
+  rotation_rules {
+    automatically_after_days = 30
+  }
+}

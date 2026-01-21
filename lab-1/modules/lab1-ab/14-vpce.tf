@@ -15,7 +15,7 @@ resource "aws_vpc_endpoint" "chewbacca_vpce_services" {
     subnet_ids = aws_subnet.chewbacca_private_subnets[*].id
     private_dns_enabled = true
 
-    policy = var.endpoint_policy_json
+    #policy = var.endpoint_policy_json
 
     tags = {
         Name = "${local.name_prefix}-vpce-${each.value}"

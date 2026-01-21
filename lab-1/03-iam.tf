@@ -86,3 +86,8 @@ resource "aws_iam_role_policy_attachment" "chewbacca_attach_lp_cwlogs01" {
   role       = module.lab1-ab.iam_role_name
   policy_arn = aws_iam_policy.chewbacca_leastpriv_cwlogs01.arn
 }
+
+resource "aws_iam_instance_profile" "chewbacca_instance_profile01" {
+  name = "${local.chewbacca_prefix}-instance-profile02"
+  role = module.lab1-ab.iam_role_name
+}

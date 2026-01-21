@@ -5,7 +5,7 @@ output "aws_region" {
 
 # Outputs the ID to your current terminal
 output "account_id" {
-  value = data.aws_caller_identity.chewbacca_self01.id
+  value = data.aws_caller_identity.chewbacca_self01.account_id
 }
 
 # VPC ID
@@ -13,15 +13,20 @@ output "vpc_id" {
   value = aws_vpc.chewbacca_vpc01.id
 }
 
-#Privtate subnet list IDs
-output "private_subnet_ids" {
-  value = aws_subnet.chewbacca_private_subnets[*].id
+#Public subnet list
+output "public_subnets" {
+  value = aws_subnet.chewbacca_public_subnets
+}
+
+#Privtate subnet list
+output "private_subnets" {
+  value = aws_subnet.chewbacca_private_subnets
 }
 
 #Privtate subnet ID for LAB1-c EC2 isntance
-output "ec2_private_subnet_id" {
-  value = aws_subnet.chewbacca_private_subnets[0].id
-}
+# output "ec2_private_subnet_id" {
+#   value = aws_subnet.chewbacca_private_subnets[0].id
+# }
 
 # SG ID for EC2 instance (to be applied to private LAB1-c private EC2)
 output "ec2_sg" {
@@ -50,13 +55,3 @@ output "aws_cloudwatch_log_group_arn" {
 output "iam_role_name" {
   value = aws_iam_role.chewbacca_ec2_role01.name
 }
-
-# Secrets Manager name (i.e., peterock/rds/mysql)
-# output "secret_manager_name" {
-#     value = data.aws_secretsmanager_secret.by_name
-# }
-
-# Secret Manager ARN string
-# output "secret_manager_arn" {
-#     value = data.aws_secretsmanager_secret.by_arn
-# }
