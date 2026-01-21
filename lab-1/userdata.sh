@@ -1,12 +1,16 @@
 #!/bin/bash
+set -euo pipefail
+
 dnf update -y
-dnf install -y python3-pip
+dnf install -y python3-pip amazon-cloudwatch-agent
 pip3 install flask pymysql boto3
+
 
 mkdir -p /opt/rdsapp
 cat >/opt/rdsapp/app.py <<'PY'
 import json
 import os
+import socket
 import time
 
 import boto3
@@ -39,12 +43,34 @@ DB_CONNECT_SLEEP_SECONDS = float(os.environ.get("DB_CONNECT_SLEEP_SECONDS", "0.4
 # -----------------------------
 secrets = boto3.client("secretsmanager", region_name=REGION)
 ssm = boto3.client("ssm", region_name=REGION)
+cloudwatch = boto3.client("cloudwatch", region_name=REGION)
 
 # -----------------------------
 # Small caches (avoid calling AWS every request)
 # -----------------------------
 _secret_cache = {"ts": 0.0, "vals": None}
 _ssm_cache = {"ts": 0.0, "vals": None}
+
+
+def emit_db_connection_error():
+    """
+    Emit a DBConnectionError metric to CloudWatch.
+    This metric is used to track database connection failures.
+    """
+    try:
+        cloudwatch.put_metric_data(
+            Namespace="Lab/RDSApp",
+            MetricData=[
+                {
+                    "MetricName": "DBConnectionErrors",
+                    "Value": 1.0,
+                    "Unit": "Count",
+                }
+            ]
+        )
+    except Exception as e:
+        # Don't let metric emission failures break the app
+        print(f"Failed to emit CloudWatch metric: {e}")
 
 
 def get_db_creds():
@@ -129,8 +155,11 @@ def get_conn():
                 write_timeout=10,
             )
 
-        except pymysql.err.OperationalError as e:
+        except (pymysql.err.OperationalError, socket.gaierror, OSError) as e:
             last_exc = e
+            
+            # Emit CloudWatch metric for connection failure
+            emit_db_connection_error()
 
             # If we fail once, clear caches so we re-pull fresh values next attempt
             # (useful if rotation just occurred or a stale value was cached)
@@ -258,23 +287,17 @@ systemctl daemon-reload
 systemctl enable rdsapp
 systemctl start rdsapp
 
-# ---- log to files so CW Agent can ship them ----
-StandardOutput=append:/var/log/rdsapp.log
-StandardError=append:/var/log/rdsapp.err
-
-[Install]
-WantedBy=multi-user.target
-SERVICE
-
-systemctl daemon-reload
-systemctl enable rdsapp
-systemctl start rdsapp
-
 # -------------------------------
-# CloudWatch Agent: log shipping
+# CloudWatch Agent Configuration
 # -------------------------------
+
+# Ensure the following directory exists
+mkdir -p /opt/aws/amazon-cloudwatch-agent/etc
 cat >/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json <<'JSON'
 {
+  "agent": {
+    "region": "us-east-1"
+  },
   "logs": {
     "logs_collected": {
       "files": {
@@ -304,14 +327,9 @@ cat >/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json <<'JSON'
 }
 JSON
 
-cat >/opt/aws/amazon-cloudwatch-agent/etc/env-config.json <<'JSON'
-{
-  "config": {
-    "agent": { "mode": "ec2" },
-    "source": "file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json"
-  }
-}
-JSON
-
-systemctl enable amazon-cloudwatch-agent
-systemctl restart amazon-cloudwatch-agent
+# Start CloudWatch agent with proper fetch-config command
+/opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl \
+  -a fetch-config \
+  -m ec2 \
+  -s \
+  -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json
