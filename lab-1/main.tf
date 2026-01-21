@@ -295,7 +295,8 @@ data "aws_iam_policy_document" "ec2_read_rds_secret" {
     "logs:CreateLogStream", 
     "logs:DescribeLogGroups", 
     "logs:DescribeLogStreams", 
-    "logs:PutLogEvents"]
+    "logs:PutLogEvents",
+    "cloudwatch:PutMetricData"]
     resources = ["*"]
   }
 
@@ -590,3 +591,32 @@ resource "aws_cloudwatch_log_group" "lab1b_log_group01" {
 }
 
 
+resource "aws_cloudwatch_metric_alarm" "rds01_db_alarm01" {
+  alarm_name          = "${local.project_name_prefix}-db-connection-failure"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = 1
+  metric_name         = "DBConnectionErrors"
+  namespace           = "Lab/RDSApp"
+  period              = 300
+  statistic           = "Sum"
+  threshold           = 3
+
+  alarm_actions       = [aws_sns_topic.armageddon_sns_topic01.arn]
+
+  tags = {
+    Name = "${local.project_name_prefix}-alarm-db-fail"
+  }
+}
+
+
+# Explanation: SNS is the distress beacon—when the DB dies, the galaxy (your inbox) must hear about it.
+resource "aws_sns_topic" "armageddon_sns_topic01" {
+  name = "${local.project_name_prefix}-db-incidents"
+}
+
+# Explanation: Email subscription = “poor man’s PagerDuty”—still enough to wake you up at 3AM.
+resource "aws_sns_topic_subscription" "armageddon_sns_sub01" {
+  topic_arn = aws_sns_topic.armageddon_sns_topic01.arn
+  protocol  = "email"
+  endpoint  = var.sns_email_endpoint
+}
