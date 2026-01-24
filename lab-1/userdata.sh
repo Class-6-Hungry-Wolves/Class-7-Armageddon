@@ -8,14 +8,43 @@ pip3 install flask pymysql boto3
 
 mkdir -p /opt/rdsapp
 cat >/opt/rdsapp/app.py <<'PY'
+import errno
 import json
+import logging
 import os
 import socket
 import time
 
 import boto3
 import pymysql
+from botocore.exceptions import ClientError
 from flask import Flask, request
+
+# -----------------------------
+# Logging Setup
+# -----------------------------
+logger = logging.getLogger("rdsapp")
+logger.setLevel(logging.INFO)
+
+
+def log_event(level: str, event: str, **fields):
+    """
+    Emit structured JSON log events.
+    CloudWatch agent will ship these to CloudWatch Logs.
+    """
+    payload = {
+        "ts": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        "event": event,
+        **fields,
+    }
+    msg = json.dumps(payload, default=str)
+    if level == "error":
+        logger.error(msg)
+    elif level == "warning":
+        logger.warning(msg)
+    else:
+        logger.info(msg)
+
 
 # -----------------------------
 # Config
@@ -52,25 +81,138 @@ _secret_cache = {"ts": 0.0, "vals": None}
 _ssm_cache = {"ts": 0.0, "vals": None}
 
 
-def emit_db_connection_error():
+def emit_db_metric(metric_name: str, value: float = 1.0, category: str = "Unknown"):
     """
-    Emit a DBConnectionError metric to CloudWatch.
-    This metric is used to track database connection failures.
+    Emit CloudWatch custom metric with a Category dimension.
     """
     try:
         cloudwatch.put_metric_data(
             Namespace="Lab/RDSApp",
             MetricData=[
                 {
-                    "MetricName": "DBConnectionErrors",
-                    "Value": 1.0,
+                    "MetricName": metric_name,
+                    "Dimensions": [{"Name": "Category", "Value": category}],
+                    "Value": value,
                     "Unit": "Count",
                 }
-            ]
+            ],
         )
     except Exception as e:
-        # Don't let metric emission failures break the app
-        print(f"Failed to emit CloudWatch metric: {e}")
+        # Never break the app due to metric failures
+        log_event("warning", "metric_emit_failed", metric_name=metric_name, category=category, err=str(e))
+
+
+def classify_db_error(exc: Exception) -> dict:
+    """
+    Classify database connection errors into actionable categories.
+    Returns a dict with: category, reason, hint
+    """
+
+    # 1) DNS / name resolution
+    if isinstance(exc, socket.gaierror):
+        return {
+            "category": "DNSFailure",
+            "reason": "socket.gaierror (name resolution failed)",
+            "hint": "Check SSM /host value, VPC DNS, resolver, private hosted zone, and outbound DNS (if custom).",
+        }
+
+    # 2) PyMySQL OperationalError commonly wraps network/auth failures
+    if isinstance(exc, pymysql.err.OperationalError):
+        # exc.args often looks like (code, message)
+        code = exc.args[0] if exc.args else None
+        msg = str(exc)
+
+        # Auth errors (rotation/creds/user)
+        # 1045 = Access denied
+        if code == 1045 or "Access denied" in msg:
+            return {
+                "category": "AuthFailure",
+                "reason": f"MySQL auth failure (code={code})",
+                "hint": "Likely secret rotation/creds mismatch, user permissions, or wrong username/password.",
+            }
+
+        # Connection / network-ish errors
+        # 2003 can't connect to MySQL server (often SG/NACL/route/DNS)
+        # 2013 lost connection
+        # 2005 unknown MySQL server host (DNS-ish)
+        if code in (2003, 2013):
+            return {
+                "category": "ConnectivityFailure",
+                "reason": f"MySQL connectivity failure (code={code})",
+                "hint": "Likely SG ingress/egress, NACL, route tables, DB stopped/unavailable, or wrong endpoint/port.",
+            }
+        if code == 2005 or "Unknown MySQL server host" in msg:
+            return {
+                "category": "DNSFailure",
+                "reason": f"MySQL host lookup failure (code={code})",
+                "hint": "Check endpoint string, SSM /host parameter, VPC DNS settings.",
+            }
+
+        # Timeout hints in message
+        if "timed out" in msg.lower():
+            return {
+                "category": "Timeout",
+                "reason": "Connection timed out",
+                "hint": "Likely SG/NACL/route/DB down. Verify RDS SG allows from EC2 SG on 3306 and routing is correct.",
+            }
+
+        return {
+            "category": "DBOperationalError",
+            "reason": f"pymysql OperationalError (code={code})",
+            "hint": "Inspect error code/message; could be connectivity or auth depending on details.",
+        }
+
+    # 3) Programming/schema errors (table missing, db missing)
+    if isinstance(exc, pymysql.err.ProgrammingError):
+        msg = str(exc)
+        # 1146 table doesn't exist
+        if "1146" in msg or "doesn't exist" in msg:
+            return {
+                "category": "SchemaMissing",
+                "reason": "Table/schema missing",
+                "hint": "Run /init or ensure migrations/DDL ran against the correct dbname.",
+            }
+        return {
+            "category": "DBProgrammingError",
+            "reason": "SQL/schema error",
+            "hint": "Likely a query/schema mismatch.",
+        }
+
+    # 4) Generic OSError can catch no route, connection refused, etc.
+    if isinstance(exc, OSError):
+        # errno values helpful for inference
+        if exc.errno in (errno.ECONNREFUSED,):
+            return {
+                "category": "ConnectionRefused",
+                "reason": "ECONNREFUSED",
+                "hint": "Port reachable but refused: wrong host/port, DB not listening, or SG to wrong target.",
+            }
+        if exc.errno in (errno.ENETUNREACH, errno.EHOSTUNREACH):
+            return {
+                "category": "NetworkUnreachable",
+                "reason": f"Network unreachable (errno={exc.errno})",
+                "hint": "Likely routing/NACL issues or DB subnet routing problems.",
+            }
+        return {
+            "category": "OSError",
+            "reason": f"OSError (errno={exc.errno})",
+            "hint": "Could be routing, socket, or OS-level connectivity issue.",
+        }
+
+    # 5) AWS client errors (SSM/Secrets failures can cascade into DB failures)
+    if isinstance(exc, ClientError):
+        code = exc.response.get("Error", {}).get("Code", "ClientError")
+        return {
+            "category": "AWSClientError",
+            "reason": f"AWS client error: {code}",
+            "hint": "Check IAM permissions, region, secret/parameter existence, and KMS decrypt permissions if SecureString.",
+        }
+
+    return {
+        "category": "Unknown",
+        "reason": exc.__class__.__name__,
+        "hint": "Unclassified exception; inspect stack trace.",
+    }
 
 
 def get_db_creds():
@@ -109,7 +251,7 @@ def get_db_config_from_ssm():
 
     resp = ssm.get_parameters(
         Names=[DB_HOST_PARAM, DB_PORT_PARAM, DB_NAME_PARAM],
-        WithDecryption=False,
+        WithDecryption=True,
     )
 
     params = {p["Name"]: p["Value"] for p in resp.get("Parameters", [])}
@@ -135,6 +277,7 @@ def get_conn():
     Create a DB connection with a tiny retry.
     - Credentials come from Secrets Manager (rotated)
     - Connection details come from Parameter Store (stable config)
+    - Logs structured events and emits categorized metrics on failure
     """
     last_exc = None
 
@@ -155,20 +298,45 @@ def get_conn():
                 write_timeout=10,
             )
 
-        except (pymysql.err.OperationalError, socket.gaierror, OSError) as e:
+        except (pymysql.err.OperationalError, pymysql.err.ProgrammingError, socket.gaierror, OSError, Exception) as e:
             last_exc = e
-            
-            # Emit CloudWatch metric for connection failure
-            emit_db_connection_error()
 
-            # If we fail once, clear caches so we re-pull fresh values next attempt
-            # (useful if rotation just occurred or a stale value was cached)
+            info = classify_db_error(e)
+
+            # Emit metric (this is what will drive your alarm)
+            emit_db_metric("DBConnectionErrors", 1.0, category=info["category"])
+
+            # Log a structured event (safe: no secrets)
+            try:
+                # Attempt to include host/port/dbname without leaking creds
+                cfg_safe = _ssm_cache["vals"] if _ssm_cache.get("vals") else {}
+                host_safe = cfg_safe.get("host", "unknown")
+                port_safe = cfg_safe.get("port", "unknown")
+                db_safe = cfg_safe.get("dbname", "unknown")
+            except Exception:
+                host_safe, port_safe, db_safe = "unknown", "unknown", "unknown"
+
+            log_event(
+                "error",
+                "db_connect_failed",
+                category=info["category"],
+                reason=info["reason"],
+                hint=info["hint"],
+                attempt=attempt + 1,
+                max_attempts=DB_CONNECT_RETRIES,
+                host=host_safe,
+                port=port_safe,
+                dbname=db_safe,
+            )
+
+            # Clear caches to force refetch (rotation / param fix)
             _secret_cache["vals"] = None
             _ssm_cache["vals"] = None
 
             if attempt < DB_CONNECT_RETRIES - 1:
                 time.sleep(DB_CONNECT_SLEEP_SECONDS)
                 continue
+
             raise
 
     raise last_exc
