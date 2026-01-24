@@ -1,0 +1,22 @@
+{
+  "gate": "network_db",
+  "timestamp_utc": "2026-01-10T08:38:30Z",
+  "region": "us-east-1",
+  "instance_id": "i-0fe34f6ba3a3c5e50",
+  "db_id": "devrds01",
+  "engine": "mysql",
+  "db_port": "3306",
+  "publicly_accessible": "False",
+  "ec2_security_groups": "sg-0f27419cb4ce0a0c5",
+  "rds_security_groups": "sg-08c554378879a02b8",
+  "db_subnet_group": "class7-armageddon-dev-rds-subnet-group01",
+  "toggles": {
+    "check_private_subnets": false
+  },
+  "status": "PASS",
+  "exit_code": 0,
+  "details": [
+"PASS: aws sts get-caller-identity succeeded (credentials OK).\nPASS: RDS instance exists (devrds01).\nPASS: RDS is not publicly accessible (PubliclyAccessible=False).\nINFO: using DB_PORT override = 3306.\nPASS: EC2 security groups resolved (i-0fe34f6ba3a3c5e50): sg-0f27419cb4ce0a0c5\nPASS: RDS security groups resolved (devrds01): sg-08c554378879a02b8\nPASS: RDS SG allows DB port 3306 from EC2 SG (SG-to-SG ingress present).\nINFO: private subnet check disabled (CHECK_PRIVATE_SUBNETS=false)."],
+  "warnings": [],
+  "failures": []
+}
