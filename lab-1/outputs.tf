@@ -38,3 +38,15 @@ output "cloudwatch_sns_topic_arn" {
 output "armageddon_log_group_name" {
   value = aws_cloudwatch_log_group.lab1b_log_group01.name
 }
+
+output "fingerprint" {
+  value = data.aws_key_pair.lab1a-key-pair.fingerprint
+}
+
+output "name" {
+  value = data.aws_key_pair.lab1a-key-pair.key_name
+}
+
+output "id" {
+  value = data.aws_key_pair.lab1a-key-pair.id
+}
