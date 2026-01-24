@@ -98,7 +98,7 @@ resource "aws_route_table" "lab_1a_private_rtb" {
   vpc_id = aws_vpc.lab-1a-vpc.id
   route {
     cidr_block = "0.0.0.0/0"
-    gateway_id = aws_nat_gateway.lab_1a_nat_gateway.id
+    nat_gateway_id = aws_nat_gateway.lab_1a_nat_gateway.id
   }
   tags = {
     Name = "${local.project_name_prefix}-${local.environment}-lab_1a_private_rtb"
@@ -310,6 +310,13 @@ data "aws_iam_policy_document" "ec2_read_rds_secret" {
      ]
      resources = ["arn:aws:ssm:us-east-1:082258817095:parameter/armageddon/rds/mysql/*"]
   }
+
+  statement {
+    sid = "DecryptSSMSecureString"
+    effect = "Allow"
+    actions = ["kms:Decrypt"]
+    resources = [ "arn:aws:kms:us-east-1:082258817095:key/*" ]
+  }
 }
 
 # IAM Policy Document for Lambda that will rotate DB password
@@ -402,10 +409,23 @@ data "aws_ami" "amazon_linux" {
   }
   owners = ["amazon"]
 }
+
+data "aws_key_pair" "lab1a-key-pair" {
+  key_name           = "lab1a-key-pair"
+  include_public_key = true
+
+  filter {
+    name   = "key-name"
+    values = ["lab1a-key-pair"]
+  }
+}
+
+
 # EC2 instance that will house our RDS Notes App
 resource "aws_instance" "lab1_ec2_instance" {
   ami                    = data.aws_ami.amazon_linux.id
   instance_type          = var.instance_type
+  key_name               = data.aws_key_pair.lab1a-key-pair.key_name
   subnet_id              = aws_subnet.lab-1a-public-subnet["lab_1a_subnet_1"].id
   user_data              = file("./userdata.sh")
   iam_instance_profile   = aws_iam_instance_profile.lab1_ec2_instance_profile.name
@@ -461,7 +481,7 @@ resource "aws_db_instance" "lab1-rds01" {
 # Explanation: Parameter Store is the database's map. Endpoints and config live here for fast recovery.
 resource "aws_ssm_parameter" "lab1b_db_endpoint_param" {
   name  = "/armageddon/rds/mysql/host"
-  type  = "String"
+  type  = "SecureString"
   value = aws_db_instance.lab1-rds01.address
 
   tags = {
@@ -472,7 +492,7 @@ resource "aws_ssm_parameter" "lab1b_db_endpoint_param" {
 # Explanation: DB port is the secret handshake. Without it, no entry.
 resource "aws_ssm_parameter" "lab1b_db_port_param" {
   name  = "/armageddon/rds/mysql/port"
-  type  = "String"
+  type  = "SecureString"
   value = tostring(aws_db_instance.lab1-rds01.port)
 
   tags = {
@@ -483,7 +503,7 @@ resource "aws_ssm_parameter" "lab1b_db_port_param" {
 # Explanation: DB name is the label on the crate—without it, you’re rummaging in the dark.
 resource "aws_ssm_parameter" "lab1b_db_name_param" {
   name  = "/armageddon/rds/mysql/dbname"
-  type  = "String"
+  type  = "SecureString"
   value = var.db_name
 
   tags = {
