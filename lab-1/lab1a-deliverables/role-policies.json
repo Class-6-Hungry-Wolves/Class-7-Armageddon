@@ -1,0 +1,8 @@
+{
+    "AttachedPolicies": [
+        {
+            "PolicyName": "ec2-read-rds-secret-policy",
+            "PolicyArn": "arn:aws:iam::082258817095:policy/ec2-read-rds-secret-policy"
+        }
+    ]
+}

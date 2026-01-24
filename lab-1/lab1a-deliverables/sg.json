@@ -1,0 +1,94 @@
+{
+    "SecurityGroups": [
+        {
+            "GroupId": "sg-009e0367cfd93d701",
+            "IpPermissionsEgress": [
+                {
+                    "IpProtocol": "-1",
+                    "UserIdGroupPairs": [],
+                    "IpRanges": [
+                        {
+                            "CidrIp": "0.0.0.0/0"
+                        }
+                    ],
+                    "Ipv6Ranges": [],
+                    "PrefixListIds": []
+                }
+            ],
+            "VpcId": "vpc-0bc7c853e1b574c14",
+            "SecurityGroupArn": "arn:aws:ec2:us-east-1:082258817095:security-group/sg-009e0367cfd93d701",
+            "OwnerId": "082258817095",
+            "GroupName": "class7-armageddon-dev-lab1a-rds-sg",
+            "Description": "This is the RDS Security Group that will only allow inbound access from our EC2",
+            "IpPermissions": [
+                {
+                    "IpProtocol": "tcp",
+                    "FromPort": 3306,
+                    "ToPort": 3306,
+                    "UserIdGroupPairs": [
+                        {
+                            "UserId": "082258817095",
+                            "GroupId": "sg-06f4f8a417d35bcb2"
+                        },
+                        {
+                            "UserId": "082258817095",
+                            "GroupId": "sg-04287d909bad4038f"
+                        }
+                    ],
+                    "IpRanges": [],
+                    "Ipv6Ranges": [],
+                    "PrefixListIds": []
+                }
+            ]
+        },
+        {
+            "GroupId": "sg-04287d909bad4038f",
+            "IpPermissionsEgress": [
+                {
+                    "IpProtocol": "-1",
+                    "UserIdGroupPairs": [],
+                    "IpRanges": [
+                        {
+                            "CidrIp": "0.0.0.0/0"
+                        }
+                    ],
+                    "Ipv6Ranges": [],
+                    "PrefixListIds": []
+                }
+            ],
+            "VpcId": "vpc-0bc7c853e1b574c14",
+            "SecurityGroupArn": "arn:aws:ec2:us-east-1:082258817095:security-group/sg-04287d909bad4038f",
+            "OwnerId": "082258817095",
+            "GroupName": "class7-armageddon-dev-lab1a-ec2-sg",
+            "Description": "This is the EC2 Security Group that will allow the EC2 to have public internet access",
+            "IpPermissions": [
+                {
+                    "IpProtocol": "tcp",
+                    "FromPort": 80,
+                    "ToPort": 80,
+                    "UserIdGroupPairs": [],
+                    "IpRanges": [
+                        {
+                            "CidrIp": "0.0.0.0/0"
+                        }
+                    ],
+                    "Ipv6Ranges": [],
+                    "PrefixListIds": []
+                },
+                {
+                    "IpProtocol": "tcp",
+                    "FromPort": 22,
+                    "ToPort": 22,
+                    "UserIdGroupPairs": [],
+                    "IpRanges": [
+                        {
+                            "CidrIp": "0.0.0.0/0"
+                        }
+                    ],
+                    "Ipv6Ranges": [],
+                    "PrefixListIds": []
+                }
+            ]
+        }
+    ]
+}
