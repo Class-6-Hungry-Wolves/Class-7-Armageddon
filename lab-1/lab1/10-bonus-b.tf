@@ -98,16 +98,6 @@ resource "aws_security_group" "vandelay_alb_sg01" {
   })
 }
 
-resource "aws_security_group_rule" "ec2_from_alb" {
-  type                     = "ingress"
-  from_port                = 80
-  to_port                  = 80
-  protocol                 = "tcp"
-  source_security_group_id = aws_security_group.vandelay_alb_sg01.id
-  security_group_id        = aws_security_group.vandelay_ec2_sg01.id
-  description              = "Allow HTTP from ALB to EC2"
-}
-
 ############################################
 # Application Load Balancer
 ############################################
@@ -220,6 +210,29 @@ resource "aws_wafv2_web_acl" "vandelay_waf01" {
 
   default_action {
     allow {}
+  }
+
+  # IP Reputation List - blocks known malicious IPs (scanners, botnets, etc.)
+  rule {
+    name     = "AWS-AWSManagedRulesAmazonIpReputationList"
+    priority = 0
+
+    override_action {
+      none {}
+    }
+
+    statement {
+      managed_rule_group_statement {
+        name        = "AWSManagedRulesAmazonIpReputationList"
+        vendor_name = "AWS"
+      }
+    }
+
+    visibility_config {
+      cloudwatch_metrics_enabled = true
+      metric_name                = "${local.name_prefix}-ip-reputation"
+      sampled_requests_enabled   = true
+    }
   }
 
   rule {

@@ -49,9 +49,9 @@ resource "aws_security_group" "vandelay_vpce_sg01" {
 
   # Allow inbound 443 from EC2 SG to endpoints
   ingress {
-    from_port       = 443
-    to_port         = 443
-    protocol        = "tcp"
+    from_port = 443
+    to_port   = 443
+    protocol  = "tcp"
     security_groups = [
       aws_security_group.vandelay_ec2_sg01.id,
       aws_security_group.rotation_lambda_sg.id

@@ -1,3 +1,5 @@
+
+
 #=============================================================================
 # SSM PARAMETER STORE - Configuration Storage for Lab 1b
 #=============================================================================
@@ -5,7 +7,7 @@
 resource "aws_ssm_parameter" "vandelay_db_endpoint" {
   name  = "/${var.project_name}/db/endpoint"
   type  = "String"
-  value = aws_db_instance.vandelay_rds01.address 
+  value = aws_db_instance.vandelay_rds01.address
 
   tags = {
     Name = "${var.project_name}-param-db-endpoint"

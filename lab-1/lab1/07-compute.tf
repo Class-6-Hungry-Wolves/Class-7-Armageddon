@@ -3,19 +3,24 @@
 ############################################
 
 resource "aws_db_instance" "vandelay_rds01" {
-  identifier             = "${local.name_prefix}-rds01"
-  engine                 = var.db_engine
-  instance_class         = var.db_instance_class
-  allocated_storage      = 20
-  db_name                = var.db_name
-  username               = var.db_username
-  password               = var.db_password
+  identifier        = "${local.name_prefix}-rds01"
+  engine            = var.db_engine
+  instance_class    = var.db_instance_class
+  allocated_storage = 20
+  db_name           = var.db_name
+  username          = var.db_username
+  password          = var.db_password
 
   db_subnet_group_name   = aws_db_subnet_group.vandelay_rds_subnet_group01.name
   vpc_security_group_ids = [aws_security_group.vandelay_rds_sg01.id]
 
-  publicly_accessible    = false
-  skip_final_snapshot    = true
+  publicly_accessible = false
+  skip_final_snapshot = true
+
+  # Ignore password changes - Secrets Manager rotation manages the password
+  lifecycle {
+    ignore_changes = [password]
+  }
 
   tags = merge(local.common_tags, {
     Name = "${local.name_prefix}-rds01"
@@ -32,9 +37,9 @@ resource "aws_iam_role" "vandelay_ec2_role01" {
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [{
-      Effect = "Allow"
+      Effect    = "Allow"
       Principal = { Service = "ec2.amazonaws.com" }
-      Action = "sts:AssumeRole"
+      Action    = "sts:AssumeRole"
     }]
   })
 }
@@ -221,16 +226,6 @@ resource "aws_security_group" "rotation_lambda_sg" {
   })
 }
 
-resource "aws_security_group_rule" "rds_from_lambda" {
-  type                     = "ingress"
-  from_port                = 3306
-  to_port                  = 3306
-  protocol                 = "tcp"
-  source_security_group_id = aws_security_group.rotation_lambda_sg.id
-  security_group_id        = aws_security_group.vandelay_rds_sg01.id
-  description              = "Allow Lambda rotation function to connect to RDS"
-}
-
 data "aws_serverlessapplicationrepository_application" "secrets_manager_rotation" {
   application_id = "arn:aws:serverlessrepo:us-east-1:297356227824:applications/SecretsManagerRDSMySQLRotationSingleUser"
 }
@@ -299,9 +294,9 @@ resource "aws_security_group" "vpce_sg" {
   vpc_id      = aws_vpc.vandelay_vpc01.id
 
   ingress {
-    from_port       = 443
-    to_port         = 443
-    protocol        = "tcp"
+    from_port = 443
+    to_port   = 443
+    protocol  = "tcp"
     security_groups = [
       aws_security_group.rotation_lambda_sg.id,
       aws_security_group.vandelay_ec2_sg01.id

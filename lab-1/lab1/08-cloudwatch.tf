@@ -26,6 +26,7 @@ resource "aws_cloudwatch_metric_alarm" "vandelay_db_alarm01" {
   threshold           = 3
 
   alarm_actions = [aws_sns_topic.vandelay_sns_topic01.arn]
+  ok_actions    = [aws_sns_topic.vandelay_sns_topic01.arn]
 
   tags = {
     Name = "${local.name_prefix}-alarm-db-fail"

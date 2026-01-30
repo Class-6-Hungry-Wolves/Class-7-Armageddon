@@ -29,7 +29,7 @@ resource "aws_route_table_association" "vandelay_public_rta" {
 resource "aws_route_table" "vandelay_private_rt01" {
   vpc_id = aws_vpc.vandelay_vpc01.id
 
-   tags = merge(local.common_tags, {
+  tags = merge(local.common_tags, {
     Name = "${local.name_prefix}-private-rt01"
   })
 }

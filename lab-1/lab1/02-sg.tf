@@ -26,6 +26,15 @@ resource "aws_security_group" "vandelay_ec2_sg01" {
     description = "Allow SSH from admin IP"
   }
 
+  # Inbound: Allow HTTP from ALB (Bonus B)
+  ingress {
+    from_port       = 80
+    to_port         = 80
+    protocol        = "tcp"
+    security_groups = [aws_security_group.vandelay_alb_sg01.id]
+    description     = "Allow HTTP from ALB to EC2"
+  }
+
   # Outbound: Allow all traffic (required for app to reach RDS, Secrets Manager, etc.)
   egress {
     from_port   = 0
@@ -53,6 +62,15 @@ resource "aws_security_group" "vandelay_rds_sg01" {
     protocol        = "tcp"
     security_groups = [aws_security_group.vandelay_ec2_sg01.id]
     description     = "Allow MySQL from EC2 app server only"
+  }
+
+  # Inbound: Allow MySQL from Lambda rotation function
+  ingress {
+    from_port       = 3306
+    to_port         = 3306
+    protocol        = "tcp"
+    security_groups = [aws_security_group.rotation_lambda_sg.id]
+    description     = "Allow Lambda rotation function to connect to RDS"
   }
 
   egress {

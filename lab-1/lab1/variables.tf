@@ -37,7 +37,7 @@ variable "azs" {
 variable "ec2_ami_id" {
   description = "AMI ID for the EC2 app host."
   type        = string
-  default     = "ami-0c02fb55956c7d316"  # Amazon Linux 2 in us-east-1
+  default     = "ami-0c02fb55956c7d316" # Amazon Linux 2 in us-east-1
 }
 
 variable "ec2_instance_type" {
@@ -86,7 +86,7 @@ variable "sns_email_endpoint" {
 variable "my_ip" {
   description = "Your IP address for SSH access (format: x.x.x.x/32)"
   type        = string
-  default     = "0.0.0.0/0"  # Replace with your actual IP, e.g., "203.0.113.50/32"
+  default     = "0.0.0.0/0" # Replace with your actual IP, e.g., "203.0.113.50/32"
 }
 
 ############################################

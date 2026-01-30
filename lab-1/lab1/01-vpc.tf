@@ -6,9 +6,9 @@
 # Explanation: vandelay needs a hyperlane—this VPC is the Millennium Falcon’s flight corridor.
 
 resource "aws_vpc" "vandelay_vpc01" {
-  cidr_block           = var.vpc_cidr   # 10.75.0.0/16
-  enable_dns_support   = true           # Enables DNS resolution
-  enable_dns_hostnames = true           # Enables DNS hostnames for EC2
+  cidr_block           = var.vpc_cidr # 10.75.0.0/16
+  enable_dns_support   = true         # Enables DNS resolution
+  enable_dns_hostnames = true         # Enables DNS hostnames for EC2
 
   tags = merge(local.common_tags, {
     Name = "${local.name_prefix}-vpc01"
@@ -19,7 +19,7 @@ resource "aws_vpc" "vandelay_vpc01" {
 resource "aws_internet_gateway" "vandelay_igw01" {
   vpc_id = aws_vpc.vandelay_vpc01.id
 
-   tags = merge(local.common_tags, {
+  tags = merge(local.common_tags, {
     Name = "${local.name_prefix}-igw"
   })
 }
