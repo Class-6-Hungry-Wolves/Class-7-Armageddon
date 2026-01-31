@@ -153,3 +153,31 @@ variable "enable_runtime_instance_creation" {
   type        = bool
   default     = true
 }
+
+
+variable "app_subdomain" {
+  description = "Hostname prefix for app domain"
+  type        = string
+  default     = "app"
+}
+
+
+variable "root_domain_name" {
+  description = "Root domain name for Route53 hosted zone"
+  type        = string
+  default     = "hungrywolves.click"
+}
+
+
+variable "certificate_validation_method" {
+  description = "Method to validate ACM certificate"
+  type        = string
+  default     = "DNS"
+}
+
+# Guardrail to avoid accidental ACM validation record management upon rerunning Terraform, losing state, or having existing CNAME records.
+variable "manage_acm_validation_records" {
+  description = "Whether to manage ACM validation records in Route53"
+  type        = bool
+  default     = true
+}
