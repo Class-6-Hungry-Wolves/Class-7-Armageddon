@@ -23,10 +23,10 @@ output "private_subnets" {
   value = aws_subnet.chewbacca_private_subnets
 }
 
-#Privtate subnet ID for LAB1-c EC2 isntance
-# output "ec2_private_subnet_id" {
-#   value = aws_subnet.chewbacca_private_subnets[0].id
-# }
+# Private Route Table ID used by S3 VPC Endpoint
+output "private_route_table_id" {
+  value = aws_route_table.chewbacca_private_rt01.id
+}
 
 # SG ID for EC2 instance (to be applied to private LAB1-c private EC2)
 output "ec2_sg" {
@@ -54,4 +54,13 @@ output "aws_cloudwatch_log_group_arn" {
 
 output "iam_role_name" {
   value = aws_iam_role.chewbacca_ec2_role01.name
+}
+
+output "aws_key_pair_name" {
+  value = aws_key_pair.ec2_key_pair.key_name
+}
+
+# Outputs the ID of the regional EC2 Instanct Connect for SSH capability 
+output "ec2_instance_connect" {
+  value = data.aws_ec2_managed_prefix_list.ec2_instance_connect.id
 }

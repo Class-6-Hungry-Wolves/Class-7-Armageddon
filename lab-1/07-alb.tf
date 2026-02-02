@@ -1,5 +1,5 @@
 ############################################
-# Application Load Balancer
+# Bonus B: Application Load Balancer
 ############################################
 
 # Explanation: The ALB is your public customs checkpoint — it speaks TLS and forwards to private targets.
@@ -12,11 +12,12 @@ resource "aws_lb" "chewbacca_alb01" {
   subnets            = [for subnet in module.lab1-ab.public_subnets : subnet.id]
 
   # TODO: students can enable access logs to S3 as a stretch goal
-#   access_logs {
-#     bucket  = aws_s3_bucket.lb_logs.id # TODO: Create S3 bucket
-#     prefix  = "${var.project_name}"
-#     enabled = true
-#   }
+  # Explanation: Configure the ALB to send logs to the S3 bucket
+  access_logs {
+    bucket  = aws_s3_bucket.chewbacca_alb_logs_bucket01[0].bucket # TODO: Create S3 bucket
+    prefix  = var.alb_access_logs_prefix
+    enabled = var.enable_alb_access_logs
+  }
 
   tags = {
     Name = "${var.project_name}-alb01"
@@ -66,7 +67,7 @@ resource "aws_lb_target_group_attachment" "chewbacca_tg_attach01" {
 ############################################
 
 # Explanation: HTTP listener is the decoy airlock — it redirects everyone to the secure entrance.
-resource "aws_lb_listener" "chewbacca_http_listener01" {
+resource "aws_lb_listener" "chewbacca_http_listener01" { #Backend listener
   load_balancer_arn = aws_lb.chewbacca_alb01.arn
   port              = 80
   protocol          = "HTTP"
@@ -82,17 +83,21 @@ resource "aws_lb_listener" "chewbacca_http_listener01" {
 }
 
 # Explanation: HTTPS listener is the real hangar bay — TLS terminates here, then traffic goes to private targets.
-resource "aws_lb_listener" "chewbacca_https_listener01" {
+resource "aws_lb_listener" "chewbacca_https_listener01" { #Frontend listener
   load_balancer_arn = aws_lb.chewbacca_alb01.arn
   port              = 443
   protocol          = "HTTPS"
   ssl_policy        = "ELBSecurityPolicy-TLS13-1-2-2021-06"
-  certificate_arn   = aws_acm_certificate_validation.chewbacca_acm_validation01.certificate_arn
+  #certificate_arn   = aws_acm_certificate_validation.chewbacca_acm_validation01.certificate_arn
+  certificate_arn = aws_acm_certificate.chewbacca_acm_cert01.arn
 
   default_action {
     type             = "forward"
+    # ARN of the Target Group to which to route traffic
     target_group_arn = aws_lb_target_group.chewbacca_tg01.arn
   }
 
-  depends_on = [aws_acm_certificate_validation.chewbacca_acm_validation01]
+  depends_on = [ aws_acm_certificate_validation.chewbacca_acm_validation01_dns_bonus ]
+  #depends_on = [aws_acm_certificate_validation.chewbacca_acm_validation01]
 }
+

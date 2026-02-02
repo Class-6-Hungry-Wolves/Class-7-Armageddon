@@ -14,7 +14,7 @@ resource "aws_iam_role" "chewbacca_ec2_role01" {
           Effect = "Allow"
           Principal = { Service = "ec2.amazonaws.com" }
           Action = [
-            "sts:AssumeRole"
+            "sts:AssumeRole",
           ]
         },
       ]
@@ -26,6 +26,7 @@ resource "aws_iam_role" "chewbacca_ec2_role01" {
     }
 }
 
+# Explanation: 
 resource "aws_iam_policy" "chewbacca_ec2_read_secret01" {
   name        = "${local.name_prefix}-ec2-secrets-read01"
   description = "Least-privilege read for the lab DB secret"
@@ -46,29 +47,139 @@ resource "aws_iam_policy" "chewbacca_ec2_read_secret01" {
   })
 }
 
+# Explanation: 
+resource "aws_iam_policy" "chewbacca_ec2_CWAgent_policy" {
+  name        = "${local.name_prefix}-ec2-CWagent-policy"
+  description = "CloudWatch Agent Server Policy"
 
-# Explanation: These policies are your Wookiee toolbelt—tighten them (least privilege) as a stretch goal.
-resource "aws_iam_role_policy_attachment" "chewbacca_ec2_ssm_attach" {
-  role       = aws_iam_role.chewbacca_ec2_role01.name
-  policy_arn  = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid = "CloudWatchAgentServerPermissions"
+        Effect   = "Allow"
+        Action = [
+          "cloudwatch:PutMetricData",
+          "ec2:DescribeVolumes",
+          "ec2:DescribeTags",
+          "logs:PutLogEvents",
+          "logs:PutRetentionPolicy",
+          "logs:DescribeLogStreams",
+          "logs:DescribeLogGroups",
+          "logs:CreateLogStream",
+          "logs:CreateLogGroup",
+          "xray:PutTraceSegments",
+          "xray:PutTelemetryRecords",
+          "xray:GetSamplingRules",
+          "xray:GetSamplingTargets",
+          "xray:GetSamplingStatisticSummaries"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
 }
 
-# Explanation: EC2 must read secrets/params during recovery—give it access (students should scope it down).
-# resource "aws_iam_role_policy_attachment" "chewbacca_ec2_secrets_attach" {
-#   role      = aws_iam_role.chewbacca_ec2_role01.name
-#   #policy_arn = "arn:aws:iam::aws:policy/SecretsManagerReadWrite" # TODO: student replaces w/ least privilege
-#   policy_arn = "arn:aws:iam::aws:policy/AWSSecretsManagerClientReadOnlyAccess"
-# }
+# Explanation: 
+resource "aws_iam_policy" "chewbacca_ec2_SSMParam_policy" {
+  name        = "${local.name_prefix}-ec2-SSMParam-policy"
+  description = "SSM Paramater Store Permission"
 
-# Explanation: CloudWatch logs are the “ship’s black box”—you need them when things explode.
-resource "aws_iam_role_policy_attachment" "chewbacca_ec2_cw_attach" {
-  role      = aws_iam_role.chewbacca_ec2_role01.name
-  policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid = "AmazonSSMManagedInstanceCore",
+        Effect = "Allow",
+        Action = [
+          "ssm:DescribeAssociation",
+          "ssm:GetDeployablePatchSnapshotForInstance",
+          "ssm:GetDocument",
+          "ssm:DescribeDocument",
+          "ssm:GetManifest",
+          "ssm:GetParameter",
+          "ssm:GetParameters",
+          "ssm:GetParametersByPath",
+          "ssm:ListAssociations",
+          "ssm:ListInstanceAssociations",
+          "ssm:PutInventory",
+          "ssm:PutComplianceItems",
+          "ssm:PutConfigurePackageResult",
+          "ssm:UpdateAssociationStatus",
+          "ssm:UpdateInstanceAssociationStatus",
+          "ssm:UpdateInstanceInformation"
+        ]
+        #Resource = "arn:aws:ssm:${var.aws_region}:${data.aws_caller_identity.chewbacca_self01.account_id}:parameter/lab/db/*"
+        Resource = "*"
+      },
+      {
+        "Effect": "Allow",
+        "Action": [
+          "ssmmessages:CreateControlChannel",
+          "ssmmessages:CreateDataChannel",
+          "ssmmessages:OpenControlChannel",
+          "ssmmessages:OpenDataChannel"
+        ],
+        "Resource": "*"
+      },
+      {
+        "Effect": "Allow",
+        "Action": [
+          "ec2messages:AcknowledgeMessage",
+          "ec2messages:DeleteMessage",
+          "ec2messages:FailMessage",
+          "ec2messages:GetEndpoint",
+          "ec2messages:GetMessages",
+          "ec2messages:SendReply"
+        ],
+        "Resource": "*"
+      }
+    ]
+  })
 }
 
+resource "aws_iam_policy" "chewbacca_ec2_s3_access" {
+  name        = "${local.name_prefix}-ec2-s3-access01"
+  description = "Allows Private EC2 to access S3 bucket for package download/install"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "S3FullAccess"
+        Effect = "Allow"
+        Action = [
+          "s3:GetObject"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+
+# Explanation: 
 resource "aws_iam_role_policy_attachment" "chewbacca_attach_lp_secret01" {
   role       = aws_iam_role.chewbacca_ec2_role01.name
   policy_arn = aws_iam_policy.chewbacca_ec2_read_secret01.arn
+}
+
+# Explanation: 
+resource "aws_iam_role_policy_attachment" "chewbacca_attach_cw_agent" {
+  role       = aws_iam_role.chewbacca_ec2_role01.name
+  policy_arn = aws_iam_policy.chewbacca_ec2_CWAgent_policy.arn
+}
+
+# Explanation: 
+resource "aws_iam_role_policy_attachment" "chewbacca_attach_ssm_param" {
+  role       = aws_iam_role.chewbacca_ec2_role01.name
+  policy_arn = aws_iam_policy.chewbacca_ec2_SSMParam_policy.arn
+}
+
+# Explanation: 
+resource "aws_iam_role_policy_attachment" "chewbacca_attach_s3_access" {
+  role       = aws_iam_role.chewbacca_ec2_role01.name
+  policy_arn = aws_iam_policy.chewbacca_ec2_s3_access.arn
 }
 
 # Explanation: Instance profile is the harness that straps the role onto the EC2 like bandolier ammo.
@@ -133,11 +244,10 @@ resource "aws_iam_role_policy" "lambda_rotator_policy" {
         Action = [
           "logs:CreateLogGroup",
           "logs:CreateLogStream",
-          "logs:PutLogEvents"
+          "logs:PutLogEvents",
         ]
         Resource = "arn:aws:logs:*:*:*"
       }
     ]
   })
 }
-

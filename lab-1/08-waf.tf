@@ -54,3 +54,24 @@ resource "aws_wafv2_web_acl_association" "chewbacca_waf_assoc01" {
   resource_arn = aws_lb.chewbacca_alb01.arn
   web_acl_arn  = aws_wafv2_web_acl.chewbacca_waf01[0].arn
 }
+
+
+############################################
+# Bonus E - Option 1: CloudWatch Logs destination for WAF
+############################################
+
+# Explanation: This wire connects the shield generator to the black box—WAF -> CloudWatch Logs.
+resource "aws_wafv2_web_acl_logging_configuration" "chewbacca_waf_logging01" {
+  count = var.enable_waf && var.waf_log_destination == "cloudwatch" ? 1 : 0
+
+  resource_arn = aws_wafv2_web_acl.chewbacca_waf01[0].arn
+
+  log_destination_configs = [
+    aws_cloudwatch_log_group.chewbacca_waf_log_group01[0].arn
+  ]
+
+  # TODO: Students can add redacted_fields (authorization headers, cookies, etc.) as a stretch goal.
+  # redacted_fields { ... }
+
+  depends_on = [aws_wafv2_web_acl.chewbacca_waf01]
+}

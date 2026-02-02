@@ -1,3 +1,7 @@
+############################################
+# My Global Lab-1C Variables
+############################################
+
 variable "project_name" {
   description = "Prefix for naming."
   type        = string
@@ -22,15 +26,15 @@ variable "endpoint_policy_json" {
   default     = null
 }
 
+
 ############################################
-# Variables for Bonus C
+# Lab1-C Bonus Variables  (1st Set)
 ############################################
 
 variable "domain_name" {
   description = "Base domain students registered (e.g., chewbacca-growl.com)."
   type        = string
-  #default     = "chewbacca-growl.com"
-  default     = "resilienetsolutions.com"
+  default     = "resilienetsolutions.click"
 }
 
 variable "app_subdomain" {
@@ -69,15 +73,60 @@ variable "alb_5xx_evaluation_periods" {
   default     = 1
 }
 
+
+############################################
+# Variables for Bonus C
+############################################
+
 # Explanation: Used to specify Terraform-managed Zone (instead of pre-exisiting Zone ID)
 variable "manage_route53_in_terraform" {
-  description = "Terraform-managed Route 53 Zone"
-  type = bool
-  default = true
+  description = "Terraform-managed Route 53 Zone; If true, create/manage Route53 hosted zone + records in Terraform."
+  type        = bool
+  default = false # Zone ID already exists (Z0746037TEWNPU9W3RIJ)
 }
 
 variable "route53_hosted_zone_id" {
-  description = "Non-R53 Hosted Zone ID"
-  type = string
-  default = null
+  description = "Non-R53 Hosted Zone ID; If manage_route53_in_terraform=false, provide existing Hosted Zone ID for domain."
+  type        = string
+  default     = "Z0746037TEWNPU9W3RIJ"
+}
+
+
+############################################
+# Variables for Bonus D
+############################################
+
+variable "enable_alb_access_logs" {
+  description = "Enable ALB access logging to S3."
+  type        = bool
+  default     = true
+}
+
+variable "alb_access_logs_prefix" {
+  description = "S3 prefix for ALB access logs."
+  type        = string
+  default     = "alb-access-logs"
+}
+
+
+############################################
+# Variables for Bonus E
+############################################
+
+variable "waf_log_destination" {
+  description = "Choose ONE destination per WebACL: cloudwatch | s3 | firehose"
+  type        = string
+  default     = "cloudwatch"
+}
+
+variable "waf_log_retention_days" {
+  description = "Retention for WAF CloudWatch log group."
+  type        = number
+  default     = 14
+}
+
+variable "enable_waf_sampled_requests_only" {
+  description = "If true, students can optionally filter/redact fields later. (Placeholder toggle.)"
+  type        = bool
+  default     = false
 }

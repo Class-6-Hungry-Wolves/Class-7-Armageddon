@@ -1,24 +1,34 @@
 ############################################
-#  VPC Endpoints (for S3 Gateway & KMS)
+#  VPC Endpoints (for S3 Gateway & KMS (Optional))
 ############################################
 
-# NOTE: VPC Endpoints for the following services already built in Module LAB1-ab:
-#       SSM, SSMMessges, EC2Messages, Logs, & SecretsManager
+# Explanation: S3 is the supply depot—without this, your private world starves (updates, artifacts, logs).
+resource "aws_vpc_endpoint" "chewbacca_vpce_s3_gw01" {
+  vpc_id            = module.lab1-ab.vpc_id
+  service_name      = "com.amazonaws.${module.lab1-ab.aws_region}.s3"
+  vpc_endpoint_type = "Gateway"
 
-resource "aws_vpc_endpoint" "chewbacca_vpce_services" {
-    for_each            = toset(local.services)
-    vpc_id              = module.lab1-ab.vpc_id
+  route_table_ids = [
+    module.lab1-ab.private_route_table_id
+  ]
 
-    vpc_endpoint_type   = each.value == "s3" ? "Gateway" : "Interface"
-    service_name        = "com.amazonaws.${module.lab1-ab.aws_region}.${each.value}"
-    security_group_ids  = each.value == "s3" ? null : [module.lab1-ab.vpce_sg]
-#    subnet_ids          = each.value == "s3" ? null : module.lab1-ab.private_subnet_ids
-    subnet_ids          = each.value == "s3" ? null : [ for subnet in module.lab1-ab.private_subnets : subnet.id]
-    private_dns_enabled = each.value == "s3" ? false : true
+  tags = {
+    Name = "${local.chewbacca_prefix}-vpce-s3-gw01"
+  }
+}
 
-    #policy              = var.endpoint_policy_json
 
-    tags = {
-        Name = "${local.chewbacca_prefix}-vpce-${each.value}"
-    }
+# Explanation: KMS is the encryption kyber crystal—Chewbacca prefers locked doors AND locked safes.
+resource "aws_vpc_endpoint" "chewbacca_vpce_kms01" {
+  vpc_id              = module.lab1-ab.vpc_id
+  service_name        = "com.amazonaws.${module.lab1-ab.aws_region}.kms"
+  vpc_endpoint_type   = "Interface"
+  private_dns_enabled = true
+
+  subnet_ids          = module.lab1-ab.private_subnets[*].id
+  security_group_ids  = [module.lab1-ab.vpce_sg]
+
+  tags = {
+    Name = "${local.chewbacca_prefix}-vpce-kms01"
+  }
 }

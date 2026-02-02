@@ -19,7 +19,7 @@ resource "aws_db_instance" "chewbacca_rds01" {
   skip_final_snapshot    = true
 
   # TODO: student sets multi_az / backups / monitoring as stretch goals
-  multi_az               = true
+  #multi_az               = true
   
 
   tags = {

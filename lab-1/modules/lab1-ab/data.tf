@@ -13,3 +13,11 @@ data "archive_file" "rotation_lambda_zip" {
   source_file = "${path.module}/rotation_lambda.py"
   output_path = "${path.module}/rotation_lambda.zip"
 }
+
+# Explanation: Dynamically fetch the EC2 Instance Connect prefix list for the current region
+data "aws_ec2_managed_prefix_list" "ec2_instance_connect" {
+  filter {
+    name   = "prefix-list-name" #Other opts: "owner-id" & "prefix-list-id"
+    values = ["com.amazonaws.${var.aws_region}.ec2-instance-connect"]
+  }
+}

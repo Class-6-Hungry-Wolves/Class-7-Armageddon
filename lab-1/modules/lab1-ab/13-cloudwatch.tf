@@ -12,6 +12,13 @@ resource "aws_cloudwatch_log_group" "chewbacca_log_group01" {
   }
 }
 
+# Define the Log Stream inside that group
+resource "aws_cloudwatch_log_stream" "app_stream" {
+  name           = "${aws_instance.chewbacca_ec201.id}-app-stream"
+  log_group_name = aws_cloudwatch_log_group.chewbacca_log_group01.name
+}
+
+
 ############################################
 # Custom Metric + Alarm (Skeleton)
 ############################################
