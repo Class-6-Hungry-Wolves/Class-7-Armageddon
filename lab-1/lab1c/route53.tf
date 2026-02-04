@@ -10,7 +10,7 @@ resource "aws_acm_certificate" "armageddon_cert01" {
   tags = {
     Name = "${var.project_name}-armageddon-cert"
   }
-  
+
 }
 
 
@@ -23,7 +23,7 @@ data "aws_route53_zone" "hungry_wolves_main_zone" {
 
 
 resource "aws_route53_record" "armageddon_cert_validation_record01" {
-  for_each = ( var.manage_acm_validation_records && var.certificate_validation_method == "DNS" ) ? {
+  for_each = (var.manage_acm_validation_records && var.certificate_validation_method == "DNS") ? {
     for dvo in aws_acm_certificate.armageddon_cert01.domain_validation_options : dvo.domain_name => {
       name   = dvo.resource_record_name
       type   = dvo.resource_record_type
@@ -43,4 +43,18 @@ resource "aws_route53_record" "armageddon_cert_validation_record01" {
 resource "aws_acm_certificate_validation" "armageddon_cert01" {
   certificate_arn         = aws_acm_certificate.armageddon_cert01.arn
   validation_record_fqdns = [for r in aws_route53_record.armageddon_cert_validation_record01 : r.fqdn]
+}
+
+
+
+
+resource "aws_route53_record" "armageddon_alb_a_record" {
+  zone_id = data.aws_route53_zone.hungry_wolves_main_zone.zone_id
+  name    = local.armageddon_fqdn
+  type    = "A"
+  alias {
+    name                   = aws_lb.app_lb.dns_name
+    zone_id                = aws_lb.app_lb.zone_id
+    evaluate_target_health = true
+  }
 }
