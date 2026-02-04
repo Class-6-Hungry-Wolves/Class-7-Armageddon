@@ -33,3 +33,4 @@ resource "aws_ssm_parameter" "vandelay_db_name" {
     Name = "${var.project_name}-param-db-name"
   }
 }
+

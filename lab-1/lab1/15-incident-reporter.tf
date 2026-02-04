@@ -11,6 +11,11 @@ resource "aws_s3_bucket" "incident_reports" {
   tags = merge(local.common_tags, {
     Name = "${local.name_prefix}-incident-reports"
   })
+
+  # Prevent deletion - preserve incident reports across infrastructure rebuilds
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 resource "aws_s3_bucket_versioning" "incident_reports" {
@@ -219,7 +224,7 @@ resource "aws_lambda_function" "incident_reporter" {
       SNS_TOPIC_ARN    = aws_sns_topic.vandelay_sns_topic01.arn
       REPORT_BUCKET    = aws_s3_bucket.incident_reports.id
       APP_LOG_GROUP    = aws_cloudwatch_log_group.vandelay_log_group01.name
-      WAF_LOG_GROUP    = ""  # Set to WAF log group name if WAF logging is enabled
+      WAF_LOG_GROUP    = "" # Set to WAF log group name if WAF logging is enabled
       SECRET_ID        = "lab/rds/mysql"
       SSM_PARAM_PATH   = "/lab/db"
     }

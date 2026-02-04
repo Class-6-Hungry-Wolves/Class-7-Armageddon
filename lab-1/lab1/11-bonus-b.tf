@@ -22,7 +22,7 @@ locals {
 
 resource "aws_acm_certificate" "vandelay_cert" {
   domain_name               = local.vandelay_app_fqdn
-  subject_alternative_names = ["*.${var.domain_name}"]
+  subject_alternative_names = ["*.${var.domain_name}", var.domain_name]  # Include root domain for CloudFront
   validation_method         = "DNS"
 
   tags = merge(local.common_tags, {
@@ -69,21 +69,23 @@ resource "aws_security_group" "vandelay_alb_sg01" {
   description = "Security group for Application Load Balancer"
   vpc_id      = aws_vpc.vandelay_vpc01.id
 
-  ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = [var.alb_ingress_cidr]
-    description = "Allow HTTP from internet"
-  }
+  # DISABLED: Lab 2 restricts ALB access to CloudFront IPs only
+  # See 21-cloudfront-origin-cloaking.tf for CloudFront prefix list rule
+  # ingress {
+  #   from_port   = 80
+  #   to_port     = 80
+  #   protocol    = "tcp"
+  #   cidr_blocks = [var.alb_ingress_cidr]
+  #   description = "Allow HTTP from internet"
+  # }
 
-  ingress {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = [var.alb_ingress_cidr]
-    description = "Allow HTTPS from internet"
-  }
+  # ingress {
+  #   from_port   = 443
+  #   to_port     = 443
+  #   protocol    = "tcp"
+  #   cidr_blocks = [var.alb_ingress_cidr]
+  #   description = "Allow HTTPS from internet"
+  # }
 
   egress {
     from_port   = 0
@@ -110,6 +112,16 @@ resource "aws_lb" "vandelay_alb01" {
   subnets            = aws_subnet.vandelay_public_subnets[*].id
 
   enable_deletion_protection = false
+
+  # ALB Access Logs (enabled via variable)
+  dynamic "access_logs" {
+    for_each = var.enable_alb_access_logs ? [1] : []
+    content {
+      bucket  = aws_s3_bucket.vandelay_alb_logs[0].id
+      prefix  = var.alb_access_logs_prefix
+      enabled = true
+    }
+  }
 
   tags = merge(local.common_tags, {
     Name = "${local.name_prefix}-alb01"
@@ -185,19 +197,38 @@ resource "aws_lb_listener" "vandelay_http_listener" {
 
 ############################################
 # Route53 DNS Record for App
+# DISABLED: Lab 2 redirects DNS to CloudFront
+# See 23-cloudfront-dns.tf for CloudFront DNS
 ############################################
 
-resource "aws_route53_record" "vandelay_app_alias01" {
-  zone_id = local.vandelay_zone_id
-  name    = local.vandelay_app_fqdn
-  type    = "A"
+# resource "aws_route53_record" "vandelay_app_alias01" {
+#   zone_id = local.vandelay_zone_id
+#   name    = local.vandelay_app_fqdn
+#   type    = "A"
+#
+#   alias {
+#     name                   = aws_lb.vandelay_alb01.dns_name
+#     zone_id                = aws_lb.vandelay_alb01.zone_id
+#     evaluate_target_health = true
+#   }
+# }
 
-  alias {
-    name                   = aws_lb.vandelay_alb01.dns_name
-    zone_id                = aws_lb.vandelay_alb01.zone_id
-    evaluate_target_health = true
-  }
-}
+############################################
+# Route53 Zone Apex (Root Domain) -> ALB
+# DISABLED: Lab 2 redirects DNS to CloudFront
+############################################
+
+# resource "aws_route53_record" "vandelay_apex_alias" {
+#   zone_id = local.vandelay_zone_id
+#   name    = var.domain_name  # Root domain (e.g., keepuneat.click)
+#   type    = "A"
+#
+#   alias {
+#     name                   = aws_lb.vandelay_alb01.dns_name
+#     zone_id                = aws_lb.vandelay_alb01.zone_id
+#     evaluate_target_health = true
+#   }
+# }
 
 ############################################
 # WAF Web ACL

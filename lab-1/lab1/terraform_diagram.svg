@@ -1,0 +1,1268 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg"
+     xmlns:xlink="http://www.w3.org/1999/xlink"
+     width="1286" height="5632"
+     viewBox="0 0 1286 5632">
+
+  <defs>
+    <style>
+      .title { font-family: Arial, sans-serif; font-size: 24px; font-weight: bold; fill: #1F2937; }
+      .subtitle { font-family: Arial, sans-serif; font-size: 14px; fill: #6B7280; }
+      .category-title { font-family: Arial, sans-serif; font-size: 16px; font-weight: bold; fill: #374151; }
+      .resource-text { font-family: Arial, sans-serif; font-size: 11px; fill: #FFFFFF; }
+      .resource-text-dark { font-family: Arial, sans-serif; font-size: 11px; fill: #1F2937; }
+      .legend-title { font-family: Arial, sans-serif; font-size: 14px; font-weight: bold; fill: #374151; }
+      .legend-text { font-family: Arial, sans-serif; font-size: 11px; fill: #4B5563; }
+      .cycle-warning { font-family: Arial, sans-serif; font-size: 12px; fill: #DC2626; font-weight: bold; }
+    </style>
+
+    <!-- Drop shadow filter -->
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="2" dy="2" stdDeviation="3" flood-opacity="0.15"/>
+    </filter>
+
+    <!-- Cycle highlight filter -->
+    <filter id="cycle-glow">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="100%" height="100%" fill="#F9FAFB"/>
+
+  <!-- Title -->
+  <text x="50" y="40" class="title">Vandelay Industries - Terraform Infrastructure</text>
+  <text x="50" y="60" class="subtitle">Generated from terraform graph • 175 resources • 227 dependencies</text>
+
+  <!-- CDN Category -->
+  <g id="category-cdn">
+    <rect x="50" y="80" width="936" height="196"
+          rx="12" ry="12" fill="#F3E5F5" stroke="#D1D5DB" stroke-width="1" filter="url(#shadow)"/>
+    <text x="65" y="105" class="category-title">CDN</text>
+
+    <g id="resource-aws_cloudfront_cache_policy-vandelay_cache_static01">
+      <rect x="80" y="125" width="280" height="36"
+            rx="6" ry="6" fill="#A77BFF" stroke="#6B3CC7" stroke-width="1"/>
+      <text x="90" y="139" class="resource-text" font-weight="bold">aws_cloudfront_cache_policy</text>
+      <text x="90" y="153" class="resource-text">vandelay_cache_static01</text>
+    </g>
+    <g id="resource-aws_cloudfront_distribution-vandelay_cf01">
+      <rect x="372" y="125" width="280" height="36"
+            rx="6" ry="6" fill="#8C4FFF" stroke="#6B3CC7" stroke-width="1"/>
+      <text x="382" y="139" class="resource-text" font-weight="bold">aws_cloudfront_distribution</text>
+      <text x="382" y="153" class="resource-text">vandelay_cf01</text>
+    </g>
+    <g id="resource-aws_cloudfront_origin_request_policy-vandelay_orp_static01">
+      <rect x="664" y="125" width="280" height="36"
+            rx="6" ry="6" fill="#C2A7FF" stroke="#6B3CC7" stroke-width="1"/>
+      <text x="674" y="139" class="resource-text-dark" font-weight="bold">aws_cloudfront_origin_request_policy</text>
+      <text x="674" y="153" class="resource-text-dark">vandelay_orp_static01</text>
+    </g>
+    <g id="resource-aws_cloudfront_response_headers_policy-vandelay_rsp_static01">
+      <rect x="80" y="173" width="280" height="36"
+            rx="6" ry="6" fill="#C2A7FF" stroke="#6B3CC7" stroke-width="1"/>
+      <text x="90" y="187" class="resource-text-dark" font-weight="bold">aws_cloudfront_response_headers_policy</text>
+      <text x="90" y="201" class="resource-text-dark">vandelay_rsp_static01</text>
+    </g>
+  </g>
+  <!-- DNS Category -->
+  <g id="category-dns">
+    <rect x="50" y="316" width="936" height="196"
+          rx="12" ry="12" fill="#E0F7FA" stroke="#D1D5DB" stroke-width="1" filter="url(#shadow)"/>
+    <text x="65" y="341" class="category-title">DNS</text>
+
+    <g id="resource-aws_route53_record-vandelay_apex_to_cf01">
+      <rect x="80" y="361" width="280" height="36"
+            rx="6" ry="6" fill="#007DAF" stroke="#005A7F" stroke-width="1"/>
+      <text x="90" y="375" class="resource-text" font-weight="bold">aws_route53_record</text>
+      <text x="90" y="389" class="resource-text">vandelay_apex_to_cf01</text>
+    </g>
+    <g id="resource-aws_route53_record-vandelay_app_to_cf01">
+      <rect x="372" y="361" width="280" height="36"
+            rx="6" ry="6" fill="#007DAF" stroke="#005A7F" stroke-width="1"/>
+      <text x="382" y="375" class="resource-text" font-weight="bold">aws_route53_record</text>
+      <text x="382" y="389" class="resource-text">vandelay_app_to_cf01</text>
+    </g>
+    <g id="resource-aws_route53_record-vandelay_cert_validation">
+      <rect x="664" y="361" width="280" height="36"
+            rx="6" ry="6" fill="#007DAF" stroke="#005A7F" stroke-width="1"/>
+      <text x="674" y="375" class="resource-text" font-weight="bold">aws_route53_record</text>
+      <text x="674" y="389" class="resource-text">vandelay_cert_validation</text>
+    </g>
+    <g id="resource-data-aws_route53_zone-vandelay_zone">
+      <rect x="80" y="409" width="280" height="36"
+            rx="6" ry="6" fill="#00A3E0" stroke="#005A7F" stroke-width="1"/>
+      <text x="90" y="423" class="resource-text" font-weight="bold">data.aws_route53_zone</text>
+      <text x="90" y="437" class="resource-text">vandelay_zone</text>
+    </g>
+  </g>
+  <!-- Certificates Category -->
+  <g id="category-certificates">
+    <rect x="50" y="552" width="644" height="148"
+          rx="12" ry="12" fill="#FFF8E1" stroke="#D1D5DB" stroke-width="1" filter="url(#shadow)"/>
+    <text x="65" y="577" class="category-title">Certificates</text>
+
+    <g id="resource-aws_acm_certificate-vandelay_cert">
+      <rect x="80" y="597" width="280" height="36"
+            rx="6" ry="6" fill="#D4AF37" stroke="#A68929" stroke-width="1"/>
+      <text x="90" y="611" class="resource-text" font-weight="bold">aws_acm_certificate</text>
+      <text x="90" y="625" class="resource-text">vandelay_cert</text>
+    </g>
+    <g id="resource-aws_acm_certificate_validation-vandelay_cert_validated">
+      <rect x="372" y="597" width="280" height="36"
+            rx="6" ry="6" fill="#E8C547" stroke="#A68929" stroke-width="1"/>
+      <text x="382" y="611" class="resource-text-dark" font-weight="bold">aws_acm_certificate_validation</text>
+      <text x="382" y="625" class="resource-text-dark">vandelay_cert_validated</text>
+    </g>
+  </g>
+  <!-- Security Category -->
+  <g id="category-security">
+    <rect x="50" y="740" width="936" height="292"
+          rx="12" ry="12" fill="#FFEBEE" stroke="#D1D5DB" stroke-width="1" filter="url(#shadow)"/>
+    <text x="65" y="765" class="category-title">Security</text>
+
+    <g id="resource-aws_security_group-rotation_lambda_sg">
+      <rect x="80" y="785" width="280" height="36"
+            rx="6" ry="6" fill="#DD3333" stroke="#AA2222" stroke-width="1"/>
+      <text x="90" y="799" class="resource-text" font-weight="bold">aws_security_group</text>
+      <text x="90" y="813" class="resource-text">rotation_lambda_sg</text>
+    </g>
+    <g id="resource-aws_security_group_rule-vandelay_alb_ingress_cf80">
+      <rect x="372" y="785" width="280" height="36"
+            rx="6" ry="6" fill="#FF6666" stroke="#AA2222" stroke-width="1"/>
+      <text x="382" y="799" class="resource-text" font-weight="bold">aws_security_group_rule</text>
+      <text x="382" y="813" class="resource-text">vandelay_alb_ingress_cf80</text>
+    </g>
+    <g id="resource-aws_security_group-vandelay_alb_sg01">
+      <rect x="664" y="785" width="280" height="36"
+            rx="6" ry="6" fill="#DD3333" stroke="#AA2222" stroke-width="1"/>
+      <text x="674" y="799" class="resource-text" font-weight="bold">aws_security_group</text>
+      <text x="674" y="813" class="resource-text">vandelay_alb_sg01</text>
+    </g>
+    <g id="resource-aws_wafv2_web_acl-vandelay_cf_waf01">
+      <rect x="80" y="833" width="280" height="36"
+            rx="6" ry="6" fill="#DD3333" stroke="#AA2222" stroke-width="1"/>
+      <text x="90" y="847" class="resource-text" font-weight="bold">aws_wafv2_web_acl</text>
+      <text x="90" y="861" class="resource-text">vandelay_cf_waf01</text>
+    </g>
+    <g id="resource-aws_security_group-vandelay_ec2_sg01">
+      <rect x="372" y="833" width="280" height="36"
+            rx="6" ry="6" fill="#DD3333" stroke="#AA2222" stroke-width="1"/>
+      <text x="382" y="847" class="resource-text" font-weight="bold">aws_security_group</text>
+      <text x="382" y="861" class="resource-text">vandelay_ec2_sg01</text>
+    </g>
+    <g id="resource-aws_security_group-vandelay_rds_sg01">
+      <rect x="664" y="833" width="280" height="36"
+            rx="6" ry="6" fill="#DD3333" stroke="#AA2222" stroke-width="1"/>
+      <text x="674" y="847" class="resource-text" font-weight="bold">aws_security_group</text>
+      <text x="674" y="861" class="resource-text">vandelay_rds_sg01</text>
+    </g>
+    <g id="resource-aws_security_group-vandelay_vpce_sg01">
+      <rect x="80" y="881" width="280" height="36"
+            rx="6" ry="6" fill="#DD3333" stroke="#AA2222" stroke-width="1"/>
+      <text x="90" y="895" class="resource-text" font-weight="bold">aws_security_group</text>
+      <text x="90" y="909" class="resource-text">vandelay_vpce_sg01</text>
+    </g>
+    <g id="resource-aws_wafv2_web_acl-vandelay_waf01">
+      <rect x="372" y="881" width="280" height="36"
+            rx="6" ry="6" fill="#DD3333" stroke="#AA2222" stroke-width="1"/>
+      <text x="382" y="895" class="resource-text" font-weight="bold">aws_wafv2_web_acl</text>
+      <text x="382" y="909" class="resource-text">vandelay_waf01</text>
+    </g>
+    <g id="resource-aws_wafv2_web_acl_association-vandelay_waf_alb_assoc">
+      <rect x="664" y="881" width="280" height="36"
+            rx="6" ry="6" fill="#FF6666" stroke="#AA2222" stroke-width="1"/>
+      <text x="674" y="895" class="resource-text" font-weight="bold">aws_wafv2_web_acl_association</text>
+      <text x="674" y="909" class="resource-text">vandelay_waf_alb_assoc</text>
+    </g>
+    <g id="resource-aws_wafv2_web_acl_logging_configuration-vandelay_waf_logging">
+      <rect x="80" y="929" width="280" height="36"
+            rx="6" ry="6" fill="#FF9999" stroke="#AA2222" stroke-width="1"/>
+      <text x="90" y="943" class="resource-text" font-weight="bold">aws_wafv2_web_acl_logging_configuration</text>
+      <text x="90" y="957" class="resource-text">vandelay_waf_logging</text>
+    </g>
+    <g id="resource-aws_security_group-vpce_sg">
+      <rect x="372" y="929" width="280" height="36"
+            rx="6" ry="6" fill="#DD3333" stroke="#AA2222" stroke-width="1"/>
+      <text x="382" y="943" class="resource-text" font-weight="bold">aws_security_group</text>
+      <text x="382" y="957" class="resource-text">vpce_sg</text>
+    </g>
+  </g>
+  <!-- Networking Category -->
+  <g id="category-networking">
+    <rect x="50" y="1072" width="936" height="436"
+          rx="12" ry="12" fill="#FFF3E0" stroke="#D1D5DB" stroke-width="1" filter="url(#shadow)"/>
+    <text x="65" y="1097" class="category-title">Networking</text>
+
+    <g id="resource-aws_vpc_endpoint-secretsmanager">
+      <rect x="80" y="1117" width="280" height="36"
+            rx="6" ry="6" fill="#FFB84D" stroke="#CC7A00" stroke-width="1"/>
+      <text x="90" y="1131" class="resource-text" font-weight="bold">aws_vpc_endpoint</text>
+      <text x="90" y="1145" class="resource-text">secretsmanager</text>
+    </g>
+    <g id="resource-aws_internet_gateway-vandelay_igw01">
+      <rect x="372" y="1117" width="280" height="36"
+            rx="6" ry="6" fill="#FF9900" stroke="#CC7A00" stroke-width="1"/>
+      <text x="382" y="1131" class="resource-text" font-weight="bold">aws_internet_gateway</text>
+      <text x="382" y="1145" class="resource-text">vandelay_igw01</text>
+    </g>
+    <g id="resource-aws_nat_gateway-vandelay_nat01">
+      <rect x="664" y="1117" width="280" height="36"
+            rx="6" ry="6" fill="#FFB84D" stroke="#CC7A00" stroke-width="1"/>
+      <text x="674" y="1131" class="resource-text" font-weight="bold">aws_nat_gateway</text>
+      <text x="674" y="1145" class="resource-text">vandelay_nat01</text>
+    </g>
+    <g id="resource-aws_eip-vandelay_nat_eip01">
+      <rect x="80" y="1165" width="280" height="36"
+            rx="6" ry="6" fill="#FF9900" stroke="#CC7A00" stroke-width="1"/>
+      <text x="90" y="1179" class="resource-text" font-weight="bold">aws_eip</text>
+      <text x="90" y="1193" class="resource-text">vandelay_nat_eip01</text>
+    </g>
+    <g id="resource-aws_route-vandelay_private_default_route">
+      <rect x="372" y="1165" width="280" height="36"
+            rx="6" ry="6" fill="#FFE0B3" stroke="#CC7A00" stroke-width="1"/>
+      <text x="382" y="1179" class="resource-text-dark" font-weight="bold">aws_route</text>
+      <text x="382" y="1193" class="resource-text-dark">vandelay_private_default_route</text>
+    </g>
+    <g id="resource-aws_route_table-vandelay_private_rt01">
+      <rect x="664" y="1165" width="280" height="36"
+            rx="6" ry="6" fill="#FFCC80" stroke="#CC7A00" stroke-width="1"/>
+      <text x="674" y="1179" class="resource-text-dark" font-weight="bold">aws_route_table</text>
+      <text x="674" y="1193" class="resource-text-dark">vandelay_private_rt01</text>
+    </g>
+    <g id="resource-aws_route_table_association-vandelay_private_rta">
+      <rect x="80" y="1213" width="280" height="36"
+            rx="6" ry="6" fill="#FFE0B3" stroke="#CC7A00" stroke-width="1"/>
+      <text x="90" y="1227" class="resource-text-dark" font-weight="bold">aws_route_table_association</text>
+      <text x="90" y="1241" class="resource-text-dark">vandelay_private_rta</text>
+    </g>
+    <g id="resource-aws_subnet-vandelay_private_subnets">
+      <rect x="372" y="1213" width="280" height="36"
+            rx="6" ry="6" fill="#FFB84D" stroke="#CC7A00" stroke-width="1"/>
+      <text x="382" y="1227" class="resource-text" font-weight="bold">aws_subnet</text>
+      <text x="382" y="1241" class="resource-text">vandelay_private_subnets</text>
+    </g>
+    <g id="resource-aws_route-vandelay_public_default_route">
+      <rect x="664" y="1213" width="280" height="36"
+            rx="6" ry="6" fill="#FFE0B3" stroke="#CC7A00" stroke-width="1"/>
+      <text x="674" y="1227" class="resource-text-dark" font-weight="bold">aws_route</text>
+      <text x="674" y="1241" class="resource-text-dark">vandelay_public_default_route</text>
+    </g>
+    <g id="resource-aws_route_table-vandelay_public_rt01">
+      <rect x="80" y="1261" width="280" height="36"
+            rx="6" ry="6" fill="#FFCC80" stroke="#CC7A00" stroke-width="1"/>
+      <text x="90" y="1275" class="resource-text-dark" font-weight="bold">aws_route_table</text>
+      <text x="90" y="1289" class="resource-text-dark">vandelay_public_rt01</text>
+    </g>
+    <g id="resource-aws_route_table_association-vandelay_public_rta">
+      <rect x="372" y="1261" width="280" height="36"
+            rx="6" ry="6" fill="#FFE0B3" stroke="#CC7A00" stroke-width="1"/>
+      <text x="382" y="1275" class="resource-text-dark" font-weight="bold">aws_route_table_association</text>
+      <text x="382" y="1289" class="resource-text-dark">vandelay_public_rta</text>
+    </g>
+    <g id="resource-aws_subnet-vandelay_public_subnets">
+      <rect x="664" y="1261" width="280" height="36"
+            rx="6" ry="6" fill="#FFB84D" stroke="#CC7A00" stroke-width="1"/>
+      <text x="674" y="1275" class="resource-text" font-weight="bold">aws_subnet</text>
+      <text x="674" y="1289" class="resource-text">vandelay_public_subnets</text>
+    </g>
+    <g id="resource-aws_vpc-vandelay_vpc01">
+      <rect x="80" y="1309" width="280" height="36"
+            rx="6" ry="6" fill="#FF9900" stroke="#CC7A00" stroke-width="1"/>
+      <text x="90" y="1323" class="resource-text" font-weight="bold">aws_vpc</text>
+      <text x="90" y="1337" class="resource-text">vandelay_vpc01</text>
+    </g>
+    <g id="resource-aws_vpc_endpoint-vandelay_vpce_ec2messages01">
+      <rect x="372" y="1309" width="280" height="36"
+            rx="6" ry="6" fill="#FFB84D" stroke="#CC7A00" stroke-width="1"/>
+      <text x="382" y="1323" class="resource-text" font-weight="bold">aws_vpc_endpoint</text>
+      <text x="382" y="1337" class="resource-text">vandelay_vpce_ec2messages01</text>
+    </g>
+    <g id="resource-aws_vpc_endpoint-vandelay_vpce_kms01">
+      <rect x="664" y="1309" width="280" height="36"
+            rx="6" ry="6" fill="#FFB84D" stroke="#CC7A00" stroke-width="1"/>
+      <text x="674" y="1323" class="resource-text" font-weight="bold">aws_vpc_endpoint</text>
+      <text x="674" y="1337" class="resource-text">vandelay_vpce_kms01</text>
+    </g>
+    <g id="resource-aws_vpc_endpoint-vandelay_vpce_logs01">
+      <rect x="80" y="1357" width="280" height="36"
+            rx="6" ry="6" fill="#FFB84D" stroke="#CC7A00" stroke-width="1"/>
+      <text x="90" y="1371" class="resource-text" font-weight="bold">aws_vpc_endpoint</text>
+      <text x="90" y="1385" class="resource-text">vandelay_vpce_logs01</text>
+    </g>
+    <g id="resource-aws_vpc_endpoint-vandelay_vpce_monitoring">
+      <rect x="372" y="1357" width="280" height="36"
+            rx="6" ry="6" fill="#FFB84D" stroke="#CC7A00" stroke-width="1"/>
+      <text x="382" y="1371" class="resource-text" font-weight="bold">aws_vpc_endpoint</text>
+      <text x="382" y="1385" class="resource-text">vandelay_vpce_monitoring</text>
+    </g>
+    <g id="resource-aws_vpc_endpoint-vandelay_vpce_s3_gw01">
+      <rect x="664" y="1357" width="280" height="36"
+            rx="6" ry="6" fill="#FFB84D" stroke="#CC7A00" stroke-width="1"/>
+      <text x="674" y="1371" class="resource-text" font-weight="bold">aws_vpc_endpoint</text>
+      <text x="674" y="1385" class="resource-text">vandelay_vpce_s3_gw01</text>
+    </g>
+    <g id="resource-aws_vpc_endpoint-vandelay_vpce_ssm01">
+      <rect x="80" y="1405" width="280" height="36"
+            rx="6" ry="6" fill="#FFB84D" stroke="#CC7A00" stroke-width="1"/>
+      <text x="90" y="1419" class="resource-text" font-weight="bold">aws_vpc_endpoint</text>
+      <text x="90" y="1433" class="resource-text">vandelay_vpce_ssm01</text>
+    </g>
+    <g id="resource-aws_vpc_endpoint-vandelay_vpce_ssmmessages01">
+      <rect x="372" y="1405" width="280" height="36"
+            rx="6" ry="6" fill="#FFB84D" stroke="#CC7A00" stroke-width="1"/>
+      <text x="382" y="1419" class="resource-text" font-weight="bold">aws_vpc_endpoint</text>
+      <text x="382" y="1433" class="resource-text">vandelay_vpce_ssmmessages01</text>
+    </g>
+  </g>
+  <!-- Compute Category -->
+  <g id="category-compute">
+    <rect x="50" y="1548" width="936" height="292"
+          rx="12" ry="12" fill="#E8F5E9" stroke="#D1D5DB" stroke-width="1" filter="url(#shadow)"/>
+    <text x="65" y="1573" class="category-title">Compute</text>
+
+    <g id="resource-aws_lambda_function-incident_reporter">
+      <rect x="80" y="1593" width="280" height="36"
+            rx="6" ry="6" fill="#FF9900" stroke="#CC7A00" stroke-width="1"/>
+      <text x="90" y="1607" class="resource-text" font-weight="bold">aws_lambda_function</text>
+      <text x="90" y="1621" class="resource-text">incident_reporter</text>
+    </g>
+    <g id="resource-aws_lambda_permission-incident_reporter_sns">
+      <rect x="372" y="1593" width="280" height="36"
+            rx="6" ry="6" fill="#FFB84D" stroke="#CC7A00" stroke-width="1"/>
+      <text x="382" y="1607" class="resource-text" font-weight="bold">aws_lambda_permission</text>
+      <text x="382" y="1621" class="resource-text">incident_reporter_sns</text>
+    </g>
+    <g id="resource-aws_lambda_permission-secrets_manager_rotation">
+      <rect x="664" y="1593" width="280" height="36"
+            rx="6" ry="6" fill="#FFB84D" stroke="#CC7A00" stroke-width="1"/>
+      <text x="674" y="1607" class="resource-text" font-weight="bold">aws_lambda_permission</text>
+      <text x="674" y="1621" class="resource-text">secrets_manager_rotation</text>
+    </g>
+    <g id="resource-aws_lb-vandelay_alb01">
+      <rect x="80" y="1641" width="280" height="36"
+            rx="6" ry="6" fill="#8CC63F" stroke="#6B9930" stroke-width="1"/>
+      <text x="90" y="1655" class="resource-text" font-weight="bold">aws_lb</text>
+      <text x="90" y="1669" class="resource-text">vandelay_alb01</text>
+    </g>
+    <g id="resource-aws_lb_listener_rule-vandelay_default_block01">
+      <rect x="372" y="1641" width="280" height="36"
+            rx="6" ry="6" fill="#C4EA97" stroke="#6B9930" stroke-width="1"/>
+      <text x="382" y="1655" class="resource-text-dark" font-weight="bold">aws_lb_listener_rule</text>
+      <text x="382" y="1669" class="resource-text-dark">vandelay_default_block01</text>
+    </g>
+    <g id="resource-aws_instance-vandelay_ec201">
+      <rect x="664" y="1641" width="280" height="36"
+            rx="6" ry="6" fill="#3F8624" stroke="#2D6118" stroke-width="1"/>
+      <text x="674" y="1655" class="resource-text" font-weight="bold">aws_instance</text>
+      <text x="674" y="1669" class="resource-text">vandelay_ec201</text>
+    </g>
+    <g id="resource-aws_instance-vandelay_ec201_private_bonus">
+      <rect x="80" y="1689" width="280" height="36"
+            rx="6" ry="6" fill="#3F8624" stroke="#2D6118" stroke-width="1"/>
+      <text x="90" y="1703" class="resource-text" font-weight="bold">aws_instance</text>
+      <text x="90" y="1717" class="resource-text">vandelay_ec201_private_bonus</text>
+    </g>
+    <g id="resource-aws_lb_listener-vandelay_http_listener">
+      <rect x="372" y="1689" width="280" height="36"
+            rx="6" ry="6" fill="#A8D86B" stroke="#6B9930" stroke-width="1"/>
+      <text x="382" y="1703" class="resource-text" font-weight="bold">aws_lb_listener</text>
+      <text x="382" y="1717" class="resource-text">vandelay_http_listener</text>
+    </g>
+    <g id="resource-aws_lb_listener-vandelay_https_listener">
+      <rect x="664" y="1689" width="280" height="36"
+            rx="6" ry="6" fill="#A8D86B" stroke="#6B9930" stroke-width="1"/>
+      <text x="674" y="1703" class="resource-text" font-weight="bold">aws_lb_listener</text>
+      <text x="674" y="1717" class="resource-text">vandelay_https_listener</text>
+    </g>
+    <g id="resource-aws_lb_listener_rule-vandelay_require_origin_header01">
+      <rect x="80" y="1737" width="280" height="36"
+            rx="6" ry="6" fill="#C4EA97" stroke="#6B9930" stroke-width="1"/>
+      <text x="90" y="1751" class="resource-text-dark" font-weight="bold">aws_lb_listener_rule</text>
+      <text x="90" y="1765" class="resource-text-dark">vandelay_require_origin_header01</text>
+    </g>
+    <g id="resource-aws_lb_target_group-vandelay_tg01">
+      <rect x="372" y="1737" width="280" height="36"
+            rx="6" ry="6" fill="#8CC63F" stroke="#6B9930" stroke-width="1"/>
+      <text x="382" y="1751" class="resource-text" font-weight="bold">aws_lb_target_group</text>
+      <text x="382" y="1765" class="resource-text">vandelay_tg01</text>
+    </g>
+    <g id="resource-aws_lb_target_group_attachment-vandelay_tg_attachment01">
+      <rect x="664" y="1737" width="280" height="36"
+            rx="6" ry="6" fill="#C4EA97" stroke="#6B9930" stroke-width="1"/>
+      <text x="674" y="1751" class="resource-text-dark" font-weight="bold">aws_lb_target_group_attachment</text>
+      <text x="674" y="1765" class="resource-text-dark">vandelay_tg_attachment01</text>
+    </g>
+  </g>
+  <!-- Database Category -->
+  <g id="category-database">
+    <rect x="50" y="1880" width="644" height="148"
+          rx="12" ry="12" fill="#E3F2FD" stroke="#D1D5DB" stroke-width="1" filter="url(#shadow)"/>
+    <text x="65" y="1905" class="category-title">Database</text>
+
+    <g id="resource-aws_db_instance-vandelay_rds01">
+      <rect x="80" y="1925" width="280" height="36"
+            rx="6" ry="6" fill="#3B48CC" stroke="#2D3899" stroke-width="1"/>
+      <text x="90" y="1939" class="resource-text" font-weight="bold">aws_db_instance</text>
+      <text x="90" y="1953" class="resource-text">vandelay_rds01</text>
+    </g>
+    <g id="resource-aws_db_subnet_group-vandelay_rds_subnet_group01">
+      <rect x="372" y="1925" width="280" height="36"
+            rx="6" ry="6" fill="#6B7AE8" stroke="#2D3899" stroke-width="1"/>
+      <text x="382" y="1939" class="resource-text" font-weight="bold">aws_db_subnet_group</text>
+      <text x="382" y="1953" class="resource-text">vandelay_rds_subnet_group01</text>
+    </g>
+  </g>
+  <!-- Storage Category -->
+  <g id="category-storage">
+    <rect x="50" y="2068" width="936" height="292"
+          rx="12" ry="12" fill="#E8F5E9" stroke="#D1D5DB" stroke-width="1" filter="url(#shadow)"/>
+    <text x="65" y="2093" class="category-title">Storage</text>
+
+    <g id="resource-aws_s3_bucket-incident_reports">
+      <rect x="80" y="2113" width="280" height="36"
+            rx="6" ry="6" fill="#569A31" stroke="#3D6E23" stroke-width="1"/>
+      <text x="90" y="2127" class="resource-text" font-weight="bold">aws_s3_bucket</text>
+      <text x="90" y="2141" class="resource-text">incident_reports</text>
+    </g>
+    <g id="resource-aws_s3_bucket_public_access_block-incident_reports">
+      <rect x="372" y="2113" width="280" height="36"
+            rx="6" ry="6" fill="#9DD35F" stroke="#3D6E23" stroke-width="1"/>
+      <text x="382" y="2127" class="resource-text-dark" font-weight="bold">aws_s3_bucket_public_access_block</text>
+      <text x="382" y="2141" class="resource-text-dark">incident_reports</text>
+    </g>
+    <g id="resource-aws_s3_bucket_server_side_encryption_configuration-incident_reports">
+      <rect x="664" y="2113" width="280" height="36"
+            rx="6" ry="6" fill="#9DD35F" stroke="#3D6E23" stroke-width="1"/>
+      <text x="674" y="2127" class="resource-text-dark" font-weight="bold">aws_s3_bucket_server_side_encryption_configuration</text>
+      <text x="674" y="2141" class="resource-text-dark">incident_reports</text>
+    </g>
+    <g id="resource-aws_s3_bucket_versioning-incident_reports">
+      <rect x="80" y="2161" width="280" height="36"
+            rx="6" ry="6" fill="#9DD35F" stroke="#3D6E23" stroke-width="1"/>
+      <text x="90" y="2175" class="resource-text-dark" font-weight="bold">aws_s3_bucket_versioning</text>
+      <text x="90" y="2189" class="resource-text-dark">incident_reports</text>
+    </g>
+    <g id="resource-aws_s3_bucket-vandelay_alb_logs">
+      <rect x="372" y="2161" width="280" height="36"
+            rx="6" ry="6" fill="#569A31" stroke="#3D6E23" stroke-width="1"/>
+      <text x="382" y="2175" class="resource-text" font-weight="bold">aws_s3_bucket</text>
+      <text x="382" y="2189" class="resource-text">vandelay_alb_logs</text>
+    </g>
+    <g id="resource-aws_s3_bucket_lifecycle_configuration-vandelay_alb_logs_lifecycle">
+      <rect x="664" y="2161" width="280" height="36"
+            rx="6" ry="6" fill="#9DD35F" stroke="#3D6E23" stroke-width="1"/>
+      <text x="674" y="2175" class="resource-text-dark" font-weight="bold">aws_s3_bucket_lifecycle_configuration</text>
+      <text x="674" y="2189" class="resource-text-dark">vandelay_alb_logs_lifecycle</text>
+    </g>
+    <g id="resource-aws_s3_bucket_ownership_controls-vandelay_alb_logs_owner">
+      <rect x="80" y="2209" width="280" height="36"
+            rx="6" ry="6" fill="#9DD35F" stroke="#3D6E23" stroke-width="1"/>
+      <text x="90" y="2223" class="resource-text-dark" font-weight="bold">aws_s3_bucket_ownership_controls</text>
+      <text x="90" y="2237" class="resource-text-dark">vandelay_alb_logs_owner</text>
+    </g>
+    <g id="resource-aws_s3_bucket_public_access_block-vandelay_alb_logs_pab">
+      <rect x="372" y="2209" width="280" height="36"
+            rx="6" ry="6" fill="#9DD35F" stroke="#3D6E23" stroke-width="1"/>
+      <text x="382" y="2223" class="resource-text-dark" font-weight="bold">aws_s3_bucket_public_access_block</text>
+      <text x="382" y="2237" class="resource-text-dark">vandelay_alb_logs_pab</text>
+    </g>
+    <g id="resource-aws_s3_bucket_policy-vandelay_alb_logs_policy">
+      <rect x="664" y="2209" width="280" height="36"
+            rx="6" ry="6" fill="#7AB648" stroke="#3D6E23" stroke-width="1"/>
+      <text x="674" y="2223" class="resource-text" font-weight="bold">aws_s3_bucket_policy</text>
+      <text x="674" y="2237" class="resource-text">vandelay_alb_logs_policy</text>
+    </g>
+    <g id="resource-aws_s3_bucket_server_side_encryption_configuration-vandelay_alb_logs_sse">
+      <rect x="80" y="2257" width="280" height="36"
+            rx="6" ry="6" fill="#9DD35F" stroke="#3D6E23" stroke-width="1"/>
+      <text x="90" y="2271" class="resource-text-dark" font-weight="bold">aws_s3_bucket_server_side_encryption_configuration</text>
+      <text x="90" y="2285" class="resource-text-dark">vandelay_alb_logs_sse</text>
+    </g>
+    <g id="resource-aws_s3_bucket_versioning-vandelay_alb_logs_versioning">
+      <rect x="372" y="2257" width="280" height="36"
+            rx="6" ry="6" fill="#9DD35F" stroke="#3D6E23" stroke-width="1"/>
+      <text x="382" y="2271" class="resource-text-dark" font-weight="bold">aws_s3_bucket_versioning</text>
+      <text x="382" y="2285" class="resource-text-dark">vandelay_alb_logs_versioning</text>
+    </g>
+  </g>
+  <!-- IAM Category -->
+  <g id="category-iam">
+    <rect x="50" y="2400" width="936" height="484"
+          rx="12" ry="12" fill="#FCE4EC" stroke="#D1D5DB" stroke-width="1" filter="url(#shadow)"/>
+    <text x="65" y="2425" class="category-title">IAM</text>
+
+    <g id="resource-aws_iam_role_policy_attachment-incident_reporter_basic">
+      <rect x="80" y="2445" width="280" height="36"
+            rx="6" ry="6" fill="#F5B3BC" stroke="#8E1629" stroke-width="1"/>
+      <text x="90" y="2459" class="resource-text-dark" font-weight="bold">aws_iam_role_policy_attachment</text>
+      <text x="90" y="2473" class="resource-text-dark">incident_reporter_basic</text>
+    </g>
+    <g id="resource-aws_iam_role_policy-incident_reporter_bedrock">
+      <rect x="372" y="2445" width="280" height="36"
+            rx="6" ry="6" fill="#F08896" stroke="#8E1629" stroke-width="1"/>
+      <text x="382" y="2459" class="resource-text" font-weight="bold">aws_iam_role_policy</text>
+      <text x="382" y="2473" class="resource-text">incident_reporter_bedrock</text>
+    </g>
+    <g id="resource-aws_iam_role_policy-incident_reporter_logs">
+      <rect x="664" y="2445" width="280" height="36"
+            rx="6" ry="6" fill="#F08896" stroke="#8E1629" stroke-width="1"/>
+      <text x="674" y="2459" class="resource-text" font-weight="bold">aws_iam_role_policy</text>
+      <text x="674" y="2473" class="resource-text">incident_reporter_logs</text>
+    </g>
+    <g id="resource-aws_iam_role-incident_reporter_role">
+      <rect x="80" y="2493" width="280" height="36"
+            rx="6" ry="6" fill="#C41E3A" stroke="#8E1629" stroke-width="1"/>
+      <text x="90" y="2507" class="resource-text" font-weight="bold">aws_iam_role</text>
+      <text x="90" y="2521" class="resource-text">incident_reporter_role</text>
+    </g>
+    <g id="resource-aws_iam_role_policy-incident_reporter_s3">
+      <rect x="372" y="2493" width="280" height="36"
+            rx="6" ry="6" fill="#F08896" stroke="#8E1629" stroke-width="1"/>
+      <text x="382" y="2507" class="resource-text" font-weight="bold">aws_iam_role_policy</text>
+      <text x="382" y="2521" class="resource-text">incident_reporter_s3</text>
+    </g>
+    <g id="resource-aws_iam_role_policy-incident_reporter_secrets">
+      <rect x="664" y="2493" width="280" height="36"
+            rx="6" ry="6" fill="#F08896" stroke="#8E1629" stroke-width="1"/>
+      <text x="674" y="2507" class="resource-text" font-weight="bold">aws_iam_role_policy</text>
+      <text x="674" y="2521" class="resource-text">incident_reporter_secrets</text>
+    </g>
+    <g id="resource-aws_iam_role_policy-incident_reporter_sns">
+      <rect x="80" y="2541" width="280" height="36"
+            rx="6" ry="6" fill="#F08896" stroke="#8E1629" stroke-width="1"/>
+      <text x="90" y="2555" class="resource-text" font-weight="bold">aws_iam_role_policy</text>
+      <text x="90" y="2569" class="resource-text">incident_reporter_sns</text>
+    </g>
+    <g id="resource-aws_iam_role_policy-incident_reporter_ssm">
+      <rect x="372" y="2541" width="280" height="36"
+            rx="6" ry="6" fill="#F08896" stroke="#8E1629" stroke-width="1"/>
+      <text x="382" y="2555" class="resource-text" font-weight="bold">aws_iam_role_policy</text>
+      <text x="382" y="2569" class="resource-text">incident_reporter_ssm</text>
+    </g>
+    <g id="resource-aws_iam_role_policy_attachment-rotation_lambda_basic">
+      <rect x="664" y="2541" width="280" height="36"
+            rx="6" ry="6" fill="#F5B3BC" stroke="#8E1629" stroke-width="1"/>
+      <text x="674" y="2555" class="resource-text-dark" font-weight="bold">aws_iam_role_policy_attachment</text>
+      <text x="674" y="2569" class="resource-text-dark">rotation_lambda_basic</text>
+    </g>
+    <g id="resource-aws_iam_role_policy-rotation_lambda_policy">
+      <rect x="80" y="2589" width="280" height="36"
+            rx="6" ry="6" fill="#F08896" stroke="#8E1629" stroke-width="1"/>
+      <text x="90" y="2603" class="resource-text" font-weight="bold">aws_iam_role_policy</text>
+      <text x="90" y="2617" class="resource-text">rotation_lambda_policy</text>
+    </g>
+    <g id="resource-aws_iam_role-rotation_lambda_role">
+      <rect x="372" y="2589" width="280" height="36"
+            rx="6" ry="6" fill="#C41E3A" stroke="#8E1629" stroke-width="1"/>
+      <text x="382" y="2603" class="resource-text" font-weight="bold">aws_iam_role</text>
+      <text x="382" y="2617" class="resource-text">rotation_lambda_role</text>
+    </g>
+    <g id="resource-aws_iam_role_policy_attachment-rotation_lambda_vpc">
+      <rect x="664" y="2589" width="280" height="36"
+            rx="6" ry="6" fill="#F5B3BC" stroke="#8E1629" stroke-width="1"/>
+      <text x="674" y="2603" class="resource-text-dark" font-weight="bold">aws_iam_role_policy_attachment</text>
+      <text x="674" y="2617" class="resource-text-dark">rotation_lambda_vpc</text>
+    </g>
+    <g id="resource-aws_iam_role_policy_attachment-vandelay_attach_lp_cwlogs01">
+      <rect x="80" y="2637" width="280" height="36"
+            rx="6" ry="6" fill="#F5B3BC" stroke="#8E1629" stroke-width="1"/>
+      <text x="90" y="2651" class="resource-text-dark" font-weight="bold">aws_iam_role_policy_attachment</text>
+      <text x="90" y="2665" class="resource-text-dark">vandelay_attach_lp_cwlogs01</text>
+    </g>
+    <g id="resource-aws_iam_role_policy_attachment-vandelay_attach_lp_params01">
+      <rect x="372" y="2637" width="280" height="36"
+            rx="6" ry="6" fill="#F5B3BC" stroke="#8E1629" stroke-width="1"/>
+      <text x="382" y="2651" class="resource-text-dark" font-weight="bold">aws_iam_role_policy_attachment</text>
+      <text x="382" y="2665" class="resource-text-dark">vandelay_attach_lp_params01</text>
+    </g>
+    <g id="resource-aws_iam_role_policy_attachment-vandelay_attach_lp_secret01">
+      <rect x="664" y="2637" width="280" height="36"
+            rx="6" ry="6" fill="#F5B3BC" stroke="#8E1629" stroke-width="1"/>
+      <text x="674" y="2651" class="resource-text-dark" font-weight="bold">aws_iam_role_policy_attachment</text>
+      <text x="674" y="2665" class="resource-text-dark">vandelay_attach_lp_secret01</text>
+    </g>
+    <g id="resource-aws_iam_role_policy_attachment-vandelay_ec2_cw_attach">
+      <rect x="80" y="2685" width="280" height="36"
+            rx="6" ry="6" fill="#F5B3BC" stroke="#8E1629" stroke-width="1"/>
+      <text x="90" y="2699" class="resource-text-dark" font-weight="bold">aws_iam_role_policy_attachment</text>
+      <text x="90" y="2713" class="resource-text-dark">vandelay_ec2_cw_attach</text>
+    </g>
+    <g id="resource-aws_iam_role_policy-vandelay_ec2_read_secret">
+      <rect x="372" y="2685" width="280" height="36"
+            rx="6" ry="6" fill="#F08896" stroke="#8E1629" stroke-width="1"/>
+      <text x="382" y="2699" class="resource-text" font-weight="bold">aws_iam_role_policy</text>
+      <text x="382" y="2713" class="resource-text">vandelay_ec2_read_secret</text>
+    </g>
+    <g id="resource-aws_iam_role-vandelay_ec2_role01">
+      <rect x="664" y="2685" width="280" height="36"
+            rx="6" ry="6" fill="#C41E3A" stroke="#8E1629" stroke-width="1"/>
+      <text x="674" y="2699" class="resource-text" font-weight="bold">aws_iam_role</text>
+      <text x="674" y="2713" class="resource-text">vandelay_ec2_role01</text>
+    </g>
+    <g id="resource-aws_iam_role_policy_attachment-vandelay_ec2_ssm_attach">
+      <rect x="80" y="2733" width="280" height="36"
+            rx="6" ry="6" fill="#F5B3BC" stroke="#8E1629" stroke-width="1"/>
+      <text x="90" y="2747" class="resource-text-dark" font-weight="bold">aws_iam_role_policy_attachment</text>
+      <text x="90" y="2761" class="resource-text-dark">vandelay_ec2_ssm_attach</text>
+    </g>
+    <g id="resource-aws_iam_instance_profile-vandelay_instance_profile01">
+      <rect x="372" y="2733" width="280" height="36"
+            rx="6" ry="6" fill="#C41E3A" stroke="#8E1629" stroke-width="1"/>
+      <text x="382" y="2747" class="resource-text" font-weight="bold">aws_iam_instance_profile</text>
+      <text x="382" y="2761" class="resource-text">vandelay_instance_profile01</text>
+    </g>
+    <g id="resource-aws_iam_policy-vandelay_leastpriv_cwlogs01">
+      <rect x="664" y="2733" width="280" height="36"
+            rx="6" ry="6" fill="#E85A71" stroke="#8E1629" stroke-width="1"/>
+      <text x="674" y="2747" class="resource-text" font-weight="bold">aws_iam_policy</text>
+      <text x="674" y="2761" class="resource-text">vandelay_leastpriv_cwlogs01</text>
+    </g>
+    <g id="resource-aws_iam_policy-vandelay_leastpriv_read_params01">
+      <rect x="80" y="2781" width="280" height="36"
+            rx="6" ry="6" fill="#E85A71" stroke="#8E1629" stroke-width="1"/>
+      <text x="90" y="2795" class="resource-text" font-weight="bold">aws_iam_policy</text>
+      <text x="90" y="2809" class="resource-text">vandelay_leastpriv_read_params01</text>
+    </g>
+    <g id="resource-aws_iam_policy-vandelay_leastpriv_read_secret01">
+      <rect x="372" y="2781" width="280" height="36"
+            rx="6" ry="6" fill="#E85A71" stroke="#8E1629" stroke-width="1"/>
+      <text x="382" y="2795" class="resource-text" font-weight="bold">aws_iam_policy</text>
+      <text x="382" y="2809" class="resource-text">vandelay_leastpriv_read_secret01</text>
+    </g>
+  </g>
+  <!-- Monitoring Category -->
+  <g id="category-monitoring">
+    <rect x="50" y="2924" width="936" height="196"
+          rx="12" ry="12" fill="#E0F7FA" stroke="#D1D5DB" stroke-width="1" filter="url(#shadow)"/>
+    <text x="65" y="2949" class="category-title">Monitoring</text>
+
+    <g id="resource-aws_cloudwatch_metric_alarm-vandelay_alb_5xx_alarm">
+      <rect x="80" y="2969" width="280" height="36"
+            rx="6" ry="6" fill="#48D1CC" stroke="#009B9E" stroke-width="1"/>
+      <text x="90" y="2983" class="resource-text" font-weight="bold">aws_cloudwatch_metric_alarm</text>
+      <text x="90" y="2997" class="resource-text">vandelay_alb_5xx_alarm</text>
+    </g>
+    <g id="resource-aws_cloudwatch_dashboard-vandelay_dashboard01">
+      <rect x="372" y="2969" width="280" height="36"
+            rx="6" ry="6" fill="#7FFFD4" stroke="#009B9E" stroke-width="1"/>
+      <text x="382" y="2983" class="resource-text-dark" font-weight="bold">aws_cloudwatch_dashboard</text>
+      <text x="382" y="2997" class="resource-text-dark">vandelay_dashboard01</text>
+    </g>
+    <g id="resource-aws_cloudwatch_metric_alarm-vandelay_db_alarm01">
+      <rect x="664" y="2969" width="280" height="36"
+            rx="6" ry="6" fill="#48D1CC" stroke="#009B9E" stroke-width="1"/>
+      <text x="674" y="2983" class="resource-text" font-weight="bold">aws_cloudwatch_metric_alarm</text>
+      <text x="674" y="2997" class="resource-text">vandelay_db_alarm01</text>
+    </g>
+    <g id="resource-aws_cloudwatch_log_group-vandelay_log_group01">
+      <rect x="80" y="3017" width="280" height="36"
+            rx="6" ry="6" fill="#00CED1" stroke="#009B9E" stroke-width="1"/>
+      <text x="90" y="3031" class="resource-text" font-weight="bold">aws_cloudwatch_log_group</text>
+      <text x="90" y="3045" class="resource-text">vandelay_log_group01</text>
+    </g>
+    <g id="resource-aws_cloudwatch_log_group-vandelay_waf_logs">
+      <rect x="372" y="3017" width="280" height="36"
+            rx="6" ry="6" fill="#00CED1" stroke="#009B9E" stroke-width="1"/>
+      <text x="382" y="3031" class="resource-text" font-weight="bold">aws_cloudwatch_log_group</text>
+      <text x="382" y="3045" class="resource-text">vandelay_waf_logs</text>
+    </g>
+  </g>
+  <!-- Messaging Category -->
+  <g id="category-messaging">
+    <rect x="50" y="3160" width="936" height="148"
+          rx="12" ry="12" fill="#F3E5F5" stroke="#D1D5DB" stroke-width="1" filter="url(#shadow)"/>
+    <text x="65" y="3185" class="category-title">Messaging</text>
+
+    <g id="resource-aws_sns_topic_subscription-incident_reporter_sub">
+      <rect x="80" y="3205" width="280" height="36"
+            rx="6" ry="6" fill="#E879F9" stroke="#A336B9" stroke-width="1"/>
+      <text x="90" y="3219" class="resource-text" font-weight="bold">aws_sns_topic_subscription</text>
+      <text x="90" y="3233" class="resource-text">incident_reporter_sub</text>
+    </g>
+    <g id="resource-aws_sns_topic_subscription-vandelay_sns_sub01">
+      <rect x="372" y="3205" width="280" height="36"
+            rx="6" ry="6" fill="#E879F9" stroke="#A336B9" stroke-width="1"/>
+      <text x="382" y="3219" class="resource-text" font-weight="bold">aws_sns_topic_subscription</text>
+      <text x="382" y="3233" class="resource-text">vandelay_sns_sub01</text>
+    </g>
+    <g id="resource-aws_sns_topic-vandelay_sns_topic01">
+      <rect x="664" y="3205" width="280" height="36"
+            rx="6" ry="6" fill="#D946EF" stroke="#A336B9" stroke-width="1"/>
+      <text x="674" y="3219" class="resource-text" font-weight="bold">aws_sns_topic</text>
+      <text x="674" y="3233" class="resource-text">vandelay_sns_topic01</text>
+    </g>
+  </g>
+  <!-- Secrets Category -->
+  <g id="category-secrets">
+    <rect x="50" y="3348" width="352" height="148"
+          rx="12" ry="12" fill="#E8EAF6" stroke="#D1D5DB" stroke-width="1" filter="url(#shadow)"/>
+    <text x="65" y="3373" class="category-title">Secrets</text>
+
+    <g id="resource-aws_secretsmanager_secret_rotation-vandelay_db_rotation">
+      <rect x="80" y="3393" width="280" height="36"
+            rx="6" ry="6" fill="#3D7ABF" stroke="#142740" stroke-width="1"/>
+      <text x="90" y="3407" class="resource-text" font-weight="bold">aws_secretsmanager_secret_rotation</text>
+      <text x="90" y="3421" class="resource-text">vandelay_db_rotation</text>
+    </g>
+  </g>
+  <!-- SSM Category -->
+  <g id="category-ssm">
+    <rect x="50" y="3536" width="936" height="196"
+          rx="12" ry="12" fill="#E1F5FE" stroke="#D1D5DB" stroke-width="1" filter="url(#shadow)"/>
+    <text x="65" y="3561" class="category-title">SSM</text>
+
+    <g id="resource-aws_ssm_parameter-vandelay_db_endpoint">
+      <rect x="80" y="3581" width="280" height="36"
+            rx="6" ry="6" fill="#4AA8D8" stroke="#357FA3" stroke-width="1"/>
+      <text x="90" y="3595" class="resource-text" font-weight="bold">aws_ssm_parameter</text>
+      <text x="90" y="3609" class="resource-text">vandelay_db_endpoint</text>
+    </g>
+    <g id="resource-aws_ssm_parameter-vandelay_db_endpoint_param">
+      <rect x="372" y="3581" width="280" height="36"
+            rx="6" ry="6" fill="#4AA8D8" stroke="#357FA3" stroke-width="1"/>
+      <text x="382" y="3595" class="resource-text" font-weight="bold">aws_ssm_parameter</text>
+      <text x="382" y="3609" class="resource-text">vandelay_db_endpoint_param</text>
+    </g>
+    <g id="resource-aws_ssm_parameter-vandelay_db_name">
+      <rect x="664" y="3581" width="280" height="36"
+            rx="6" ry="6" fill="#4AA8D8" stroke="#357FA3" stroke-width="1"/>
+      <text x="674" y="3595" class="resource-text" font-weight="bold">aws_ssm_parameter</text>
+      <text x="674" y="3609" class="resource-text">vandelay_db_name</text>
+    </g>
+    <g id="resource-aws_ssm_parameter-vandelay_db_name_param">
+      <rect x="80" y="3629" width="280" height="36"
+            rx="6" ry="6" fill="#4AA8D8" stroke="#357FA3" stroke-width="1"/>
+      <text x="90" y="3643" class="resource-text" font-weight="bold">aws_ssm_parameter</text>
+      <text x="90" y="3657" class="resource-text">vandelay_db_name_param</text>
+    </g>
+    <g id="resource-aws_ssm_parameter-vandelay_db_port">
+      <rect x="372" y="3629" width="280" height="36"
+            rx="6" ry="6" fill="#4AA8D8" stroke="#357FA3" stroke-width="1"/>
+      <text x="382" y="3643" class="resource-text" font-weight="bold">aws_ssm_parameter</text>
+      <text x="382" y="3657" class="resource-text">vandelay_db_port</text>
+    </g>
+    <g id="resource-aws_ssm_parameter-vandelay_db_port_param">
+      <rect x="664" y="3629" width="280" height="36"
+            rx="6" ry="6" fill="#4AA8D8" stroke="#357FA3" stroke-width="1"/>
+      <text x="674" y="3643" class="resource-text" font-weight="bold">aws_ssm_parameter</text>
+      <text x="674" y="3657" class="resource-text">vandelay_db_port_param</text>
+    </g>
+  </g>
+  <!-- Serverless Category -->
+  <g id="category-serverless">
+    <rect x="50" y="3772" width="352" height="148"
+          rx="12" ry="12" fill="#FFF3E0" stroke="#D1D5DB" stroke-width="1" filter="url(#shadow)"/>
+    <text x="65" y="3797" class="category-title">Serverless</text>
+
+    <g id="resource-aws_serverlessapplicationrepository_cloudformation_stack-rotation_lambda">
+      <rect x="80" y="3817" width="280" height="36"
+            rx="6" ry="6" fill="#FF9900" stroke="#CC7A00" stroke-width="1"/>
+      <text x="90" y="3831" class="resource-text" font-weight="bold">aws_serverlessapplicationrepository_cloudformation_stack</text>
+      <text x="90" y="3845" class="resource-text">rotation_lambda</text>
+    </g>
+  </g>
+  <!-- Utility Category -->
+  <g id="category-utility">
+    <rect x="50" y="3960" width="352" height="148"
+          rx="12" ry="12" fill="#F5F5F5" stroke="#D1D5DB" stroke-width="1" filter="url(#shadow)"/>
+    <text x="65" y="3985" class="category-title">Utility</text>
+
+    <g id="resource-random_password-vandelay_origin_secret01">
+      <rect x="80" y="4005" width="280" height="36"
+            rx="6" ry="6" fill="#6B7280" stroke="#4B5563" stroke-width="1"/>
+      <text x="90" y="4019" class="resource-text" font-weight="bold">random_password</text>
+      <text x="90" y="4033" class="resource-text">vandelay_origin_secret01</text>
+    </g>
+  </g>
+  <!-- Data Category -->
+  <g id="category-data">
+    <rect x="50" y="4148" width="936" height="196"
+          rx="12" ry="12" fill="#FAFAFA" stroke="#D1D5DB" stroke-width="1" filter="url(#shadow)"/>
+    <text x="65" y="4173" class="category-title">Data</text>
+
+    <g id="resource-data-aws_caller_identity-current">
+      <rect x="80" y="4193" width="280" height="36"
+            rx="6" ry="6" fill="#9CA3AF" stroke="#6B7280" stroke-width="1"/>
+      <text x="90" y="4207" class="resource-text-dark" font-weight="bold">data.aws_caller_identity</text>
+      <text x="90" y="4221" class="resource-text-dark">current</text>
+    </g>
+    <g id="resource-data-aws_ec2_managed_prefix_list-vandelay_cf_origin_facing01">
+      <rect x="372" y="4193" width="280" height="36"
+            rx="6" ry="6" fill="#9CA3AF" stroke="#6B7280" stroke-width="1"/>
+      <text x="382" y="4207" class="resource-text-dark" font-weight="bold">data.aws_ec2_managed_prefix_list</text>
+      <text x="382" y="4221" class="resource-text-dark">vandelay_cf_origin_facing01</text>
+    </g>
+    <g id="resource-data-aws_secretsmanager_secret-vandelay_db_secret01">
+      <rect x="664" y="4193" width="280" height="36"
+            rx="6" ry="6" fill="#9CA3AF" stroke="#6B7280" stroke-width="1"/>
+      <text x="674" y="4207" class="resource-text-dark" font-weight="bold">data.aws_secretsmanager_secret</text>
+      <text x="674" y="4221" class="resource-text-dark">vandelay_db_secret01</text>
+    </g>
+    <g id="resource-data-aws_secretsmanager_secret_version-vandelay_db_secret_version01">
+      <rect x="80" y="4241" width="280" height="36"
+            rx="6" ry="6" fill="#9CA3AF" stroke="#6B7280" stroke-width="1"/>
+      <text x="90" y="4255" class="resource-text-dark" font-weight="bold">data.aws_secretsmanager_secret_version</text>
+      <text x="90" y="4269" class="resource-text-dark">vandelay_db_secret_version01</text>
+    </g>
+    <g id="resource-data-aws_region-vandelay_region01">
+      <rect x="372" y="4241" width="280" height="36"
+            rx="6" ry="6" fill="#9CA3AF" stroke="#6B7280" stroke-width="1"/>
+      <text x="382" y="4255" class="resource-text-dark" font-weight="bold">data.aws_region</text>
+      <text x="382" y="4269" class="resource-text-dark">vandelay_region01</text>
+    </g>
+    <g id="resource-data-aws_caller_identity-vandelay_self01">
+      <rect x="664" y="4241" width="280" height="36"
+            rx="6" ry="6" fill="#9CA3AF" stroke="#6B7280" stroke-width="1"/>
+      <text x="674" y="4255" class="resource-text-dark" font-weight="bold">data.aws_caller_identity</text>
+      <text x="674" y="4269" class="resource-text-dark">vandelay_self01</text>
+    </g>
+  </g>
+  <!-- Other Category -->
+  <g id="category-other">
+    <rect x="50" y="4384" width="936" height="1108"
+          rx="12" ry="12" fill="#FFFFFF" stroke="#D1D5DB" stroke-width="1" filter="url(#shadow)"/>
+    <text x="65" y="4409" class="category-title">Other</text>
+
+    <g id="resource-output-app_urls">
+      <rect x="80" y="4429" width="280" height="36"
+            rx="6" ry="6" fill="#E5E7EB" stroke="#9CA3AF" stroke-width="1"/>
+      <text x="90" y="4443" class="resource-text-dark" font-weight="bold">output</text>
+      <text x="90" y="4457" class="resource-text-dark">app_urls</text>
+    </g>
+    <g id="resource-local-common_tags">
+      <rect x="372" y="4429" width="280" height="36"
+            rx="6" ry="6" fill="#E5E7EB" stroke="#9CA3AF" stroke-width="1"/>
+      <text x="382" y="4443" class="resource-text-dark" font-weight="bold">local</text>
+      <text x="382" y="4457" class="resource-text-dark">common_tags</text>
+    </g>
+    <g id="resource-output-ec2_instance_id">
+      <rect x="664" y="4429" width="280" height="36"
+            rx="6" ry="6" fill="#E5E7EB" stroke="#9CA3AF" stroke-width="1"/>
+      <text x="674" y="4443" class="resource-text-dark" font-weight="bold">output</text>
+      <text x="674" y="4457" class="resource-text-dark">ec2_instance_id</text>
+    </g>
+    <g id="resource-output-ec2_public_dns">
+      <rect x="80" y="4477" width="280" height="36"
+            rx="6" ry="6" fill="#E5E7EB" stroke="#9CA3AF" stroke-width="1"/>
+      <text x="90" y="4491" class="resource-text-dark" font-weight="bold">output</text>
+      <text x="90" y="4505" class="resource-text-dark">ec2_public_dns</text>
+    </g>
+    <g id="resource-output-ec2_public_ip">
+      <rect x="372" y="4477" width="280" height="36"
+            rx="6" ry="6" fill="#E5E7EB" stroke="#9CA3AF" stroke-width="1"/>
+      <text x="382" y="4491" class="resource-text-dark" font-weight="bold">output</text>
+      <text x="382" y="4505" class="resource-text-dark">ec2_public_ip</text>
+    </g>
+    <g id="resource-output-ec2_security_group_id">
+      <rect x="664" y="4477" width="280" height="36"
+            rx="6" ry="6" fill="#E5E7EB" stroke="#9CA3AF" stroke-width="1"/>
+      <text x="674" y="4491" class="resource-text-dark" font-weight="bold">output</text>
+      <text x="674" y="4505" class="resource-text-dark">ec2_security_group_id</text>
+    </g>
+    <g id="resource-local-elb_account_id">
+      <rect x="80" y="4525" width="280" height="36"
+            rx="6" ry="6" fill="#E5E7EB" stroke="#9CA3AF" stroke-width="1"/>
+      <text x="90" y="4539" class="resource-text-dark" font-weight="bold">local</text>
+      <text x="90" y="4553" class="resource-text-dark">elb_account_id</text>
+    </g>
+    <g id="resource-output-gate_script_variables">
+      <rect x="372" y="4525" width="280" height="36"
+            rx="6" ry="6" fill="#E5E7EB" stroke="#9CA3AF" stroke-width="1"/>
+      <text x="382" y="4539" class="resource-text-dark" font-weight="bold">output</text>
+      <text x="382" y="4553" class="resource-text-dark">gate_script_variables</text>
+    </g>
+    <g id="resource-output-iam_role_name">
+      <rect x="664" y="4525" width="280" height="36"
+            rx="6" ry="6" fill="#E5E7EB" stroke="#9CA3AF" stroke-width="1"/>
+      <text x="674" y="4539" class="resource-text-dark" font-weight="bold">output</text>
+      <text x="674" y="4553" class="resource-text-dark">iam_role_name</text>
+    </g>
+    <g id="resource-output-incident_reporter_arn">
+      <rect x="80" y="4573" width="280" height="36"
+            rx="6" ry="6" fill="#E5E7EB" stroke="#9CA3AF" stroke-width="1"/>
+      <text x="90" y="4587" class="resource-text-dark" font-weight="bold">output</text>
+      <text x="90" y="4601" class="resource-text-dark">incident_reporter_arn</text>
+    </g>
+    <g id="resource-output-incident_reporter_function_name">
+      <rect x="372" y="4573" width="280" height="36"
+            rx="6" ry="6" fill="#E5E7EB" stroke="#9CA3AF" stroke-width="1"/>
+      <text x="382" y="4587" class="resource-text-dark" font-weight="bold">output</text>
+      <text x="382" y="4601" class="resource-text-dark">incident_reporter_function_name</text>
+    </g>
+    <g id="resource-data-archive_file-incident_reporter_zip">
+      <rect x="664" y="4573" width="280" height="36"
+            rx="6" ry="6" fill="#E5E7EB" stroke="#9CA3AF" stroke-width="1"/>
+      <text x="674" y="4587" class="resource-text-dark" font-weight="bold">data.archive_file</text>
+      <text x="674" y="4601" class="resource-text-dark">incident_reporter_zip</text>
+    </g>
+    <g id="resource-output-incident_reports_bucket">
+      <rect x="80" y="4621" width="280" height="36"
+            rx="6" ry="6" fill="#E5E7EB" stroke="#9CA3AF" stroke-width="1"/>
+      <text x="90" y="4635" class="resource-text-dark" font-weight="bold">output</text>
+      <text x="90" y="4649" class="resource-text-dark">incident_reports_bucket</text>
+    </g>
+    <g id="resource-output-instance_profile_name">
+      <rect x="372" y="4621" width="280" height="36"
+            rx="6" ry="6" fill="#E5E7EB" stroke="#9CA3AF" stroke-width="1"/>
+      <text x="382" y="4635" class="resource-text-dark" font-weight="bold">output</text>
+      <text x="382" y="4649" class="resource-text-dark">instance_profile_name</text>
+    </g>
+    <g id="resource-output-log_group_name">
+      <rect x="664" y="4621" width="280" height="36"
+            rx="6" ry="6" fill="#E5E7EB" stroke="#9CA3AF" stroke-width="1"/>
+      <text x="674" y="4635" class="resource-text-dark" font-weight="bold">output</text>
+      <text x="674" y="4649" class="resource-text-dark">log_group_name</text>
+    </g>
+    <g id="resource-local-name_prefix">
+      <rect x="80" y="4669" width="280" height="36"
+            rx="6" ry="6" fill="#E5E7EB" stroke="#9CA3AF" stroke-width="1"/>
+      <text x="90" y="4683" class="resource-text-dark" font-weight="bold">local</text>
+      <text x="90" y="4697" class="resource-text-dark">name_prefix</text>
+    </g>
+    <g id="resource-output-private_subnet_ids">
+      <rect x="372" y="4669" width="280" height="36"
+            rx="6" ry="6" fill="#E5E7EB" stroke="#9CA3AF" stroke-width="1"/>
+      <text x="382" y="4683" class="resource-text-dark" font-weight="bold">output</text>
+      <text x="382" y="4697" class="resource-text-dark">private_subnet_ids</text>
+    </g>
+    <g id="resource-output-public_subnet_ids">
+      <rect x="664" y="4669" width="280" height="36"
+            rx="6" ry="6" fill="#E5E7EB" stroke="#9CA3AF" stroke-width="1"/>
+      <text x="674" y="4683" class="resource-text-dark" font-weight="bold">output</text>
+      <text x="674" y="4697" class="resource-text-dark">public_subnet_ids</text>
+    </g>
+    <g id="resource-output-rds_endpoint">
+      <rect x="80" y="4717" width="280" height="36"
+            rx="6" ry="6" fill="#E5E7EB" stroke="#9CA3AF" stroke-width="1"/>
+      <text x="90" y="4731" class="resource-text-dark" font-weight="bold">output</text>
+      <text x="90" y="4745" class="resource-text-dark">rds_endpoint</text>
+    </g>
+    <g id="resource-output-rds_identifier">
+      <rect x="372" y="4717" width="280" height="36"
+            rx="6" ry="6" fill="#E5E7EB" stroke="#9CA3AF" stroke-width="1"/>
+      <text x="382" y="4731" class="resource-text-dark" font-weight="bold">output</text>
+      <text x="382" y="4745" class="resource-text-dark">rds_identifier</text>
+    </g>
+    <g id="resource-output-rds_port">
+      <rect x="664" y="4717" width="280" height="36"
+            rx="6" ry="6" fill="#E5E7EB" stroke="#9CA3AF" stroke-width="1"/>
+      <text x="674" y="4731" class="resource-text-dark" font-weight="bold">output</text>
+      <text x="674" y="4745" class="resource-text-dark">rds_port</text>
+    </g>
+    <g id="resource-output-rds_security_group_id">
+      <rect x="80" y="4765" width="280" height="36"
+            rx="6" ry="6" fill="#E5E7EB" stroke="#9CA3AF" stroke-width="1"/>
+      <text x="90" y="4779" class="resource-text-dark" font-weight="bold">output</text>
+      <text x="90" y="4793" class="resource-text-dark">rds_security_group_id</text>
+    </g>
+    <g id="resource-output-rotation_lambda_name">
+      <rect x="372" y="4765" width="280" height="36"
+            rx="6" ry="6" fill="#E5E7EB" stroke="#9CA3AF" stroke-width="1"/>
+      <text x="382" y="4779" class="resource-text-dark" font-weight="bold">output</text>
+      <text x="382" y="4793" class="resource-text-dark">rotation_lambda_name</text>
+    </g>
+    <g id="resource-output-secret_arn">
+      <rect x="664" y="4765" width="280" height="36"
+            rx="6" ry="6" fill="#E5E7EB" stroke="#9CA3AF" stroke-width="1"/>
+      <text x="674" y="4779" class="resource-text-dark" font-weight="bold">output</text>
+      <text x="674" y="4793" class="resource-text-dark">secret_arn</text>
+    </g>
+    <g id="resource-output-secret_name">
+      <rect x="80" y="4813" width="280" height="36"
+            rx="6" ry="6" fill="#E5E7EB" stroke="#9CA3AF" stroke-width="1"/>
+      <text x="90" y="4827" class="resource-text-dark" font-weight="bold">output</text>
+      <text x="90" y="4841" class="resource-text-dark">secret_name</text>
+    </g>
+    <g id="resource-output-secret_rotation_enabled">
+      <rect x="372" y="4813" width="280" height="36"
+            rx="6" ry="6" fill="#E5E7EB" stroke="#9CA3AF" stroke-width="1"/>
+      <text x="382" y="4827" class="resource-text-dark" font-weight="bold">output</text>
+      <text x="382" y="4841" class="resource-text-dark">secret_rotation_enabled</text>
+    </g>
+    <g id="resource-data-aws_serverlessapplicationrepository_application-secrets_manager_rotation">
+      <rect x="664" y="4813" width="280" height="36"
+            rx="6" ry="6" fill="#E5E7EB" stroke="#9CA3AF" stroke-width="1"/>
+      <text x="674" y="4827" class="resource-text-dark" font-weight="bold">data.aws_serverlessapplicationrepository_application</text>
+      <text x="674" y="4841" class="resource-text-dark">secrets_manager_rotation</text>
+    </g>
+    <g id="resource-output-sns_topic_arn">
+      <rect x="80" y="4861" width="280" height="36"
+            rx="6" ry="6" fill="#E5E7EB" stroke="#9CA3AF" stroke-width="1"/>
+      <text x="90" y="4875" class="resource-text-dark" font-weight="bold">output</text>
+      <text x="90" y="4889" class="resource-text-dark">sns_topic_arn</text>
+    </g>
+    <g id="resource-output-vandelay_alb_logs_bucket">
+      <rect x="372" y="4861" width="280" height="36"
+            rx="6" ry="6" fill="#E5E7EB" stroke="#9CA3AF" stroke-width="1"/>
+      <text x="382" y="4875" class="resource-text-dark" font-weight="bold">output</text>
+      <text x="382" y="4889" class="resource-text-dark">vandelay_alb_logs_bucket</text>
+    </g>
+    <g id="resource-output-vandelay_alb_logs_bucket_arn">
+      <rect x="664" y="4861" width="280" height="36"
+            rx="6" ry="6" fill="#E5E7EB" stroke="#9CA3AF" stroke-width="1"/>
+      <text x="674" y="4875" class="resource-text-dark" font-weight="bold">output</text>
+      <text x="674" y="4889" class="resource-text-dark">vandelay_alb_logs_bucket_arn</text>
+    </g>
+    <g id="resource-local-vandelay_app_fqdn">
+      <rect x="80" y="4909" width="280" height="36"
+            rx="6" ry="6" fill="#E5E7EB" stroke="#9CA3AF" stroke-width="1"/>
+      <text x="90" y="4923" class="resource-text-dark" font-weight="bold">local</text>
+      <text x="90" y="4937" class="resource-text-dark">vandelay_app_fqdn</text>
+    </g>
+    <g id="resource-output-vandelay_app_url_via_cloudfront">
+      <rect x="372" y="4909" width="280" height="36"
+            rx="6" ry="6" fill="#E5E7EB" stroke="#9CA3AF" stroke-width="1"/>
+      <text x="382" y="4923" class="resource-text-dark" font-weight="bold">output</text>
+      <text x="382" y="4937" class="resource-text-dark">vandelay_app_url_via_cloudfront</text>
+    </g>
+    <g id="resource-null_resource-vandelay_cache_invalidation01">
+      <rect x="664" y="4909" width="280" height="36"
+            rx="6" ry="6" fill="#E5E7EB" stroke="#9CA3AF" stroke-width="1"/>
+      <text x="674" y="4923" class="resource-text-dark" font-weight="bold">null_resource</text>
+      <text x="674" y="4937" class="resource-text-dark">vandelay_cache_invalidation01</text>
+    </g>
+    <g id="resource-output-vandelay_cache_policy_api_id">
+      <rect x="80" y="4957" width="280" height="36"
+            rx="6" ry="6" fill="#E5E7EB" stroke="#9CA3AF" stroke-width="1"/>
+      <text x="90" y="4971" class="resource-text-dark" font-weight="bold">output</text>
+      <text x="90" y="4985" class="resource-text-dark">vandelay_cache_policy_api_id</text>
+    </g>
+    <g id="resource-output-vandelay_cache_policy_static_id">
+      <rect x="372" y="4957" width="280" height="36"
+            rx="6" ry="6" fill="#E5E7EB" stroke="#9CA3AF" stroke-width="1"/>
+      <text x="382" y="4971" class="resource-text-dark" font-weight="bold">output</text>
+      <text x="382" y="4985" class="resource-text-dark">vandelay_cache_policy_static_id</text>
+    </g>
+    <g id="resource-data-aws_cloudfront_cache_policy-vandelay_caching_disabled">
+      <rect x="664" y="4957" width="280" height="36"
+            rx="6" ry="6" fill="#E5E7EB" stroke="#9CA3AF" stroke-width="1"/>
+      <text x="674" y="4971" class="resource-text-dark" font-weight="bold">data.aws_cloudfront_cache_policy</text>
+      <text x="674" y="4985" class="resource-text-dark">vandelay_caching_disabled</text>
+    </g>
+    <g id="resource-output-vandelay_cf_waf_arn">
+      <rect x="80" y="5005" width="280" height="36"
+            rx="6" ry="6" fill="#E5E7EB" stroke="#9CA3AF" stroke-width="1"/>
+      <text x="90" y="5019" class="resource-text-dark" font-weight="bold">output</text>
+      <text x="90" y="5033" class="resource-text-dark">vandelay_cf_waf_arn</text>
+    </g>
+    <g id="resource-output-vandelay_cloudfront_domain">
+      <rect x="372" y="5005" width="280" height="36"
+            rx="6" ry="6" fill="#E5E7EB" stroke="#9CA3AF" stroke-width="1"/>
+      <text x="382" y="5019" class="resource-text-dark" font-weight="bold">output</text>
+      <text x="382" y="5033" class="resource-text-dark">vandelay_cloudfront_domain</text>
+    </g>
+    <g id="resource-output-vandelay_cloudfront_id">
+      <rect x="664" y="5005" width="280" height="36"
+            rx="6" ry="6" fill="#E5E7EB" stroke="#9CA3AF" stroke-width="1"/>
+      <text x="674" y="5019" class="resource-text-dark" font-weight="bold">output</text>
+      <text x="674" y="5033" class="resource-text-dark">vandelay_cloudfront_id</text>
+    </g>
+    <g id="resource-output-vandelay_ec2_instance_id">
+      <rect x="80" y="5053" width="280" height="36"
+            rx="6" ry="6" fill="#E5E7EB" stroke="#9CA3AF" stroke-width="1"/>
+      <text x="90" y="5067" class="resource-text-dark" font-weight="bold">output</text>
+      <text x="90" y="5081" class="resource-text-dark">vandelay_ec2_instance_id</text>
+    </g>
+    <g id="resource-output-vandelay_ec2_private_instance_id">
+      <rect x="372" y="5053" width="280" height="36"
+            rx="6" ry="6" fill="#E5E7EB" stroke="#9CA3AF" stroke-width="1"/>
+      <text x="382" y="5067" class="resource-text-dark" font-weight="bold">output</text>
+      <text x="382" y="5081" class="resource-text-dark">vandelay_ec2_private_instance_id</text>
+    </g>
+    <g id="resource-output-vandelay_invalidation_command">
+      <rect x="664" y="5053" width="280" height="36"
+            rx="6" ry="6" fill="#E5E7EB" stroke="#9CA3AF" stroke-width="1"/>
+      <text x="674" y="5067" class="resource-text-dark" font-weight="bold">output</text>
+      <text x="674" y="5081" class="resource-text-dark">vandelay_invalidation_command</text>
+    </g>
+    <g id="resource-output-vandelay_log_group_name">
+      <rect x="80" y="5101" width="280" height="36"
+            rx="6" ry="6" fill="#E5E7EB" stroke="#9CA3AF" stroke-width="1"/>
+      <text x="90" y="5115" class="resource-text-dark" font-weight="bold">output</text>
+      <text x="90" y="5129" class="resource-text-dark">vandelay_log_group_name</text>
+    </g>
+    <g id="resource-output-vandelay_managed_cache_policy_optimized">
+      <rect x="372" y="5101" width="280" height="36"
+            rx="6" ry="6" fill="#E5E7EB" stroke="#9CA3AF" stroke-width="1"/>
+      <text x="382" y="5115" class="resource-text-dark" font-weight="bold">output</text>
+      <text x="382" y="5129" class="resource-text-dark">vandelay_managed_cache_policy_...</text>
+    </g>
+    <g id="resource-output-vandelay_origin_cloaking_enabled">
+      <rect x="664" y="5101" width="280" height="36"
+            rx="6" ry="6" fill="#E5E7EB" stroke="#9CA3AF" stroke-width="1"/>
+      <text x="674" y="5115" class="resource-text-dark" font-weight="bold">output</text>
+      <text x="674" y="5129" class="resource-text-dark">vandelay_origin_cloaking_enabled</text>
+    </g>
+    <g id="resource-data-aws_cloudfront_origin_request_policy-vandelay_orp_all_viewer">
+      <rect x="80" y="5149" width="280" height="36"
+            rx="6" ry="6" fill="#E5E7EB" stroke="#9CA3AF" stroke-width="1"/>
+      <text x="90" y="5163" class="resource-text-dark" font-weight="bold">data.aws_cloudfront_origin_request_policy</text>
+      <text x="90" y="5177" class="resource-text-dark">vandelay_orp_all_viewer</text>
+    </g>
+    <g id="resource-data-aws_cloudfront_origin_request_policy-vandelay_orp_all_viewer01">
+      <rect x="372" y="5149" width="280" height="36"
+            rx="6" ry="6" fill="#E5E7EB" stroke="#9CA3AF" stroke-width="1"/>
+      <text x="382" y="5163" class="resource-text-dark" font-weight="bold">data.aws_cloudfront_origin_request_policy</text>
+      <text x="382" y="5177" class="resource-text-dark">vandelay_orp_all_viewer01</text>
+    </g>
+    <g id="resource-data-aws_cloudfront_origin_request_policy-vandelay_orp_all_viewer_except_host01">
+      <rect x="664" y="5149" width="280" height="36"
+            rx="6" ry="6" fill="#E5E7EB" stroke="#9CA3AF" stroke-width="1"/>
+      <text x="674" y="5163" class="resource-text-dark" font-weight="bold">data.aws_cloudfront_origin_request_policy</text>
+      <text x="674" y="5177" class="resource-text-dark">vandelay_orp_all_viewer_except...</text>
+    </g>
+    <g id="resource-local-vandelay_prefix">
+      <rect x="80" y="5197" width="280" height="36"
+            rx="6" ry="6" fill="#E5E7EB" stroke="#9CA3AF" stroke-width="1"/>
+      <text x="90" y="5211" class="resource-text-dark" font-weight="bold">local</text>
+      <text x="90" y="5225" class="resource-text-dark">vandelay_prefix</text>
+    </g>
+    <g id="resource-output-vandelay_private_subnet_ids">
+      <rect x="372" y="5197" width="280" height="36"
+            rx="6" ry="6" fill="#E5E7EB" stroke="#9CA3AF" stroke-width="1"/>
+      <text x="382" y="5211" class="resource-text-dark" font-weight="bold">output</text>
+      <text x="382" y="5225" class="resource-text-dark">vandelay_private_subnet_ids</text>
+    </g>
+    <g id="resource-output-vandelay_public_subnet_ids">
+      <rect x="664" y="5197" width="280" height="36"
+            rx="6" ry="6" fill="#E5E7EB" stroke="#9CA3AF" stroke-width="1"/>
+      <text x="674" y="5211" class="resource-text-dark" font-weight="bold">output</text>
+      <text x="674" y="5225" class="resource-text-dark">vandelay_public_subnet_ids</text>
+    </g>
+    <g id="resource-output-vandelay_rds_endpoint">
+      <rect x="80" y="5245" width="280" height="36"
+            rx="6" ry="6" fill="#E5E7EB" stroke="#9CA3AF" stroke-width="1"/>
+      <text x="90" y="5259" class="resource-text-dark" font-weight="bold">output</text>
+      <text x="90" y="5273" class="resource-text-dark">vandelay_rds_endpoint</text>
+    </g>
+    <g id="resource-output-vandelay_root_url_via_cloudfront">
+      <rect x="372" y="5245" width="280" height="36"
+            rx="6" ry="6" fill="#E5E7EB" stroke="#9CA3AF" stroke-width="1"/>
+      <text x="382" y="5259" class="resource-text-dark" font-weight="bold">output</text>
+      <text x="382" y="5273" class="resource-text-dark">vandelay_root_url_via_cloudfront</text>
+    </g>
+    <g id="resource-local-vandelay_secret_arn">
+      <rect x="664" y="5245" width="280" height="36"
+            rx="6" ry="6" fill="#E5E7EB" stroke="#9CA3AF" stroke-width="1"/>
+      <text x="674" y="5259" class="resource-text-dark" font-weight="bold">local</text>
+      <text x="674" y="5273" class="resource-text-dark">vandelay_secret_arn</text>
+    </g>
+    <g id="resource-output-vandelay_sns_topic_arn">
+      <rect x="80" y="5293" width="280" height="36"
+            rx="6" ry="6" fill="#E5E7EB" stroke="#9CA3AF" stroke-width="1"/>
+      <text x="90" y="5307" class="resource-text-dark" font-weight="bold">output</text>
+      <text x="90" y="5321" class="resource-text-dark">vandelay_sns_topic_arn</text>
+    </g>
+    <g id="resource-data-aws_cloudfront_cache_policy-vandelay_use_origin_headers01">
+      <rect x="372" y="5293" width="280" height="36"
+            rx="6" ry="6" fill="#E5E7EB" stroke="#9CA3AF" stroke-width="1"/>
+      <text x="382" y="5307" class="resource-text-dark" font-weight="bold">data.aws_cloudfront_cache_policy</text>
+      <text x="382" y="5321" class="resource-text-dark">vandelay_use_origin_headers01</text>
+    </g>
+    <g id="resource-data-aws_cloudfront_cache_policy-vandelay_use_origin_headers_qs01">
+      <rect x="664" y="5293" width="280" height="36"
+            rx="6" ry="6" fill="#E5E7EB" stroke="#9CA3AF" stroke-width="1"/>
+      <text x="674" y="5307" class="resource-text-dark" font-weight="bold">data.aws_cloudfront_cache_policy</text>
+      <text x="674" y="5321" class="resource-text-dark">vandelay_use_origin_headers_qs01</text>
+    </g>
+    <g id="resource-output-vandelay_vpc_id">
+      <rect x="80" y="5341" width="280" height="36"
+            rx="6" ry="6" fill="#E5E7EB" stroke="#9CA3AF" stroke-width="1"/>
+      <text x="90" y="5355" class="resource-text-dark" font-weight="bold">output</text>
+      <text x="90" y="5369" class="resource-text-dark">vandelay_vpc_id</text>
+    </g>
+    <g id="resource-output-vandelay_vpce_monitoring_id">
+      <rect x="372" y="5341" width="280" height="36"
+            rx="6" ry="6" fill="#E5E7EB" stroke="#9CA3AF" stroke-width="1"/>
+      <text x="382" y="5355" class="resource-text-dark" font-weight="bold">output</text>
+      <text x="382" y="5369" class="resource-text-dark">vandelay_vpce_monitoring_id</text>
+    </g>
+    <g id="resource-output-vandelay_waf_log_group_arn">
+      <rect x="664" y="5341" width="280" height="36"
+            rx="6" ry="6" fill="#E5E7EB" stroke="#9CA3AF" stroke-width="1"/>
+      <text x="674" y="5355" class="resource-text-dark" font-weight="bold">output</text>
+      <text x="674" y="5369" class="resource-text-dark">vandelay_waf_log_group_arn</text>
+    </g>
+    <g id="resource-output-vandelay_waf_log_group_name">
+      <rect x="80" y="5389" width="280" height="36"
+            rx="6" ry="6" fill="#E5E7EB" stroke="#9CA3AF" stroke-width="1"/>
+      <text x="90" y="5403" class="resource-text-dark" font-weight="bold">output</text>
+      <text x="90" y="5417" class="resource-text-dark">vandelay_waf_log_group_name</text>
+    </g>
+    <g id="resource-local-vandelay_zone_id">
+      <rect x="372" y="5389" width="280" height="36"
+            rx="6" ry="6" fill="#E5E7EB" stroke="#9CA3AF" stroke-width="1"/>
+      <text x="382" y="5403" class="resource-text-dark" font-weight="bold">local</text>
+      <text x="382" y="5417" class="resource-text-dark">vandelay_zone_id</text>
+    </g>
+    <g id="resource-output-vpc_id">
+      <rect x="664" y="5389" width="280" height="36"
+            rx="6" ry="6" fill="#E5E7EB" stroke="#9CA3AF" stroke-width="1"/>
+      <text x="674" y="5403" class="resource-text-dark" font-weight="bold">output</text>
+      <text x="674" y="5417" class="resource-text-dark">vpc_id</text>
+    </g>
+  </g>
+  <!-- Legend -->
+  <g id="legend">
+    <rect x="1016" y="80" width="200" height="526"
+          rx="8" ry="8" fill="white" stroke="#E5E7EB" stroke-width="1" filter="url(#shadow)"/>
+    <text x="1031" y="105" class="legend-title">Resource Categories</text>
+
+    <rect x="1031" y="125" width="20" height="20" rx="4" ry="4"
+          fill="#8C4FFF" stroke="#6B3CC7" stroke-width="1"/>
+    <text x="1061" y="140" class="legend-text">CDN</text>
+    <rect x="1031" y="153" width="20" height="20" rx="4" ry="4"
+          fill="#D4AF37" stroke="#A68929" stroke-width="1"/>
+    <text x="1061" y="168" class="legend-text">Certificates</text>
+    <rect x="1031" y="181" width="20" height="20" rx="4" ry="4"
+          fill="#3F8624" stroke="#2D6118" stroke-width="1"/>
+    <text x="1061" y="196" class="legend-text">Compute</text>
+    <rect x="1031" y="209" width="20" height="20" rx="4" ry="4"
+          fill="#007DAF" stroke="#005A7F" stroke-width="1"/>
+    <text x="1061" y="224" class="legend-text">DNS</text>
+    <rect x="1031" y="237" width="20" height="20" rx="4" ry="4"
+          fill="#9CA3AF" stroke="#6B7280" stroke-width="1"/>
+    <text x="1061" y="252" class="legend-text">Data</text>
+    <rect x="1031" y="265" width="20" height="20" rx="4" ry="4"
+          fill="#3B48CC" stroke="#2D3899" stroke-width="1"/>
+    <text x="1061" y="280" class="legend-text">Database</text>
+    <rect x="1031" y="293" width="20" height="20" rx="4" ry="4"
+          fill="#C41E3A" stroke="#8E1629" stroke-width="1"/>
+    <text x="1061" y="308" class="legend-text">IAM</text>
+    <rect x="1031" y="321" width="20" height="20" rx="4" ry="4"
+          fill="#D946EF" stroke="#A336B9" stroke-width="1"/>
+    <text x="1061" y="336" class="legend-text">Messaging</text>
+    <rect x="1031" y="349" width="20" height="20" rx="4" ry="4"
+          fill="#00CED1" stroke="#009B9E" stroke-width="1"/>
+    <text x="1061" y="364" class="legend-text">Monitoring</text>
+    <rect x="1031" y="377" width="20" height="20" rx="4" ry="4"
+          fill="#FF9900" stroke="#CC7A00" stroke-width="1"/>
+    <text x="1061" y="392" class="legend-text">Networking</text>
+    <rect x="1031" y="405" width="20" height="20" rx="4" ry="4"
+          fill="#E5E7EB" stroke="#9CA3AF" stroke-width="1"/>
+    <text x="1061" y="420" class="legend-text">Other</text>
+    <rect x="1031" y="433" width="20" height="20" rx="4" ry="4"
+          fill="#4AA8D8" stroke="#357FA3" stroke-width="1"/>
+    <text x="1061" y="448" class="legend-text">SSM</text>
+    <rect x="1031" y="461" width="20" height="20" rx="4" ry="4"
+          fill="#1E3A5F" stroke="#142740" stroke-width="1"/>
+    <text x="1061" y="476" class="legend-text">Secrets</text>
+    <rect x="1031" y="489" width="20" height="20" rx="4" ry="4"
+          fill="#DD3333" stroke="#AA2222" stroke-width="1"/>
+    <text x="1061" y="504" class="legend-text">Security</text>
+    <rect x="1031" y="517" width="20" height="20" rx="4" ry="4"
+          fill="#FF9900" stroke="#CC7A00" stroke-width="1"/>
+    <text x="1061" y="532" class="legend-text">Serverless</text>
+    <rect x="1031" y="545" width="20" height="20" rx="4" ry="4"
+          fill="#569A31" stroke="#3D6E23" stroke-width="1"/>
+    <text x="1061" y="560" class="legend-text">Storage</text>
+    <rect x="1031" y="573" width="20" height="20" rx="4" ry="4"
+          fill="#6B7280" stroke="#4B5563" stroke-width="1"/>
+    <text x="1061" y="588" class="legend-text">Utility</text>
+  </g>
+</svg>

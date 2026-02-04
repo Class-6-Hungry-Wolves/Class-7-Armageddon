@@ -74,7 +74,7 @@ variable "db_password" {
   description = "DB master password (DO NOT hardcode in real life; for lab only)."
   type        = string
   sensitive   = true
-  default     = "dt&X36uqTbeM%%dh#%Qc!QR^!P7u48&!T"
+  default     = "jNhnA2DFcGrxmMtIo4EvfkQPbsxK4v8"
 }
 
 variable "sns_email_endpoint" {
@@ -109,5 +109,39 @@ variable "alb_ingress_cidr" {
   description = "CIDR allowed to reach ALB (0.0.0.0/0 for public)"
   type        = string
   default     = "0.0.0.0/0"
+}
+
+############################################
+# Bonus A & B Additional Variables
+############################################
+
+variable "waf_log_retention_days" {
+  description = "Number of days to retain WAF logs in CloudWatch"
+  type        = number
+  default     = 30
+}
+
+variable "enable_alb_access_logs" {
+  description = "Enable ALB access logging to S3"
+  type        = bool
+  default     = true
+}
+
+variable "alb_access_logs_prefix" {
+  description = "S3 prefix for ALB access logs"
+  type        = string
+  default     = "alb-logs"
+}
+
+variable "alb_logs_retention_days" {
+  description = "Number of days to retain ALB logs in S3"
+  type        = number
+  default     = 90
+}
+
+variable "enable_private_ec2" {
+  description = "Move EC2 to private subnet (requires VPC endpoints)"
+  type        = bool
+  default     = false  # Set to true after VPC endpoints are deployed
 }
 
