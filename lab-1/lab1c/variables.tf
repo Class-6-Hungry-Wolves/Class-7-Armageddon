@@ -137,8 +137,8 @@ variable "db_password" {
 
 variable "sns_email_endpoint" {
   description = "Email endpoint for SNS topic subscription"
-  type = string 
-  default = "nicholasdfoster645@gmail.com"
+  type        = string
+  default     = "nicholasdfoster645@gmail.com"
 }
 
 variable "packer_ami_name_prefix" {
@@ -148,10 +148,10 @@ variable "packer_ami_name_prefix" {
 }
 
 variable "enable_runtime_instance_creation" {
-  description = "Enable runtime instance for Packer builds" 
+  description = "Enable runtime instance for Packer builds"
   # ^ Set to false first time so that AMI can be built. Once AMI is built, set to true.
-  type        = bool
-  default     = true
+  type    = bool
+  default = true
 }
 
 
