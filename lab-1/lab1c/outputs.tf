@@ -25,7 +25,7 @@ output "lab1_rds_security_group_id" {
 }
 
 output "lab1_packer_security_group_id" {
-  value = aws_security_group.lab_1_packer_sg.id 
+  value = aws_security_group.lab_1_packer_sg.id
 }
 
 output "lab1_ec2_instance_id" {
@@ -60,5 +60,5 @@ output "armageddon_log_group_name" {
 # }
 
 output "packer_builder_instance_profile_name" {
-  value = aws_iam_instance_profile.packer_builder_instance_profile.name 
+  value = aws_iam_instance_profile.packer_builder_instance_profile.name
 }
