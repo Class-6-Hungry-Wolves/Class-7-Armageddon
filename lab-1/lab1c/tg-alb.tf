@@ -29,7 +29,7 @@ resource "aws_lb_target_group" "rdsapp_tg01" {
 
 
 resource "aws_lb_target_group_attachment" "rdsapp_tg_attachment01" {
-  count            = var.enable_runtime_instance_creation ? 1 : 0    # If runtime instance creation is disabled, this will not be created
+  count            = var.enable_runtime_instance_creation ? 1 : 0 # If runtime instance creation is disabled, this will not be created
   target_group_arn = aws_lb_target_group.rdsapp_tg01.arn
   target_id        = aws_instance.lab1_ec2_instance[0].id
   port             = 80
@@ -108,4 +108,46 @@ resource "aws_lb" "app_lb" {
   tags = {
     Name = "${var.project_name}-alb"
   }
+}
+
+
+
+
+#########################
+# Listener for ALB ######
+#########################
+
+
+
+# Decoy listener for HTTP traffic on port 80. Will redirect to HTTPS for better security.
+resource "aws_lb_listener" "app_lb_listener" {
+  load_balancer_arn = aws_lb.app_lb.arn
+  port              = 80
+  protocol          = "HTTP"
+
+  default_action {
+    type = "redirect"
+    redirect {
+      protocol    = "HTTPS"
+      port        = "443"
+      status_code = "HTTP_301"
+    }
+  }
+}
+
+
+# Actual listener for HTTPS traffic on port 443. This listener will receive traffic from decoy listener and forward to RDS Notes App target group.
+resource "aws_lb_listener" "app_lb_listener_https" {
+  load_balancer_arn = aws_lb.app_lb.arn
+  port              = 443
+  protocol          = "HTTPS"
+  ssl_policy        = "ELBSecurityPolicy-TLS13-1-2-2021-06"
+  certificate_arn   = aws_acm_certificate_validation.armageddon_cert01.certificate_arn
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.rdsapp_tg01.arn
+  }
+
+  depends_on = [aws_acm_certificate_validation.armageddon_cert01]
 }
