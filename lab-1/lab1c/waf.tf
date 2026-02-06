@@ -86,7 +86,7 @@ resource "aws_cloudwatch_metric_alarm" "armageddon_alb_5xx_alarm01" {
 
 
 ############################################
-# CloudWatch Dashboard (Skeleton)
+# CloudWatch Dashboard 
 ############################################
 
 # Explanation: Dashboards are your cockpit HUD — Chewbacca wants dials, not vibes.
