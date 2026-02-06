@@ -7,6 +7,7 @@ locals {
 resource "aws_acm_certificate" "armageddon_cert01" {
   domain_name       = local.armageddon_fqdn
   validation_method = var.certificate_validation_method
+  subject_alternative_names = [var.root_domain_name]
 
   tags = {
     Name = "${var.project_name}-armageddon-cert"
