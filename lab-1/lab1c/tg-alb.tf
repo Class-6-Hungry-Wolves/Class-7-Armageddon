@@ -105,6 +105,12 @@ resource "aws_lb" "app_lb" {
   security_groups    = [aws_security_group.alb_sg.id]
   subnets            = [for i in aws_subnet.lab-1-public-subnet : i.id]
 
+  access_logs {
+    bucket  = aws_s3_bucket.armageddon_alb_logs_bucket01[0].bucket
+    prefix  = var.alb_access_logs_prefix
+    enabled = var.enable_alb_access_logs
+  }
+
   tags = {
     Name = "${var.project_name}-alb"
   }
