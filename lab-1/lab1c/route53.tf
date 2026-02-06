@@ -2,10 +2,11 @@ locals {
   armageddon_fqdn = "${var.app_subdomain}.${var.root_domain_name}"
 }
 
+
 # ACM Certificate for armageddon RDS Notes app
 resource "aws_acm_certificate" "armageddon_cert01" {
   domain_name       = local.armageddon_fqdn
-  validation_method = "DNS"
+  validation_method = var.certificate_validation_method
 
   tags = {
     Name = "${var.project_name}-armageddon-cert"
@@ -48,9 +49,21 @@ resource "aws_acm_certificate_validation" "armageddon_cert01" {
 
 
 
-resource "aws_route53_record" "armageddon_alb_a_record" {
+resource "aws_route53_record" "armageddon_alb_subdomain_a_record" {
   zone_id = data.aws_route53_zone.hungry_wolves_main_zone.zone_id
   name    = local.armageddon_fqdn
+  type    = "A"
+  alias {
+    name                   = aws_lb.app_lb.dns_name
+    zone_id                = aws_lb.app_lb.zone_id
+    evaluate_target_health = true
+  }
+}
+
+
+resource "aws_route53_record" "armageddon_zone_apex_alb_a_record" {
+  zone_id = data.aws_route53_zone.hungry_wolves_main_zone.zone_id
+  name    = var.root_domain_name
   type    = "A"
   alias {
     name                   = aws_lb.app_lb.dns_name
