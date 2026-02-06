@@ -181,3 +181,42 @@ variable "manage_acm_validation_records" {
   type        = bool
   default     = true
 }
+
+
+variable "enable_waf" {
+  description = "Whether or not to enable WAF (Web Application Firewall)"
+  type        = bool
+  default     = true
+}
+
+
+
+variable "alb_5xx_threshold" {
+  description = "Alarm threshold for ALB 5xx count."
+  type        = number
+  default     = 10
+}
+
+variable "alb_5xx_period_seconds" {
+  description = "CloudWatch alarm period."
+  type        = number
+  default     = 300
+}
+
+variable "alb_5xx_evaluation_periods" {
+  description = "Evaluation periods for alarm."
+  type        = number
+  default     = 1
+}
+
+variable "enable_alb_access_logs" {
+  description = "Enable ALB access logging to S3."
+  type        = bool
+  default     = true
+}
+
+variable "alb_access_logs_prefix" {
+  description = "S3 prefix for ALB access logs."
+  type        = string
+  default     = "alb-access-logs"
+}
