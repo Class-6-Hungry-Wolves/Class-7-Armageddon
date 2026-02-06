@@ -52,11 +52,51 @@ output "packer_builder_instance_profile_name" {
 }
 
 
+output "armageddon_vpce_ssm_id" {
+  value = aws_vpc_endpoint.lab1_vpce_ssm01.id
+}
+
+output "armageddon_vpce_logs_id" {
+  value = aws_vpc_endpoint.lab1_vpce_logs01.id
+}
+
+output "armageddon_vpce_secrets_id" {
+  value = aws_vpc_endpoint.lab1_vpce_secrets01.id
+}
+
+output "armageddon_vpce_s3_id" {
+  value = aws_vpc_endpoint.lab1_vpce_s3_gw01.id
+}
+
 output "rds_app_alb_dns_name" {
   value = "http://${aws_lb.app_lb.dns_name}"
 }
 
+output "rds_app_alb_arn" {
+  value = aws_lb.app_lb.arn
+}
 
 output "armageddon_rds_app_fqdn" {
   value = "http://${var.app_subdomain}.${var.root_domain_name}"
+}
+
+
+output "armageddon_target_group_arn" {
+  value = aws_lb_target_group.rdsapp_tg01.arn
+}
+
+output "armageddon_acm_cert_arn" {
+  value = aws_acm_certificate.armageddon_cert01.arn
+}
+
+output "armageddon_waf_arn" {
+  value = var.enable_waf ? aws_wafv2_web_acl.armageddon_waf01[0].arn : null
+}
+
+output "armageddon_dashboard_name" {
+  value = aws_cloudwatch_dashboard.armageddon_dashboard01.dashboard_name
+}
+
+output "armageddon_s3_alb_logs_bucket" {
+  value = aws_s3_bucket.armageddon_alb_logs_bucket01[0].bucket
 }
