@@ -2,12 +2,12 @@
 # WAFv2 Web ACL (Basic managed rules)
 ############################################
 
-# Explanation: WAF is the shield generator — it blocks the cheap blaster fire before it hits your ALB.
-resource "aws_wafv2_web_acl" "armageddon_waf01" {
+# Explanation: Cloudfront scoped WAF is the immovable wall at the edge. It blocks unwanted traffic before it reaches your VPC.
+resource "aws_wafv2_web_acl" "armageddon_cf_waf01" {
   count = var.enable_waf ? 1 : 0
 
-  name  = "${var.project_name}-waf01"
-  scope = "REGIONAL"
+  name  = "${var.project_name}-cf-waf01"
+  scope = "CLOUDFRONT"
 
   default_action {
     allow {}
@@ -15,7 +15,7 @@ resource "aws_wafv2_web_acl" "armageddon_waf01" {
 
   visibility_config {
     cloudwatch_metrics_enabled = true
-    metric_name                = "${var.project_name}-waf01"
+    metric_name                = "${var.project_name}-cf-waf01"
     sampled_requests_enabled   = true
   }
 
@@ -37,22 +37,14 @@ resource "aws_wafv2_web_acl" "armageddon_waf01" {
 
     visibility_config {
       cloudwatch_metrics_enabled = true
-      metric_name                = "${var.project_name}-waf-common"
+      metric_name                = "${var.project_name}-cf-waf-common"
       sampled_requests_enabled   = true
     }
   }
 
   tags = {
-    Name = "${var.project_name}-waf01"
+    Name = "${var.project_name}-cf-waf01"
   }
-}
-
-# Explanation: Attach the shield generator to the customs checkpoint — ALB is now protected.
-resource "aws_wafv2_web_acl_association" "armageddon_waf_assoc01" {
-  count = var.enable_waf ? 1 : 0
-
-  resource_arn = aws_lb.app_lb.arn
-  web_acl_arn  = aws_wafv2_web_acl.armageddon_waf01[0].arn
 }
 
 ############################################
