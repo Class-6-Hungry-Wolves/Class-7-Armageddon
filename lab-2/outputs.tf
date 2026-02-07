@@ -86,11 +86,11 @@ output "armageddon_target_group_arn" {
 }
 
 output "armageddon_acm_cert_arn" {
-  value = aws_acm_certificate.armageddon_cert01.arn
+  value = aws_acm_certificate.armageddon_cf_cert01.arn
 }
 
 output "armageddon_waf_arn" {
-  value = var.enable_waf ? aws_wafv2_web_acl.armageddon_waf01[0].arn : null
+  value = var.enable_waf ? aws_wafv2_web_acl.armageddon_cf_waf01[0].arn : null
 }
 
 output "armageddon_dashboard_name" {
@@ -121,4 +121,9 @@ output "armageddon_waf_firehose_name" {
 
 output "armageddon_waf_logs_firehose_bucket" {
   value = var.waf_log_destination == "firehose" ? aws_s3_bucket.armageddon_firehose_waf_dest_bucket01[0].bucket : null
+}
+
+
+output "cloudfront_distribution_id" {
+  value = aws_cloudfront_distribution.armageddon_cf01.id
 }
