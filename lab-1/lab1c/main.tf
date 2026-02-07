@@ -557,17 +557,6 @@ data "aws_ami" "rdsapp_latest" {
   }
 }
 
-# data "aws_key_pair" "lab1-key-pair" {
-#   key_name           = "lab1a-key-pair"
-#   include_public_key = true
-
-#   filter {
-#     name   = "key-name"
-#     values = ["lab1a-key-pair"]
-#   }
-# }
-
-
 # EC2 instance that will house our RDS Notes App
 resource "aws_instance" "lab1_ec2_instance" {
   count                  = var.enable_runtime_instance_creation ? 1 : 0
