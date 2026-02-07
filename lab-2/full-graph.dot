@@ -1,0 +1,103 @@
+digraph {
+	compound = "true"
+	newrank = "true"
+	subgraph "root" {
+		"[root] var.alb_access_logs_prefix" [label = "var.alb_access_logs_prefix", shape = "note"]
+		"[root] var.alb_ingress_cidr" [label = "var.alb_ingress_cidr", shape = "note"]
+		"[root] var.alb_logs_retention_days" [label = "var.alb_logs_retention_days", shape = "note"]
+		"[root] var.app_subdomain" [label = "var.app_subdomain", shape = "note"]
+		"[root] var.aws_region" [label = "var.aws_region", shape = "note"]
+		"[root] var.azs" [label = "var.azs", shape = "note"]
+		"[root] var.db_engine" [label = "var.db_engine", shape = "note"]
+		"[root] var.db_instance_class" [label = "var.db_instance_class", shape = "note"]
+		"[root] var.db_name" [label = "var.db_name", shape = "note"]
+		"[root] var.db_password" [label = "var.db_password", shape = "note"]
+		"[root] var.db_username" [label = "var.db_username", shape = "note"]
+		"[root] var.domain_name" [label = "var.domain_name", shape = "note"]
+		"[root] var.ec2_ami_id" [label = "var.ec2_ami_id", shape = "note"]
+		"[root] var.ec2_instance_type" [label = "var.ec2_instance_type", shape = "note"]
+		"[root] var.enable_alb_access_logs" [label = "var.enable_alb_access_logs", shape = "note"]
+		"[root] var.enable_private_ec2" [label = "var.enable_private_ec2", shape = "note"]
+		"[root] var.my_ip" [label = "var.my_ip", shape = "note"]
+		"[root] var.private_subnet_cidrs" [label = "var.private_subnet_cidrs", shape = "note"]
+		"[root] var.project_name" [label = "var.project_name", shape = "note"]
+		"[root] var.public_subnet_cidrs" [label = "var.public_subnet_cidrs", shape = "note"]
+		"[root] var.sns_email_endpoint" [label = "var.sns_email_endpoint", shape = "note"]
+		"[root] var.vpc_cidr" [label = "var.vpc_cidr", shape = "note"]
+		"[root] var.waf_log_retention_days" [label = "var.waf_log_retention_days", shape = "note"]
+		"[root] local.name_prefix (expand)" -> "[root] var.project_name"
+		"[root] output.gate_script_variables (expand)" -> "[root] var.aws_region"
+		"[root] output.rotation_lambda_name (expand)" -> "[root] local.name_prefix (expand)"
+		"[root] output.vandelay_alb_logs_bucket (expand)" -> "[root] var.enable_alb_access_logs"
+		"[root] output.vandelay_alb_logs_bucket_arn (expand)" -> "[root] var.enable_alb_access_logs"
+		"[root] output.vandelay_app_url_via_cloudfront (expand)" -> "[root] var.app_subdomain"
+		"[root] output.vandelay_app_url_via_cloudfront (expand)" -> "[root] var.domain_name"
+		"[root] output.vandelay_root_url_via_cloudfront (expand)" -> "[root] var.domain_name"
+		"[root] root" -> "[root] output.app_urls (expand)"
+		"[root] root" -> "[root] output.ec2_instance_id (expand)"
+		"[root] root" -> "[root] output.ec2_public_dns (expand)"
+		"[root] root" -> "[root] output.ec2_public_ip (expand)"
+		"[root] root" -> "[root] output.ec2_security_group_id (expand)"
+		"[root] root" -> "[root] output.gate_script_variables (expand)"
+		"[root] root" -> "[root] output.iam_role_name (expand)"
+		"[root] root" -> "[root] output.incident_reporter_arn (expand)"
+		"[root] root" -> "[root] output.incident_reporter_function_name (expand)"
+		"[root] root" -> "[root] output.incident_reports_bucket (expand)"
+		"[root] root" -> "[root] output.instance_profile_name (expand)"
+		"[root] root" -> "[root] output.log_group_name (expand)"
+		"[root] root" -> "[root] output.private_subnet_ids (expand)"
+		"[root] root" -> "[root] output.public_subnet_ids (expand)"
+		"[root] root" -> "[root] output.rds_endpoint (expand)"
+		"[root] root" -> "[root] output.rds_identifier (expand)"
+		"[root] root" -> "[root] output.rds_port (expand)"
+		"[root] root" -> "[root] output.rds_security_group_id (expand)"
+		"[root] root" -> "[root] output.rotation_lambda_name (expand)"
+		"[root] root" -> "[root] output.secret_arn (expand)"
+		"[root] root" -> "[root] output.secret_name (expand)"
+		"[root] root" -> "[root] output.secret_rotation_enabled (expand)"
+		"[root] root" -> "[root] output.sns_topic_arn (expand)"
+		"[root] root" -> "[root] output.vandelay_alb_logs_bucket (expand)"
+		"[root] root" -> "[root] output.vandelay_alb_logs_bucket_arn (expand)"
+		"[root] root" -> "[root] output.vandelay_app_url_via_cloudfront (expand)"
+		"[root] root" -> "[root] output.vandelay_cache_policy_api_id (expand)"
+		"[root] root" -> "[root] output.vandelay_cache_policy_static_id (expand)"
+		"[root] root" -> "[root] output.vandelay_cf_waf_arn (expand)"
+		"[root] root" -> "[root] output.vandelay_cloudfront_domain (expand)"
+		"[root] root" -> "[root] output.vandelay_cloudfront_id (expand)"
+		"[root] root" -> "[root] output.vandelay_ec2_instance_id (expand)"
+		"[root] root" -> "[root] output.vandelay_ec2_private_instance_id (expand)"
+		"[root] root" -> "[root] output.vandelay_invalidation_command (expand)"
+		"[root] root" -> "[root] output.vandelay_log_group_name (expand)"
+		"[root] root" -> "[root] output.vandelay_managed_cache_policy_optimized (expand)"
+		"[root] root" -> "[root] output.vandelay_origin_cloaking_enabled (expand)"
+		"[root] root" -> "[root] output.vandelay_private_subnet_ids (expand)"
+		"[root] root" -> "[root] output.vandelay_public_subnet_ids (expand)"
+		"[root] root" -> "[root] output.vandelay_rds_endpoint (expand)"
+		"[root] root" -> "[root] output.vandelay_root_url_via_cloudfront (expand)"
+		"[root] root" -> "[root] output.vandelay_sns_topic_arn (expand)"
+		"[root] root" -> "[root] output.vandelay_vpc_id (expand)"
+		"[root] root" -> "[root] output.vandelay_vpce_monitoring_id (expand)"
+		"[root] root" -> "[root] output.vandelay_waf_log_group_arn (expand)"
+		"[root] root" -> "[root] output.vandelay_waf_log_group_name (expand)"
+		"[root] root" -> "[root] output.vpc_id (expand)"
+		"[root] root" -> "[root] var.alb_access_logs_prefix"
+		"[root] root" -> "[root] var.alb_ingress_cidr"
+		"[root] root" -> "[root] var.alb_logs_retention_days"
+		"[root] root" -> "[root] var.azs"
+		"[root] root" -> "[root] var.db_engine"
+		"[root] root" -> "[root] var.db_instance_class"
+		"[root] root" -> "[root] var.db_name"
+		"[root] root" -> "[root] var.db_password"
+		"[root] root" -> "[root] var.db_username"
+		"[root] root" -> "[root] var.ec2_ami_id"
+		"[root] root" -> "[root] var.ec2_instance_type"
+		"[root] root" -> "[root] var.enable_private_ec2"
+		"[root] root" -> "[root] var.my_ip"
+		"[root] root" -> "[root] var.private_subnet_cidrs"
+		"[root] root" -> "[root] var.public_subnet_cidrs"
+		"[root] root" -> "[root] var.sns_email_endpoint"
+		"[root] root" -> "[root] var.vpc_cidr"
+		"[root] root" -> "[root] var.waf_log_retention_days"
+	}
+}
+
