@@ -100,3 +100,25 @@ output "armageddon_dashboard_name" {
 output "armageddon_s3_alb_logs_bucket" {
   value = aws_s3_bucket.armageddon_alb_logs_bucket01[0].bucket
 }
+
+
+output "armageddon_waf_log_destination" {
+  value = var.waf_log_destination
+}
+
+output "armageddon_waf_cw_log_group_name" {
+  value = var.waf_log_destination == "cloudwatch" ? aws_cloudwatch_log_group.armageddon_waf_log_group01[0].name : null
+}
+
+output "armageddon_waf_logs_s3_bucket" {
+  value = var.waf_log_destination == "s3" ? aws_s3_bucket.armageddon_waf_logs_bucket01[0].bucket : null
+}
+
+output "armageddon_waf_firehose_name" {
+  value = var.waf_log_destination == "firehose" ? aws_kinesis_firehose_delivery_stream.armageddon_waf_firehose01[0].name : null
+}
+
+
+output "armageddon_waf_logs_firehose_bucket" {
+  value = var.waf_log_destination == "firehose" ? aws_s3_bucket.armageddon_firehose_waf_dest_bucket01[0].bucket : null
+}
