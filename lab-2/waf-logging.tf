@@ -24,7 +24,7 @@ resource "aws_cloudwatch_log_group" "armageddon_waf_log_group01" {
 resource "aws_wafv2_web_acl_logging_configuration" "armageddon_waf_logging01" {
   count = var.enable_waf && var.waf_log_destination == "cloudwatch" ? 1 : 0
 
-  resource_arn = aws_wafv2_web_acl.armageddon_waf01[0].arn
+  resource_arn = aws_wafv2_web_acl.armageddon_cf_waf01[0].arn
   log_destination_configs = [
     aws_cloudwatch_log_group.armageddon_waf_log_group01[0].arn
   ]
@@ -42,7 +42,7 @@ resource "aws_wafv2_web_acl_logging_configuration" "armageddon_waf_logging01" {
     single_header { name = "x-api-key" }
   }
 
-  depends_on = [aws_wafv2_web_acl.armageddon_waf01]
+  depends_on = [aws_wafv2_web_acl.armageddon_cf_waf01]
 }
 
 ############################################
@@ -75,7 +75,7 @@ resource "aws_s3_bucket_public_access_block" "armageddon_waf_logs_pab01" {
 resource "aws_wafv2_web_acl_logging_configuration" "armageddon_waf_logging_s3_01" {
   count = var.enable_waf && var.waf_log_destination == "s3" ? 1 : 0
 
-  resource_arn = aws_wafv2_web_acl.armageddon_waf01[0].arn
+  resource_arn = aws_wafv2_web_acl.armageddon_cf_waf01[0].arn
   log_destination_configs = [
     aws_s3_bucket.armageddon_waf_logs_bucket01[0].arn
   ]
@@ -93,7 +93,7 @@ resource "aws_wafv2_web_acl_logging_configuration" "armageddon_waf_logging_s3_01
     single_header { name = "x-api-key" }
   }
 
-  depends_on = [aws_wafv2_web_acl.armageddon_waf01]
+  depends_on = [aws_wafv2_web_acl.armageddon_cf_waf01]
 }
 
 ############################################
@@ -171,7 +171,7 @@ resource "aws_kinesis_firehose_delivery_stream" "armageddon_waf_firehose01" {
 resource "aws_wafv2_web_acl_logging_configuration" "armageddon_waf_logging_firehose01" {
   count = var.enable_waf && var.waf_log_destination == "firehose" ? 1 : 0
 
-  resource_arn = aws_wafv2_web_acl.armageddon_waf01[0].arn
+  resource_arn = aws_wafv2_web_acl.armageddon_cf_waf01[0].arn
   log_destination_configs = [
     aws_kinesis_firehose_delivery_stream.armageddon_waf_firehose01[0].arn
   ]
@@ -189,5 +189,5 @@ resource "aws_wafv2_web_acl_logging_configuration" "armageddon_waf_logging_fireh
     single_header { name = "x-api-key" }
   }
 
-  depends_on = [aws_wafv2_web_acl.armageddon_waf01]
+  depends_on = [aws_wafv2_web_acl.armageddon_cf_waf01]
 }
