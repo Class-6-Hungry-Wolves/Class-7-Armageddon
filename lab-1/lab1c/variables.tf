@@ -220,3 +220,23 @@ variable "alb_access_logs_prefix" {
   type        = string
   default     = "alb-access-logs"
 }
+
+
+variable "waf_log_destination" {
+  description = "Destination for WAF logs. Choose one of the following per Web ACL: 'cloudwatch', 's3', or 'kinesis'."
+  type        = string
+  default     = "cloudwatch"
+}
+
+
+variable "waf_log_retention_days" {
+  description = "Retention for WAF CloudWatch log group."
+  type        = number
+  default     = 14
+}
+
+variable "enable_waf_sampled_requests_only" {
+  description = "If true, can optionally filter/redact fields later. (Placeholder toggle.)"
+  type        = bool
+  default     = false
+}
