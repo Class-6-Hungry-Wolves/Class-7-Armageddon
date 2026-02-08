@@ -276,7 +276,7 @@ resource "aws_instance" "armageddon-ec2" {
   associate_public_ip_address = true # Best to attach to EC2 as you need to retrive the public IP to run the test
 
   # TODO: student supplies user_data to install app + CW agent + configure log shipping
-  user_data = file("${path.module}/1b_user_data.sh")
+  user_data = file("${path.module}/1c_user_data.sh")
   key_name  = aws_key_pair.armageddon-key-pair.id
 
   lifecycle {
