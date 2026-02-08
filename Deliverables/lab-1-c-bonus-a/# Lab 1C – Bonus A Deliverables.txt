@@ -1,0 +1,13 @@
+# Lab 1C – Bonus A Deliverables
+
+This folder contains CLI screenshots proving completion of Lab 1C Bonus A.
+
+## Checklist
+
+1. EC2 has no public IP (private instance)
+2. VPC Interface + Gateway Endpoints exist (ssm, ec2 messages, ssm messages, logs, secretsmanager, s3)
+3. Session Manager works (no SSH)
+4. EC2 can read:
+   - SSM Parameter Store
+   - Secrets Manager
+5. CloudWatch Logs delivery path works via VPC Endpoint
