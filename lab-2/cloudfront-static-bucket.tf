@@ -24,32 +24,39 @@ resource "aws_s3_bucket_public_access_block" "armageddon_static_cf_pab01" {
 
 # Cloudfront bucket objects
 resource "aws_s3_object" "static_index" {
-  bucket = aws_s3_bucket.armageddon_static_cf_bucket.id
-  key    = "static/index.html"
-  source = "index.html"
-  acl    = "private"
+  bucket       = aws_s3_bucket.armageddon_static_cf_bucket.id
+  key          = "static/index.html"
+  source       = "index.html"
+  acl          = "private"
+  content_type = "text/html; charset=utf-8"
+  etag         = filemd5("index.html")
 }
 
 resource "aws_s3_object" "static_png01" {
-  bucket = aws_s3_bucket.armageddon_static_cf_bucket.id
-  key    = "static/doom-cosmic-realm.png"
-  source = "doom-cosmic-realm.png"
-  acl    = "private"
+  bucket       = aws_s3_bucket.armageddon_static_cf_bucket.id
+  key          = "static/doom-cosmic-realm.png"
+  source       = "doom-cosmic-realm.png"
+  acl          = "private"
+  content_type = "image/png"
+  etag         = filemd5("doom-cosmic-realm.png")
 }
 
 resource "aws_s3_object" "static_png02" {
-  bucket = aws_s3_bucket.armageddon_static_cf_bucket.id
-  key    = "static/cosmic_realm.png"
-  source = "cosmic_realm.png"
-  acl    = "private"
+  bucket       = aws_s3_bucket.armageddon_static_cf_bucket.id
+  key          = "static/cosmic_realm.png"
+  source       = "cosmic_realm.png"
+  acl          = "private"
+  content_type = "image/png"
+  etag         = filemd5("cosmic_realm.png")
 }
 
-
 resource "aws_s3_object" "static_txt01" {
-  bucket = aws_s3_bucket.armageddon_static_cf_bucket.id
-  key    = "static/cosmic-realm.txt"
-  source = "doom-cosmic-realm.txt"
-  acl    = "private"
+  bucket       = aws_s3_bucket.armageddon_static_cf_bucket.id
+  key          = "static/cosmic-realm.txt"
+  source       = "doom-cosmic-realm.txt"
+  acl          = "private"
+  content_type = "text/plain; charset=utf-8"
+  etag         = filemd5("doom-cosmic-realm.txt")
 }
 
 resource "aws_s3_bucket_ownership_controls" "armageddon_static_cf_bucket_owner01" {
