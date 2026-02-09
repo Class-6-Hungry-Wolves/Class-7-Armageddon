@@ -26,11 +26,12 @@ import logging
 import os
 import socket
 import time
-
+import hashlib
 import boto3
 import pymysql
+
 from botocore.exceptions import ClientError
-from flask import Flask, request
+from flask import Flask, request, make_response, jsonify
 
 # -----------------------------
 # Logging Setup
@@ -446,6 +447,81 @@ def list_notes():
         out += f"<li>{r[0]}: {r[1]}</li>"
     out += "</ul>"
     return out
+
+
+@app.route("/api/public/stats", methods=["GET"])
+def api_public_stats():
+    conn = get_conn()
+    try:
+        with conn.cursor() as cur:
+            cur.execute("SELECT COUNT(*) FROM notes;")
+            (notes_count,) = cur.fetchone()
+
+            cur.execute("SELECT COALESCE(MAX(id), 0) FROM notes;")
+            (latest_id,) = cur.fetchone()             
+            
+            cur.execute("SELECT DATABASE(), VERSION();")
+            dbname, dbver = cur.fetchone()
+    finally:
+        conn.close() 
+
+    payload = {
+        "service": "rdsapp",
+        "notes_count": int(notes_count),
+        "latest_note_id": int(latest_id),
+        "db": str(dbname),
+        "db_version": str(dbver),
+    }
+
+    # Deterministic ETag based on payload
+    etag_src = f"{payload['notes_count']}|{payload['latest_note_id']}|{payload['db']}|{payload['db_version']}"
+    etag = hashlib.sha256(etag_src.encode("utf-8")).hexdigest()
+
+    resp = make_response(jsonify(payload), 200)
+    resp.headers["Cache-Control"] = "public, max-age=30 s-maxage=30"
+    resp.headers["ETag"] = f"\"{etag}\""
+    return resp
+
+
+@app.route("/api/public-feed", methods=["GET"])
+def api_public_feed():
+    # Changes every request at the ORIGIN
+    payload = {
+        "server_time_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        "message_of_the_minute": time.strftime("minute-%Y%m%dT%H%MZ", time.gmtime()),
+    }
+
+    resp = make_response(jsonify(payload), 200)
+
+    # Honors-required header (exact intent)
+    resp.headers["Cache-Control"] = "public, s-maxage=30, max-age=0"
+    return resp
+
+
+
+@app.route("/api/list", methods=["GET"])
+def api_list():
+    resp = make_response(list_notes(), 200)
+    resp.headers["Cache-Control"] = "private, no-store"
+    return resp
+
+
+
+
+@app.route("/api/init")
+def api_init():
+    resp = make_response(init_db(), 200)
+    resp.headers["Cache-Control"] = "no-store"
+    return resp
+
+
+
+
+@app.route("/api/add", methods=["POST"])
+def api_add():
+    resp = make_response(add_note(), 200)
+    resp.headers["Cache-Control"] = "no-store"
+    return resp
 
 
 if __name__ == "__main__":

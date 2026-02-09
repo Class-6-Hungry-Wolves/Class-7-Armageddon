@@ -34,7 +34,7 @@ variable "vpc_id" {
   default     = "null"
 }
 
-variable "subnet_id" {
+variable "private_subnet_id" {
   description = "Subnet ID where the Packer builder instance will be launched"
   type        = string
   default     = "null"
@@ -61,7 +61,7 @@ source "amazon-ebs" "al2023" {
   instance_type      = var.builder_instance_type
   ami_name           = "${var.packer_ami_name_prefix}"
   vpc_id             = var.vpc_id
-  subnet_id          = var.subnet_id       # This will be in the private subnet
+  subnet_id          = var.private_subnet_id       # This will be in the private subnet
   security_group_ids = [var.builder_sg_id] # This will be the Packer security group
   ssh_username       = "ec2-user"
   ssh_interface      = "session_manager"
