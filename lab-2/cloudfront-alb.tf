@@ -1,7 +1,8 @@
 resource "aws_cloudfront_distribution" "armageddon_cf01" {
-  enabled         = true
-  is_ipv6_enabled = true
-  comment         = "${var.project_name}-cf01"
+  enabled             = true
+  is_ipv6_enabled     = true
+  comment             = "${var.project_name}-cf01"
+  default_root_object = "static/index.html"
 
   origin {
     origin_id   = "${var.project_name}-alb-origin01"
@@ -21,6 +22,79 @@ resource "aws_cloudfront_distribution" "armageddon_cf01" {
     }
   }
 
+  origin {
+    domain_name              = aws_s3_bucket.armageddon_static_cf_bucket.bucket_regional_domain_name
+    origin_id                = "${var.project_name}-s3-static-origin01"
+    origin_access_control_id = aws_cloudfront_origin_access_control.static_oac.id
+  }
+
+
+  ordered_cache_behavior {
+    path_pattern           = "/static/*"
+    target_origin_id       = "${var.project_name}-s3-static-origin01"
+    viewer_protocol_policy = "redirect-to-https"
+
+    allowed_methods = ["GET", "HEAD"]
+    cached_methods  = ["GET", "HEAD"]
+
+    cache_policy_id            = aws_cloudfront_cache_policy.armageddon_cache_static01.id
+    origin_request_policy_id   = aws_cloudfront_origin_request_policy.armageddon_orp_static01.id
+    response_headers_policy_id = aws_cloudfront_response_headers_policy.armageddon_rsp_static01.id
+  }
+
+
+  ordered_cache_behavior {
+    path_pattern           = "/api/public/*"
+    target_origin_id       = "${var.project_name}-alb-origin01"
+    viewer_protocol_policy = "redirect-to-https"
+
+    allowed_methods = ["GET", "HEAD", "OPTIONS"]
+    cached_methods  = ["GET", "HEAD"]
+
+    cache_policy_id          = data.aws_cloudfront_cache_policy.armageddon_use_origin_cache_headers01.id
+    origin_request_policy_id = aws_cloudfront_origin_request_policy.armageddon_orp_api_public01.id
+}
+
+
+############################################
+# Lab 2B-Honors - A) /api/public-feed = origin-driven caching
+############################################
+
+# Explanation: Public feed is cacheable—but only if the origin explicitly says so. Chewbacca demands consent.
+ordered_cache_behavior {
+  path_pattern           = "/api/public-feed"
+  target_origin_id       = "${var.project_name}-alb-origin01"
+  viewer_protocol_policy = "redirect-to-https"
+
+  allowed_methods = ["GET", "HEAD", "OPTIONS"]
+  cached_methods  = ["GET", "HEAD"]
+
+  # Honor Cache-Control from origin (and default to not caching without it). :contentReference[oaicite:8]{index=8}
+  cache_policy_id = data.aws_cloudfront_cache_policy.armageddon_use_origin_cache_headers01.id
+
+  # Forward what origin needs. Keep it tight: don't forward everything unless required. :contentReference[oaicite:9]{index=9}
+  origin_request_policy_id = aws_cloudfront_origin_request_policy.armageddon_orp_api_public01.id
+}
+
+
+
+############################################
+# Lab 2B-Honors - B) /api/* = still safe default (no caching)
+############################################
+
+# Explanation: Everything else under /api is dangerous by default—Chewbacca disables caching until proven safe.
+ordered_cache_behavior {
+  path_pattern           = "/api/*"
+  target_origin_id       = "${var.project_name}-alb-origin01"
+  viewer_protocol_policy = "redirect-to-https"
+
+  allowed_methods = ["GET","HEAD","OPTIONS","PUT","POST","PATCH","DELETE"]
+  cached_methods  = ["GET","HEAD"]
+
+  cache_policy_id          = aws_cloudfront_cache_policy.armageddon_cache_api_disabled01.id
+  origin_request_policy_id = aws_cloudfront_origin_request_policy.armageddon_orp_api01.id
+}
+
   default_cache_behavior {
     target_origin_id       = "${var.project_name}-alb-origin01"
     viewer_protocol_policy = "redirect-to-https"
@@ -28,13 +102,8 @@ resource "aws_cloudfront_distribution" "armageddon_cf01" {
     allowed_methods = ["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"]
     cached_methods  = ["GET", "HEAD"]
 
-    # TODO: students choose cache policy / origin request policy for their app type
-    # For APIs, typically forward all headers/cookies/querystrings.
-    forwarded_values {
-      query_string = true
-      headers      = ["*"]
-      cookies { forward = "all" }
-    }
+    cache_policy_id          = aws_cloudfront_cache_policy.armageddon_cache_api_disabled01.id
+    origin_request_policy_id = aws_cloudfront_origin_request_policy.armageddon_orp_api01.id
   }
 
   # Explanation: Attach WAF at the edge — now WAF moved to CloudFront.
@@ -45,7 +114,7 @@ resource "aws_cloudfront_distribution" "armageddon_cf01" {
     "${var.app_subdomain}.${var.root_domain_name}"
   ]
 
-  
+
   viewer_certificate {
     acm_certificate_arn      = aws_acm_certificate.armageddon_cf_cert01.arn
     ssl_support_method       = "sni-only"
@@ -61,118 +130,151 @@ resource "aws_cloudfront_distribution" "armageddon_cf01" {
 
 
 
-#################################################
-#1) Cache policy for static content (aggressive)
-##############################################################
+# # ################################################
+# # 1) Cache policy for static content (aggressive)
+# # #############################################################
 
-# Explanation: Static files are the easy win—Chewbacca caches them like hyperfuel for speed.
-# resource "aws_cloudfront_cache_policy" "chewbacca_cache_static01" {
-#   name        = "${var.project_name}-cache-static01"
-#   comment     = "Aggressive caching for /static/*"
-#   default_ttl = 86400        # 1 day
-#   max_ttl     = 31536000     # 1 year
-#   min_ttl     = 0
+# # Explanation: Static files are the easy win—Chewbacca caches them like hyperfuel for speed.
+resource "aws_cloudfront_cache_policy" "armageddon_cache_static01" {
+  name        = "${var.project_name}-cache-static01"
+  comment     = "Aggressive caching for /static/*"
+  default_ttl = 86400    # 1 day
+  max_ttl     = 31536000 # 1 year
+  min_ttl     = 0
 
-#   parameters_in_cache_key_and_forwarded_to_origin {
-#     # Explanation: Static should not vary on cookies—Chewbacca refuses to cache 10,000 versions of a PNG.
-#     cookies_config { cookie_behavior = "none" }
+  parameters_in_cache_key_and_forwarded_to_origin {
+    # Explanation: Static should not vary on cookies—Chewbacca refuses to cache 10,000 versions of a PNG.
+    cookies_config { cookie_behavior = "none" }
 
-#     # Explanation: Static should not vary on query strings (unless you do versioning); students can change later.
-#     query_strings_config { query_string_behavior = "none" }
+    # Explanation: Static should not vary on query strings (unless you do versioning); students can change later.
+    query_strings_config { query_string_behavior = "none" }
 
-#     # Explanation: Keep headers out of cache key to maximize hit ratio.
-#     headers_config { header_behavior = "none" }
+    # Explanation: Keep headers out of cache key to maximize hit ratio.
+    headers_config { header_behavior = "none" }
 
-#     enable_accept_encoding_gzip   = true
-#     enable_accept_encoding_brotli = true
-#   }
-# }
+    enable_accept_encoding_gzip   = true
+    enable_accept_encoding_brotli = true
+  }
+}
 
-# ############################################################
-# #2) Cache policy for API (safe default: caching disabled)
-# ##############################################################
+
+# # ############################################################
+# # #2) Cache policy for API (safe default: caching disabled)
+# # ##############################################################
 
 
 
 # # Explanation: APIs are dangerous to cache by accident—Chewbacca disables caching until proven safe.
-# resource "aws_cloudfront_cache_policy" "chewbacca_cache_api_disabled01" {
-#   name        = "${var.project_name}-cache-api-disabled01"
-#   comment     = "Disable caching for /api/* by default"
+resource "aws_cloudfront_cache_policy" "armageddon_cache_api_disabled01" {
+  name        = "${var.project_name}-cache-api-disabled01"
+  comment     = "Disable caching for /api/* by default"
+  default_ttl = 0
+  max_ttl     = 0
+  min_ttl     = 0
+
+  parameters_in_cache_key_and_forwarded_to_origin {
+    cookies_config { cookie_behavior = "none" }
+    query_strings_config { query_string_behavior = "none" }
+    
+
+    # Explanation: Forward auth-related headers to origin, but DO NOT include random headers in cache key.
+    # Students: choose only required headers (Authorization is the classic case).
+    headers_config {
+      header_behavior = "none"
+    }
+  }
+}
+
+# # # ############################################################
+# # # #3) Origin request policy for API (forward what origin needs)
+# # # ##############################################################
+
+
+# Explanation: Origins need context—Chewbacca forwards what the app needs without polluting the cache key.
+resource "aws_cloudfront_origin_request_policy" "armageddon_orp_api01" {
+  name    = "${var.project_name}-orp-api01"
+  comment = "Forward necessary values for API calls"
+
+  cookies_config { cookie_behavior = "all" }
+  query_strings_config { query_string_behavior = "all" }
+
+  headers_config {
+    header_behavior = "whitelist"
+    headers {
+      items = ["Host"]
+    }
+  }
+}
+
+# # # ##################################################################
+# # # # 4) Origin request policy for static (minimal)
+# # # ##############################################################
+
+
+# Explanation: Static origins need almost nothing—Chewbacca forwards minimal values for maximum cache sanity.
+resource "aws_cloudfront_origin_request_policy" "armageddon_orp_static01" {
+  name    = "${var.project_name}-orp-static01"
+  comment = "Minimal forwarding for static assets"
+
+  cookies_config { cookie_behavior = "none" }
+  query_strings_config { query_string_behavior = "none" }
+  headers_config { header_behavior = "none" }
+}
+
+# # ##############################################################
+# # # 5) Response headers policy (optional but nice)
+# # ##############################################################
+
+# # Explanation: Make caching intent explicit—Chewbacca stamps Cache-Control so humans and CDNs agree.
+resource "aws_cloudfront_response_headers_policy" "armageddon_rsp_static01" {
+  name    = "${var.project_name}-rsp-static01"
+  comment = "Add explicit Cache-Control for static content"
+
+  custom_headers_config {
+    items {
+      header   = "Cache-Control"
+      override = true
+      value    = "public, max-age=86400, immutable"
+    }
+  }
+}
+
+######################################
+# API Origin Request Policy ##########
+######################################
+
+
+resource "aws_cloudfront_origin_request_policy" "armageddon_orp_api_public01" {
+  name    = "${var.project_name}-orp-api-public01"
+  comment = "Minimal forwarding for /api/public/* (keep cache key stable)"
+
+  cookies_config { cookie_behavior = "none" }
+  query_strings_config { query_string_behavior = "none" }
+
+  headers_config {
+    header_behavior = "whitelist"
+    headers {
+      items = ["Host"]
+    }
+  }
+}
+
+
+# #########################
+# # API Origin-Driven Cache Policy ##########
+# resource "aws_cloudfront_cache_policy" "armageddon_cache_api_origin_driven01" {
+#   name        = "${var.project_name}-cache-api-origin-driven01"
+#   comment     = "Origin-driven caching for /api/public/* (honor Cache-Control), capped for safety"
 #   default_ttl = 0
-#   max_ttl     = 0
 #   min_ttl     = 0
+#   max_ttl     = 60
 
 #   parameters_in_cache_key_and_forwarded_to_origin {
-#     cookies_config { cookie_behavior = "all" }
-#     query_strings_config { query_string_behavior = "all" }
-
-#     # Explanation: Forward auth-related headers to origin, but DO NOT include random headers in cache key.
-#     # Students: choose only required headers (Authorization is the classic case).
-#     headers_config {
-#       header_behavior = "whitelist"
-#       headers {
-#         items = ["Authorization", "Host"]
-#       }
-#     }
+#     cookies_config       { cookie_behavior = "none" }
+#     query_strings_config { query_string_behavior = "none" }
+#     headers_config       { header_behavior = "none" }
 
 #     enable_accept_encoding_gzip   = true
 #     enable_accept_encoding_brotli = true
 #   }
 # }
-
-# ############################################################
-# #3) Origin request policy for API (forward what origin needs)
-# ##############################################################
-
-
-# # Explanation: Origins need context—Chewbacca forwards what the app needs without polluting the cache key.
-# resource "aws_cloudfront_origin_request_policy" "chewbacca_orp_api01" {
-#   name    = "${var.project_name}-orp-api01"
-#   comment = "Forward necessary values for API calls"
-
-#   cookies_config { cookie_behavior = "all" }
-#   query_strings_config { query_string_behavior = "all" }
-
-#   headers_config {
-#     header_behavior = "whitelist"
-#     headers {
-#       items = ["Authorization", "Content-Type", "Origin", "Host"]
-#     }
-#   }
-# }
-
-# ##################################################################
-# # 4) Origin request policy for static (minimal)
-# ##############################################################
-
-
-# # Explanation: Static origins need almost nothing—Chewbacca forwards minimal values for maximum cache sanity.
-# resource "aws_cloudfront_origin_request_policy" "chewbacca_orp_static01" {
-#   name    = "${var.project_name}-orp-static01"
-#   comment = "Minimal forwarding for static assets"
-
-#   cookies_config { cookie_behavior = "none" }
-#   query_strings_config { query_string_behavior = "none" }
-#   headers_config { header_behavior = "none" }
-# }
-
-# ##############################################################
-# # 5) Response headers policy (optional but nice)
-# ##############################################################
-
-# # Explanation: Make caching intent explicit—Chewbacca stamps Cache-Control so humans and CDNs agree.
-# resource "aws_cloudfront_response_headers_policy" "chewbacca_rsp_static01" {
-#   name    = "${var.project_name}-rsp-static01"
-#   comment = "Add explicit Cache-Control for static content"
-
-#   custom_headers_config {
-#     items {
-#       header   = "Cache-Control"
-#       override = true
-#       value    = "public, max-age=86400, immutable"
-#     }
-#   }
-# }
-
-
-
