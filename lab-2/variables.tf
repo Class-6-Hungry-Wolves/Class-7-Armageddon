@@ -200,13 +200,13 @@ variable "alb_5xx_threshold" {
 variable "alb_5xx_period_seconds" {
   description = "CloudWatch alarm period."
   type        = number
-  default     = 300
+  default     = 120
 }
 
 variable "alb_5xx_evaluation_periods" {
   description = "Evaluation periods for alarm."
   type        = number
-  default     = 1
+  default     = 2
 }
 
 variable "enable_alb_access_logs" {
