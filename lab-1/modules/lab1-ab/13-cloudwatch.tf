@@ -31,9 +31,14 @@ resource "aws_cloudwatch_metric_alarm" "chewbacca_db_alarm01" {
   evaluation_periods  = 1
   metric_name         = "DBConnectionErrors"
   namespace           = "Lab/RDSApp"
-  period              = 300
+  period              = 60
   statistic           = "Sum"
   threshold           = 3
+  treat_missing_data  = "breaching"
+
+  dimensions = {
+    PublicEC2 = "EC2toRDS"
+  }
 
   alarm_actions       = [aws_sns_topic.chewbacca_sns_topic01.arn]
 

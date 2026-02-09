@@ -4,5 +4,5 @@
 
 # Explanation: 
 module "lab1-ab" {
-  source = "./modules/lab1-ab"
+  source = "../lab1-ab"
 }

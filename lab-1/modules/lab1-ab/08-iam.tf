@@ -146,7 +146,7 @@ resource "aws_iam_policy" "chewbacca_ec2_s3_access" {
     Version = "2012-10-17"
     Statement = [
       {
-        Sid    = "S3FullAccess"
+        Sid    = "S3AccessObject"
         Effect = "Allow"
         Action = [
           "s3:GetObject"

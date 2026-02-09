@@ -1,7 +1,7 @@
 variable "aws_region" {
   description = "AWS Region for the PeteRock fleet to patrol."
   type        = string
-  default     = "sa-east-1"
+  default     = "us-east-1"
 }
 
 variable "project_name" {
@@ -31,13 +31,15 @@ variable "private_subnet_cidrs" {
 variable "azs" {
   description = "Availability Zones list (match count with subnets)."
   type        = list(string)
-  default     = ["sa-east-1a", "sa-east-1b"] # TODO: student supplies
+  default     = ["us-east-1a", "us-east-1b"] # TODO: student supplies
 }
 
 variable "ec2_ami_id" {
   description = "AMI ID for the EC2 app host."
   type        = string
-  default     = "ami-0b11764ef057ab4b7" # TODO
+  #default     = "ami-0b11764ef057ab4b7"
+  #default = "ami-03a67d5e469699a7c"  #SA-EAST-1
+  default = "ami-024ee5112d03921e2" #US-EAST-1
 }
 
 variable "ec2_instance_type" {

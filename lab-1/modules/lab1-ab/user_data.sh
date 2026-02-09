@@ -1,72 +1,77 @@
 #!/bin/bash
+
+# Update and install dependencies
 dnf update -y
-dnf install -y python3-pip
-sudo dnf install -y amazon-cloudwatch-agent
-#sudo dnf install -y amazon-ssm-agent
+dnf install -y python3 python3-pip
+
+# Install Python packages
 pip3 install flask pymysql boto3
 
+# Install CloudWatch Agent
+dnf install -y amazon-cloudwatch-agent
+
+# Create app dir
 mkdir -p /opt/rdsapp
+
+
+# Get a token for IMDSv2 & Fetch the Instance ID
+TOKEN=$(curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600")
+#INSTANCE_ID=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -s http://169.254.169.254/latest/meta-data/instance-id)
+curl -H "X-aws-ec2-metadata-token: $TOKEN" -s http://169.254.169.254/latest/meta-data/instance-id &> /tmp/ec2_id
+wait
+INSTANCE_ID=$(cat /tmp/ec2_id)
+
 cat >/opt/rdsapp/app.py <<'PY'
 import json
 import os
 import boto3
 import pymysql
-import logging
-import requests
 from flask import Flask, request
+from datetime import datetime, timezone
 
-REGION = os.environ.get("AWS_REGION", "sa-east-1")
+REGION = os.environ.get("AWS_REGION", "us-east-1")
 SECRET_ID = os.environ.get("SECRET_ID", "peterock/rds/mysql")
+INSTANCE_ID = os.environ.get("INSTANCE_ID", "unknown")
 
 secrets = boto3.client("secretsmanager", region_name=REGION)
 cloudwatch = boto3.client("cloudwatch", region_name=REGION)
 
-def get_instance_id():
-    # 1. Get the Session Token (IMDSv2 requirement)
-    token_url = "http://169.254.169.254/latest/api/token"
-    token_headers = {"X-aws-ec2-metadata-token-ttl-seconds": "21600"}
-    token_response = requests.put(token_url, headers=token_headers, timeout=2)
-    token = token_response.text
-
-    # 2. Get the Instance ID using the token
-    id_url = "http://169.254.169.254/latest/meta-data/instance-id"
-    id_headers = {"X-aws-ec2-metadata-token": token}
-    instance_id = requests.get(id_url, headers=id_headers, timeout=2).text
-    return instance_id
-
-def emit_db_connection_error(error_msg):
+def emit_db_connection_error():
     """
     Emit a DBConnectionError metric to CloudWatch.
     This metric is used to track database connection failures.
     """
     try:
-        ec2_id = get_instance_id()
-
         cloudwatch.put_metric_data(
             Namespace="Lab/RDSApp",
             MetricData=[
                 {
                     "MetricName": "DBConnectionErrors",
                     "Dimensions": [
-                        {"Name": "InstanceID", "Value": "{ec2_id}"},
-                        {"Name": "DBType", "Value": "MySQL"}
+                        {'Name': 'PublicEC2', 'Value': 'EC2toRDS'}
                     ],
-                    "Value": "1.0",
                     "Unit": "Count",
+                    "Value": 1.0,
+                    "Timestamp": datetime.now(timezone.utc)
                 },
             ]
         )
-        print(f"Error emitted to CloudWatch:{error_msg}")
+        print(f"Error emitted to CloudWatch: DBConnectionErrors=1")
     except Exception as e:
         # Don't let metric emission failures break the app
         print(f"Failed to emit CloudWatch metric: {e}")
 
 def get_db_creds():
-    resp = secrets.get_secret_value(SecretId=SECRET_ID)
-    s = json.loads(resp["SecretString"])
-    # When you use "Credentials for RDS database", AWS usually stores:
-    # username, password, host, port, dbname (sometimes)
-    return s
+    try:
+        resp = secrets.get_secret_value(SecretId=SECRET_ID)
+        s = json.loads(resp["SecretString"])
+        # When you use "Credentials for RDS database", AWS usually stores:
+        # username, password, host, port, dbname (sometimes)
+        return s
+    except Exception as e:
+        # Notify CloudWatch of DB connection error by EC2 instance
+        print(f"Failed to retrieve DB Credentials from Secret Manager: {e}")
+        emit_db_connection_error()
 
 def get_conn():
     try:
@@ -79,7 +84,8 @@ def get_conn():
         return pymysql.connect(host=host, user=user, password=password, port=port, database=db, autocommit=True)
     except Exception as e:
         # Notify CloudWatch of DB connection error by EC2 instance
-        emit_db_connection_error(str(e))
+        print(f"Failed to Connect To DB: {e}")
+        emit_db_connection_error()
 
 app = Flask(__name__)
 
@@ -116,8 +122,8 @@ def init_db():
         return "Initialized labdb + notes table."
     except Exception as e:
         # Notify CloudWatch of DB connection error by EC2 instance
-        emit_db_connection_error(str(e))
-
+        print(f"Failed to Initialize DB: {e}")
+        emit_db_connection_error()
 
 @app.route("/add", methods=["POST", "GET"])
 def add_note():
@@ -133,7 +139,8 @@ def add_note():
         return f"Inserted note: {note}"
     except Exception as e:
         # Notify CloudWatch of DB connection error by EC2 instance
-        emit_db_connection_error(str(e))
+        print(f"Failed to Write to DB: {e}")
+        emit_db_connection_error()
 
 @app.route("/list")
 def list_notes():
@@ -151,7 +158,8 @@ def list_notes():
         return out
     except Exception as e:
         # Notify CloudWatch of DB connection error by EC2 instance
-        emit_db_connection_error(str(e))
+        print(f"Failed to Read from DB: {e}")
+        emit_db_connection_error()
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=80)
@@ -163,8 +171,12 @@ Description=EC2 to RDS Notes App
 After=network.target
 
 [Service]
-WorkingDirectory=/opt/rdsapp
+StandardOutput=append:/var/log/rdsapp-errors.log
+StandardError=append:/var/log/rdsapp-errors.err
+Environment=REGION=us-east-1
 Environment=SECRET_ID=peterock/rds/mysql
+Environment=INSTANCE_ID=$INSTANCE_ID
+WorkingDirectory=/opt/rdsapp
 ExecStart=/usr/bin/python3 /opt/rdsapp/app.py
 Restart=always
 
@@ -172,45 +184,31 @@ Restart=always
 WantedBy=multi-user.target
 SERVICE
 
-# Explanation: Create Log file CloudWatch Agent will use to store failed connection logs
-touch /tmp/rdsapp-errors.log
-chmod 666 /tmp/rdsapp-errors.log
+systemctl daemon-reload
+systemctl enable rdsapp
+systemctl start rdsapp
+
+
+############################################
+# CloudWatch Agent Code Block
+############################################
 
 # Explanation: CloudWatch Agent Configuration JOSN for RDS Monitoring
-cat >/tmp/CWAgentConfig.json <<'JSON'
+mkdir -p /opt/aws/amazon-cloudwatch-agent/etc
+cat >/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json <<'JSON'
 {
     "agent": {
         "metrics_collection_interval": 60
-    },
-    "metrics": {
-        "metrics_collected": {
-            "mem": {
-                "measurement": [
-                    "used_percent"
-                ]
-            },
-            "cpu": {
-                "measurement": [
-                    "usage_active"
-                ]
-            },
-            "netstat": {
-                "measurement": [
-                    "tcp_established",
-                    "tcp_close_wait",
-                    "tcp_time_wait"
-                ]
-            }
-        }
     },
     "logs": {
         "logs_collected": {
             "files": {
                 "collect_list": [
                     {
-                        "file_path": "/tmp/rdsapp-errors.log",
+                        "file_path": "/var/log/rdsapp-errors.err",
                         "log_group_name": "/aws/ec2/peterock-rds-app",
-                        "log_stream_name": "{instance_id}-app-stream"
+                        "log_stream_name": "{instance_id}-app-stream",
+                        "timezone": "UTC"
                     }
                 ]
             }
@@ -219,19 +217,14 @@ cat >/tmp/CWAgentConfig.json <<'JSON'
 }
 JSON
 
-systemctl daemon-reload
-systemctl enable rdsapp
-systemctl start rdsapp
-#systemctl enable amazon-ssm-agent
-#systemctl start amazon-ssm-agent
-
 # Start CloudWatch agent with proper fetch-config command
-chmod +x /tmp/CWAgentConfig.json
+#chmod +x /tmp/CWAgentConfig.json
 /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl \
     -a fetch-config \
     -m ec2 \
     -s \
-    -c file:/tmp/CWAgentConfig.json
+    -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json
+
 
 
 # Explanation: Provision ec2-key-pair cert file for SSH access from Private EC2 instance (as Bastian host)
@@ -288,4 +281,5 @@ r2xtZNCQRzZ5AAAAFXBldGVyQERFU0tUT1AtNkNRSzlRVQECAwQF
 -----END OPENSSH PRIVATE KEY-----
 KEY
 
-chmod 400 /tmp/ec2-key-pair
+chmod 400 /tmp/ec2-key-
+#rm -f /tmp/ec2_id

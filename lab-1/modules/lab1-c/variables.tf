@@ -11,7 +11,8 @@ variable "project_name" {
 variable "ec2_ami_id" {
   description = "AMI ID for private EC2 host."
   type        = string
-  default     = "ami-0b11764ef057ab4b7"
+  #default = "ami-03a67d5e469699a7c"  #SA-EAST-1
+  default = "ami-024ee5112d03921e2" #US-EAST-1
 }
 
 variable "ec2_instance_type" {
