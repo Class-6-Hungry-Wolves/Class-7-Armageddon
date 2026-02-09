@@ -1,0 +1,13 @@
+Origin driven caching is safer for APIs because it ensures that the origin (e.g. S3 bucket or custom server) 
+keeps caching decisions within the application itself. This prevents accidental caching of user-specific or dynamic responses,
+reduces the risk of stale reads, and prevents data leakage (secrets such usernames, passwords, api keys etc). 
+The origin specifically declares cacheability via Cache-Control and Cloudfront simply enforces that intent. This ensures that 
+the system remains conservative and predictable by defaulting to no caching unless the origin opts in. 
+
+Caching should still be disabled entirely for endpoints that do return things such as: 
+user-specific data (PII or financial data), 
+real-time data (stock prices, live chat),
+or any authenticated requests to prevent security leaks and data-staleness
+
+Using Cache-Control: no-store is the safest way to ensure that no data is stored within the cache.
+
