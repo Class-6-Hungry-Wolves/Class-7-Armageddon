@@ -261,6 +261,32 @@ resource "aws_cloudfront_origin_request_policy" "armageddon_orp_api_public01" {
 
 
 # #########################
+# # Public Feed Fragmented Cache Policy (User-Agent) (Demo for Failure Injection, do not use in production) ##########
+# resource "aws_cloudfront_cache_policy" "armageddon_cache_public_feed_fragmented01" {
+#   name        = "${var.project_name}-cache-public-feed-fragmented01"
+#   comment     = "INTENTIONAL BAD: cache varies by User-Agent (fragmentation demo)"
+#   default_ttl = 0
+#   min_ttl     = 0
+#   max_ttl     = 60
+
+#   parameters_in_cache_key_and_forwarded_to_origin {
+#     cookies_config       { cookie_behavior = "none" }
+#     query_strings_config { query_string_behavior = "none" }
+
+#     headers_config {
+#       header_behavior = "whitelist"
+#       headers {
+#         items = ["User-Agent"]
+#       }
+#     }
+
+#     enable_accept_encoding_gzip   = true
+#     enable_accept_encoding_brotli = true
+#   }
+# }
+
+
+# #########################
 # # API Origin-Driven Cache Policy ##########
 # resource "aws_cloudfront_cache_policy" "armageddon_cache_api_origin_driven01" {
 #   name        = "${var.project_name}-cache-api-origin-driven01"
