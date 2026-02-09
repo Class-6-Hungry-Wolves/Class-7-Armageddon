@@ -176,7 +176,7 @@ resource "aws_vpc_security_group_ingress_rule" "ec2-ssh-ingress" {
   to_port           = 22
 
   tags = {
-    Name = "Allow SSH from my IP"
+    Name = "Allow SSH form any IP"
   }
 }
 
@@ -252,6 +252,63 @@ resource "aws_vpc_security_group_egress_rule" "rdp-egress-to-all" {
 }
 
 ####################################################################################################
+#### ================================= Bastion Host ================================= ####
+###########################################################################################
+
+# AMI Daat Block to make code more resuable instade of hard-coded
+
+data "aws_ami" "ubuntu" {
+  most_recent = true
+
+  filter {
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*"]
+  }
+
+  owners = ["099720109477"] # Canonical
+}
+
+# Explanation: This is your “Han Solo box”—it talks to RDS and complains loudly when the DB is down.
+resource "aws_instance" "armageddon-bastion" {
+  ami                         = data.aws_ami.ubuntu.id
+  instance_type               = var.ec2_instance_type
+  subnet_id                   = aws_subnet.armageddon-public-subnets[0].id
+  vpc_security_group_ids      = [aws_security_group.armageddon-ec2-sg.id]
+  associate_public_ip_address = true
+
+  # user_data for ubuntu jummpbox
+  user_data = <<EOF
+#!/bin/bash
+# Install SSH client
+if command -v yum >/dev/null 2>&1; then
+  yum install -y openssh-clients
+elif command -v apt-get >/dev/null 2>&1; then
+  apt-get update -y && apt-get install -y openssh-client
+fi
+
+# Create .ssh directory and add private key
+mkdir -p /home/ubuntu/.ssh
+cat << 'KEYEOF' > /home/ubuntu/.ssh/id_rsa
+${tls_private_key.armageddon-keys.private_key_pem}
+KEYEOF
+
+# Set correct permissions and ownership
+chmod 600 /home/ubuntu/.ssh/id_rsa
+chown ubuntu:ubuntu /home/ubuntu/.ssh/id_rsa
+EOF
+
+  key_name = aws_key_pair.armageddon-key-pair.id
+
+  lifecycle {
+    create_before_destroy = true
+  }
+
+  tags = {
+    Name = "${local.name_prefix}-bastion"
+  }
+}
+
+####################################################################################################
 #### ================================= EC2 Instance (Web App) ================================= ####
 ####################################################################################################
 
@@ -270,10 +327,10 @@ data "aws_ami" "amzn-linux-2023-ami" {
 resource "aws_instance" "armageddon-ec2" {
   ami                         = data.aws_ami.amzn-linux-2023-ami.id
   instance_type               = var.ec2_instance_type
-  subnet_id                   = aws_subnet.armageddon-public-subnets[0].id
+  subnet_id                   = aws_subnet.armageddon-private-subnets[0].id
   vpc_security_group_ids      = [aws_security_group.armageddon-ec2-sg.id]
   iam_instance_profile        = aws_iam_instance_profile.armageddon-instance-profile.name
-  associate_public_ip_address = true # Best to attach to EC2 as you need to retrive the public IP to run the test
+  associate_public_ip_address = false # Best to attach to EC2 as you need to retrive the public IP to run the test
 
   # TODO: student supplies user_data to install app + CW agent + configure log shipping
   user_data = file("${path.module}/1c_user_data.sh")
@@ -390,7 +447,8 @@ resource "aws_iam_policy" "armageddon-iam-policy" {
         Action = [
           "ssm:GetParameter",
           "ssm:GetParameters",
-          "ssm:GetParametersByPath"
+          "ssm:GetParametersByPath",
+          "ssm:DescribeInstanceInformation"
         ]
         Effect   = "Allow"
         Sid      = "SSMPolicyPermissions"
