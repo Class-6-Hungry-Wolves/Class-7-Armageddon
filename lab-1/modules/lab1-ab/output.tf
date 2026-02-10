@@ -56,8 +56,8 @@ output "iam_role_name" {
   value = aws_iam_role.chewbacca_ec2_role01.name
 }
 
-output "aws_key_pair_name" {
-  value = aws_key_pair.ec2_key_pair.key_name
+output "aws_key_pair" {
+  value = aws_key_pair.ec2_key_pair
 }
 
 # Outputs the ID of the regional EC2 Instanct Connect for SSH capability 

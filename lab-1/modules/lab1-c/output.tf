@@ -49,9 +49,9 @@ output "chewbacca_acm_cert_arn" {
   value = aws_acm_certificate.chewbacca_acm_cert01.arn
 }
 
-output "chewbacca_waf_arn" {
-  value = var.enable_waf ? aws_wafv2_web_acl.chewbacca_waf01[0].arn : null
-}
+# output "chewbacca_waf_arn" {
+#   value = var.enable_waf ? aws_wafv2_web_acl.chewbacca_waf01[0].arn : null
+# }
 
 output "chewbacca_dashboard_name" {
   value = aws_cloudwatch_dashboard.chewbacca_dashboard01.dashboard_name
@@ -107,3 +107,20 @@ output "chewbacca_waf_logs_s3_bucket" {
 # output "chewbacca_waf_firehose_name" {
 #   value = var.waf_log_destination == "firehose" ? aws_kinesis_firehose_delivery_stream.chewbacca_waf_firehose01[0].name : null
 # }
+
+
+###########################################
+# Additional Output for Lab 2
+############################################
+
+output "chewbacca_https_listener01" {
+  value = aws_lb_listener.chewbacca_https_listener01
+}
+
+output "chewbacca_tg01" {
+  value = aws_lb_target_group.chewbacca_tg01
+}
+
+output "chewbacca_alb_sg01_id" {
+  value = aws_security_group.chewbacca_alb_sg01.id
+}

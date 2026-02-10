@@ -1,0 +1,149 @@
+############################################
+# My Global Lab-2 Variables
+############################################
+
+variable "project_name" {
+  description = "Prefix for naming."
+  type        = string
+  default     = "peterock"
+}
+
+variable "ec2_ami_id" {
+  description = "AMI ID for private EC2 host."
+  type        = string
+  #default = "ami-03a67d5e469699a7c"  #SA-EAST-1
+  default = "ami-024ee5112d03921e2" #US-EAST-1
+}
+
+variable "ec2_instance_type" {
+  description = "Private EC2 instance size."
+  type        = string
+  default     = "t3.micro"
+}
+
+variable "endpoint_policy_json" {
+  description = "Optional custom endpoint policy as JSON"
+  type        = string
+  default     = null
+}
+
+variable "domain_name" {
+  description = "Base domain students registered"
+  type        = string
+  default     = "resilienetsolutions.click"
+}
+
+
+############################################
+# Lab2 Variables (From Theo)
+############################################
+
+#You’ll need this variable:
+variable "cloudfront_acm_cert_arn" {
+  description = "ACM certificate ARN in us-east-1 for CloudFront (covers resilienetsolutions.click and app.resilienetsolutions.click)."
+  type        = string
+  default = ""
+}
+
+
+
+
+# variable "domain_name" {
+#   description = "Base domain students registered (e.g., chewbacca-growl.com)."
+#   type        = string
+#   default     = "resilienetsolutions.click"
+# }
+
+# variable "app_subdomain" {
+#   description = "App hostname prefix (e.g., app.chewbacca-growl.com)."
+#   type        = string
+#   default     = "app"
+# }
+
+# variable "certificate_validation_method" {
+#   description = "ACM validation method. Students can do DNS (Route53) or EMAIL."
+#   type        = string
+#   default     = "DNS"
+# }
+
+# variable "enable_waf" {
+#   description = "Toggle WAF creation."
+#   type        = bool
+#   default     = true
+# }
+
+# variable "alb_5xx_threshold" {
+#   description = "Alarm threshold for ALB 5xx count."
+#   type        = number
+#   default     = 10
+# }
+
+# variable "alb_5xx_period_seconds" {
+#   description = "CloudWatch alarm period."
+#   type        = number
+#   default     = 300
+# }
+
+# variable "alb_5xx_evaluation_periods" {
+#   description = "Evaluation periods for alarm."
+#   type        = number
+#   default     = 1
+# }
+
+
+# ############################################
+# # Variables for Bonus C
+# ############################################
+
+# # Explanation: Used to specify Terraform-managed Zone (instead of pre-exisiting Zone ID)
+# variable "manage_route53_in_terraform" {
+#   description = "Terraform-managed Route 53 Zone; If true, create/manage Route53 hosted zone + records in Terraform."
+#   type        = bool
+#   default = false # Zone ID already exists (Z0746037TEWNPU9W3RIJ)
+# }
+
+# variable "route53_hosted_zone_id" {
+#   description = "Non-R53 Hosted Zone ID; If manage_route53_in_terraform=false, provide existing Hosted Zone ID for domain."
+#   type        = string
+#   default     = "Z0746037TEWNPU9W3RIJ"
+# }
+
+
+# ############################################
+# # Variables for Bonus D
+# ############################################
+
+# variable "enable_alb_access_logs" {
+#   description = "Enable ALB access logging to S3."
+#   type        = bool
+#   default     = true
+# }
+
+# variable "alb_access_logs_prefix" {
+#   description = "S3 prefix for ALB access logs."
+#   type        = string
+#   default     = "alb-access-logs"
+# }
+
+
+# ############################################
+# # Variables for Bonus E
+# ############################################
+
+# variable "waf_log_destination" {
+#   description = "Choose ONE destination per WebACL: cloudwatch | s3 | firehose"
+#   type        = string
+#   default     = "cloudwatch"
+# }
+
+# variable "waf_log_retention_days" {
+#   description = "Retention for WAF CloudWatch log group."
+#   type        = number
+#   default     = 14
+# }
+
+# variable "enable_waf_sampled_requests_only" {
+#   description = "If true, students can optionally filter/redact fields later. (Placeholder toggle.)"
+#   type        = bool
+#   default     = false
+# }

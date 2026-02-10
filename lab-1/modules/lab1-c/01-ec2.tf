@@ -6,7 +6,7 @@
 resource "aws_instance" "chewbacca_ec201_private_bonus" {
   ami                     = var.ec2_ami_id
   instance_type           = var.ec2_instance_type
-  key_name                = module.lab1-ab.aws_key_pair_name
+  key_name                = module.lab1-ab.aws_key_pair.key_name
   #subnet_id               = module.lab1-ab.ec2_private_subnet_id
   subnet_id               = module.lab1-ab.private_subnets[0].id
   vpc_security_group_ids  = [aws_security_group.target_group_ec2_sg01.id]

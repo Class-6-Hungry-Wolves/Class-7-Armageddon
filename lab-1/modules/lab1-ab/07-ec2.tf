@@ -4,9 +4,9 @@
 
 #Key pair resource for SSH access to EC2 instance
 resource "aws_key_pair" "ec2_key_pair" {
-  key_name   = "ec2_key_pair"
+  key_name   = "ec2-key-pair"
   public_key = var.public_key
-  }
+}
 
 # Explanation: This is your “Han Solo box”—it talks to RDS and complains loudly when the DB is down.
 resource "aws_instance" "chewbacca_ec201" {
