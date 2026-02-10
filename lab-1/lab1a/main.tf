@@ -522,13 +522,13 @@ resource "aws_ssm_parameter" "lab1b_db_name_param" {
 
 
 
-# Explanation: Secrets Manager is lab1b’s locked holster—credentials go here, not in code.
+# RDS database secret
 resource "aws_secretsmanager_secret" "armageddon_db_secret01" {
   name                    = "armageddon/rds/mysql"
   recovery_window_in_days = 0
 }
 
-# Explanation: Secret payload—students should align this structure with their app (and support rotation later).
+# RDS database secret version
 resource "aws_secretsmanager_secret_version" "armageddon_db_secret_version01" {
   secret_id = aws_secretsmanager_secret.armageddon_db_secret01.id
 
@@ -543,7 +543,7 @@ resource "aws_secretsmanager_secret_version" "armageddon_db_secret_version01" {
 }
 
 
-
+# Rotation rules for AWS Secrets Manager secret
 resource "aws_secretsmanager_secret_rotation" "rotation" {
   secret_id           = aws_secretsmanager_secret.armageddon_db_secret01.id
   rotation_lambda_arn = aws_lambda_function.lab1a_lambda_secret_rotation_function.arn
@@ -566,7 +566,7 @@ data "archive_file" "rotation_zip" {
 }
 
 
-
+# Lambda function that rotates the RDS secrets
 resource "aws_lambda_function" "lab1a_lambda_secret_rotation_function" {
   function_name    = "lab1a_lambda_secret_rotation_function"
   role             = aws_iam_role.lambda_secret_rotation_function_role.arn
@@ -585,7 +585,7 @@ resource "aws_lambda_function" "lab1a_lambda_secret_rotation_function" {
 }
 
 
-
+# Permission for Lambda allow Execution from Secrets Manager to rotate secret
 resource "aws_lambda_permission" "secretsmanager_invoke" {
   statement_id  = "AllowExecutionFromSecretsManager"
   action        = "lambda:InvokeFunction"
@@ -610,7 +610,7 @@ resource "aws_cloudwatch_log_group" "lab1b_log_group01" {
   }
 }
 
-
+# Metric Alarm that will go off upon connection errors to RDS database
 resource "aws_cloudwatch_metric_alarm" "rds01_db_alarm01" {
   alarm_name          = "${local.project_name_prefix}-db-connection-failure"
   comparison_operator = "GreaterThanOrEqualToThreshold"
