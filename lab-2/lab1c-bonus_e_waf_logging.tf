@@ -106,7 +106,8 @@ resource "aws_kinesis_firehose_delivery_stream" "chewbacca_waf_firehose01" {
 # WAF logging configuration (ONE destination)
 resource "aws_wafv2_web_acl_logging_configuration" "chewbacca_waf_logging01" {
   # IMPORTANT: you already have this Web ACL in your ALB section
-  resource_arn = aws_wafv2_web_acl.alb_waf.arn
+resource_arn = aws_wafv2_web_acl.cf_waf.arn
+
 
   log_destination_configs = [
     local.waf_dest_cloudwatch ? aws_cloudwatch_log_group.chewbacca_waf_log_group01[0].arn :

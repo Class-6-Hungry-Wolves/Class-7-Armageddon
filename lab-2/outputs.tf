@@ -28,7 +28,7 @@ output "alb_target_group_arn" {
 }
 
 output "waf_arn" {
-  value = aws_wafv2_web_acl.alb_waf.arn
+  value = aws_wafv2_web_acl.cf_waf.arn
 }
 
 output "route53_zone_id" {

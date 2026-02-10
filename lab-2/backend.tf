@@ -6,12 +6,6 @@
 terraform {
   required_version = ">= 1.5.0"
 
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = ">= 5.0"
-    }
-  }
   backend "s3" {
     bucket  = "jmk-terraform-state-72"
     key     = "lab-1/terraform.tfstate"
@@ -19,6 +13,7 @@ terraform {
     encrypt = true
   }
 }
+
 
 #S3 backend disabled for this branch because the bucket and state file are owned by Nick.
 #Using this backend will return 403 forbidden errors.

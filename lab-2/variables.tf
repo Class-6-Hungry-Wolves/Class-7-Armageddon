@@ -184,3 +184,21 @@ variable "enable_waf_sampled_requests_only" {
   default     = false
 }
 
+variable "cloudfront_waf_name" {
+  type    = string
+  default = "max-payne-cf-waf01"
+}
+
+variable "origin_header_name" {
+  type    = string
+  default = "X-Chewbacca-Growl"
+}
+
+variable "origin_header_value" {
+  type      = string
+  sensitive = true
+}
+
+
+
+
