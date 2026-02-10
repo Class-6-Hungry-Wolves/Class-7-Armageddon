@@ -1,6 +1,5 @@
-resource "google_compute_region_health_check" "nihonmachi_hc01" {
+resource "google_compute_health_check" "nihonmachi_hc01" {
   name   = "nihonmachi-hc01"
-  region = var.gcp_region
 
   https_health_check {
     port = 443
@@ -8,38 +7,44 @@ resource "google_compute_region_health_check" "nihonmachi_hc01" {
   }
 }
 
-resource "google_compute_region_backend_service" "nihonmachi_backend01" {
+resource "google_compute_backend_service" "nihonmachi_backend01" {
   name                  = "nihonmachi-backend01"
-  region                = var.gcp_region
   protocol              = "HTTPS"
-  health_checks         = [google_compute_region_health_check.nihonmachi_hc01.id]
-  load_balancing_scheme = "INTERNAL_MANAGED"
+  port_name             = "https"
+  health_checks         = [google_compute_health_check.nihonmachi_hc01.id]
+  load_balancing_scheme = "EXTERNAL_MANAGED"
 
   backend {
     group = google_compute_region_instance_group_manager.nihonmachi_mig01.instance_group
+    balancing_mode  = "UTILIZATION"
+    max_utilization = 0.8
   }
 }
 
-resource "google_compute_region_url_map" "nihonmachi_urlmap01" {
+resource "google_compute_url_map" "nihonmachi_urlmap01" {
   name   = "nihonmachi-urlmap01"
-  region = var.gcp_region
-
-  default_service = google_compute_region_backend_service.nihonmachi_backend01.id
+  default_service = google_compute_backend_service.nihonmachi_backend01.id
 }
 
-resource "google_compute_region_target_https_proxy" "nihonmachi_httpsproxy01" {
+resource "google_compute_managed_ssl_certificate" "nihonmachi_cert01" {
+  name = "nihonmachi-cert01"
+
+  managed {
+    domains = ["example.com"]
+  }
+}
+
+
+resource "google_compute_target_https_proxy" "nihonmachi_httpsproxy01" {
   name   = "nihonmachi-httpsproxy01"
-  region = var.gcp_region
-  url_map = google_compute_region_url_map.nihonmachi_urlmap01.id
+  url_map = google_compute_url_map.nihonmachi_urlmap01.id
+  ssl_certificates = [google_compute_managed_ssl_certificate.nihonmachi_cert01.id]
 }
 
-resource "google_compute_forwarding_rule" "nihonmachi_fr01" {
+resource "google_compute_global_forwarding_rule" "nihonmachi_fr01" {
   name                  = "nihonmachi-fr01"
-  region                = var.gcp_region
-  load_balancing_scheme = "INTERNAL_MANAGED"
+  load_balancing_scheme = "EXTERNAL_MANAGED"
   ip_protocol           = "TCP"
-  ports                 = ["443"]
-  network               = google_compute_network.nihonmachi_vpc01.id
-  subnetwork            = google_compute_subnetwork.nihonmachi_subnet01.id
-  target                = google_compute_region_target_https_proxy.nihonmachi_httpsproxy01.id
+  port_range            = "443"
+  target                = google_compute_target_https_proxy.nihonmachi_httpsproxy01.id
 }
