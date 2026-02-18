@@ -235,7 +235,7 @@ resource "aws_vpc_security_group_egress_rule" "allow-egress-to-all" {
 # Explanation: RDS SG is the Rebel vault—only the app server gets a keycard.
 resource "aws_security_group" "armageddon-rds-sg" {
   name        = "${local.name_prefix}-rds-sg"
-  description = "RDS security group"
+  description = "Allow EC2 Security Group ingress to RDS via port 3306"
   vpc_id      = aws_vpc.armageddon-vpc.id
 
   # TODO: student adds inbound MySQL 3306 from aws_security_group.armageddon-ec2_sg.id
