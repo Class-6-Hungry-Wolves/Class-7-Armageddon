@@ -1,6 +1,6 @@
-#########################################################################################
-#### =================================== Locals ===================================  ####
-#########################################################################################
+########################################################################################
+#### =================================== Locals =================================== ####
+########################################################################################
 
 locals {
   name_prefix = var.project_name
@@ -159,7 +159,7 @@ resource "aws_route_table_association" "pvt-rtb-assoc" {
 
 resource "aws_security_group" "armageddon-ec2-sg" {
   name        = "${local.name_prefix}-ec2-sg"
-  description = "EC2 Web App security group"
+  description = "Allows ingress to RDS Security Group"
   vpc_id      = aws_vpc.armageddon-vpc.id
 
   tags = {
@@ -167,16 +167,20 @@ resource "aws_security_group" "armageddon-ec2-sg" {
   }
 }
 
-# Allow all ingress traffic to EC2 via SSH
+# Allow SSH ingress from My IP
+data "http" "my_ip" {
+  url = "https://ipv4.icanhazip.com" # Make sure to use https in URL to prevent modification by attackers
+}
+
 resource "aws_vpc_security_group_ingress_rule" "ec2-ssh-ingress" {
   security_group_id = aws_security_group.armageddon-ec2-sg.id
-  cidr_ipv4         = "0.0.0.0/0" # How do I specify it to be from my IP??
+  cidr_ipv4         = "${chomp(data.http.my_ip.response_body)}/32" # You can use either the chomp or trimspace function to use your IP.
   from_port         = 22
   ip_protocol       = "tcp"
   to_port           = 22
 
   tags = {
-    Name = "Allow SSH form any IP"
+    Name = "Allow SSH form my IP"
   }
 }
 
@@ -221,7 +225,7 @@ resource "aws_vpc_security_group_egress_rule" "allow-egress-to-all" {
 # Explanation: RDS SG is the Rebel vault—only the app server gets a keycard.
 resource "aws_security_group" "armageddon-rds-sg" {
   name        = "${local.name_prefix}-rds-sg"
-  description = "RDS security group"
+  description = "RDS Security Group only from EC2 Secuirty Group"
   vpc_id      = aws_vpc.armageddon-vpc.id
 
   # TODO: student adds inbound MySQL 3306 from aws_security_group.armageddon-ec2_sg.id
@@ -252,63 +256,6 @@ resource "aws_vpc_security_group_egress_rule" "rdp-egress-to-all" {
 }
 
 ####################################################################################################
-#### ================================= Bastion Host ================================= ####
-###########################################################################################
-
-# AMI Daat Block to make code more resuable instade of hard-coded
-
-data "aws_ami" "ubuntu" {
-  most_recent = true
-
-  filter {
-    name   = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*"]
-  }
-
-  owners = ["099720109477"] # Canonical
-}
-
-# Explanation: This is your “Han Solo box”—it talks to RDS and complains loudly when the DB is down.
-resource "aws_instance" "armageddon-bastion" {
-  ami                         = data.aws_ami.ubuntu.id
-  instance_type               = var.ec2_instance_type
-  subnet_id                   = aws_subnet.armageddon-public-subnets[0].id
-  vpc_security_group_ids      = [aws_security_group.armageddon-ec2-sg.id]
-  associate_public_ip_address = true
-
-  # user_data for ubuntu jummpbox
-  user_data = <<EOF
-#!/bin/bash
-# Install SSH client
-if command -v yum >/dev/null 2>&1; then
-  yum install -y openssh-clients
-elif command -v apt-get >/dev/null 2>&1; then
-  apt-get update -y && apt-get install -y openssh-client
-fi
-
-# Create .ssh directory and add private key
-mkdir -p /home/ubuntu/.ssh
-cat << 'KEYEOF' > /home/ubuntu/.ssh/id_rsa
-${tls_private_key.armageddon-keys.private_key_pem}
-KEYEOF
-
-# Set correct permissions and ownership
-chmod 600 /home/ubuntu/.ssh/id_rsa
-chown ubuntu:ubuntu /home/ubuntu/.ssh/id_rsa
-EOF
-
-  key_name = aws_key_pair.armageddon-key-pair.id
-
-  lifecycle {
-    create_before_destroy = true
-  }
-
-  tags = {
-    Name = "${local.name_prefix}-bastion"
-  }
-}
-
-####################################################################################################
 #### ================================= EC2 Instance (Web App) ================================= ####
 ####################################################################################################
 
@@ -327,10 +274,10 @@ data "aws_ami" "amzn-linux-2023-ami" {
 resource "aws_instance" "armageddon-ec2" {
   ami                         = data.aws_ami.amzn-linux-2023-ami.id
   instance_type               = var.ec2_instance_type
-  subnet_id                   = aws_subnet.armageddon-private-subnets[0].id
+  subnet_id                   = aws_subnet.armageddon-public-subnets[0].id
   vpc_security_group_ids      = [aws_security_group.armageddon-ec2-sg.id]
   iam_instance_profile        = aws_iam_instance_profile.armageddon-instance-profile.name
-  associate_public_ip_address = false # Best to attach to EC2 as you need to retrive the public IP to run the test
+  associate_public_ip_address = true # Best to attach to EC2 as you need to retrive the public IP to run the test
 
   # TODO: student supplies user_data to install app + CW agent + configure log shipping
   user_data = file("${path.module}/1c_user_data.sh")
@@ -386,19 +333,27 @@ resource "aws_db_instance" "armageddon-rds" {
   }
 }
 
-#################################################################################
-#### ================================= IAM ================================= ####
-#################################################################################
+#########################################################################################################
+#### ================================= IAM Role & Instance Profile ================================= ####
+#########################################################################################################
 
-# Configures EC2 Instance Profile
+##############################
+#### EC2 Instance Profile ####
+##############################
+
+# This is similar to what is used on the MyEC2Role on ClickOps
 resource "aws_iam_instance_profile" "armageddon-instance-profile" {
-  name = "armageddon-instance-profile"
+  name = "${local.name_prefix}-instance-profile"
   role = aws_iam_role.armageddon-ec2-iam-role.name
 }
 
+##################
+#### IAM Role ####
+##################
+
 # Using jsonencode -- allows for reference Terraform resources, variables, and local variables
 resource "aws_iam_role" "armageddon-ec2-iam-role" {
-  name = "armageddon-ec2-iam-role"
+  name = "${local.name_prefix}-ec2-iam-role"
 
   # Terraform's "jsonencode" function converts a
   # Terraform expression result to valid JSON syntax.
@@ -410,7 +365,10 @@ resource "aws_iam_role" "armageddon-ec2-iam-role" {
         Effect = "Allow"
         Sid    = ""
         Principal = {
-          Service = "ec2.amazonaws.com"
+          Service = [
+            "ec2.amazonaws.com",
+            "ssm.amazonaws.com"
+          ]
         }
       },
     ]
@@ -421,13 +379,31 @@ resource "aws_iam_role" "armageddon-ec2-iam-role" {
   }
 }
 
-# Attaches EC2 IAM policy to the role
+################################
+#### IAM Policy Attachments ####
+################################
+
 resource "aws_iam_role_policy_attachment" "policy-attachment" {
   role       = aws_iam_role.armageddon-ec2-iam-role.name
   policy_arn = aws_iam_policy.armageddon-iam-policy.arn
 }
 
-# Generates IAM policy
+resource "aws_iam_role_policy_attachment" "ssm-policy-attachment" {
+  role       = aws_iam_role.armageddon-ec2-iam-role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+}
+
+# Full permissions for the CloudWatch Agent
+resource "aws_iam_role_policy_attachment" "chewbacca_ec2_cw_attach" {
+  role       = aws_iam_role.armageddon-ec2-iam-role.name
+  policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
+}
+
+####################
+#### IAM policy ####
+####################
+
+# Policiy permissions for least-priviledge pricicple
 resource "aws_iam_policy" "armageddon-iam-policy" {
   name        = "armageddon-iam-policy"
   description = "Provides permissions to retrieve secrets from Secrets Manager"
@@ -438,24 +414,38 @@ resource "aws_iam_policy" "armageddon-iam-policy" {
     Version = "2012-10-17"
     Statement = [
       {
-        Action   = ["secretsmanager:GetSecretValue"] # Using jsonencode for Theo's in-line policy json document
+        Action = [
+          "secretsmanager:GetSecretValue",
+          "secretsmanager:DescribeSecret"
+        ]
         Effect   = "Allow"
-        Sid      = "SecretsPolicyPermissions"
-        Resource = ["*"] # Resouces are referneced in ARN format -- Not as hardcoded as Theo's
+        Sid      = "ReadSpecificSecret"
+        Resource = ["arn:aws:secretsmanager:us-east-1:*:secret:*"] # Resouces are referneced in ARN format -- Not as hardcoded as Theo's
       },
       {
         Action = [
           "ssm:GetParameter",
           "ssm:GetParameters",
           "ssm:GetParametersByPath",
-          "ssm:DescribeInstanceInformation"
+          "ssm:DescribeInstanceInformation",
+          "ssm:UpdateInstanceInformation",
+          "ssm:UpdateInstanceAssociationStatus",
+          "ssm:ListAssociations",
+          "ssm:ListInstanceAssociations",
+          "ssmmessages:*",
+          "ec2messages:*",
+          "iam:PassRole"
         ]
         Effect   = "Allow"
         Sid      = "SSMPolicyPermissions"
         Resource = ["*"]
       },
       {
-        Action   = ["cloudwatch:PutMetricData"]
+        Action = [
+          "cloudwatch:PutMetricData",
+          "cloudwatch:PutMetricAlarm",
+          "cloudwatch:DescribeAlarms"
+        ]
         Effect   = "Allow"
         Sid      = "CloudWatchPolicyPermissions"
         Resource = ["*"]
@@ -463,16 +453,17 @@ resource "aws_iam_policy" "armageddon-iam-policy" {
       {
         Action = [
           "logs:CreateLogStream",
-          "logs:PutLogEvents",
+          "logs:CreateLogGroup",
           "logs:DescribeLogStreams",
           "logs:DescribeLogGroups",
-          "logs:CreateLogGroup",
-          "logs:PutRetentionPolicy"
+          "logs:PutLogEvents",
+          "logs:PutRetentionPolicy",
+          "logs:FilterLogEvents"
         ]
         Effect   = "Allow"
         Sid      = "CloudWatchLogsPermissions"
         Resource = ["*"]
-      }
+      },
     ]
   })
 }
@@ -621,3 +612,4 @@ resource "aws_sns_topic_subscription" "armageddon-sns-sub" {
   protocol  = "email"
   endpoint  = var.sns_email_endpoint
 }
+

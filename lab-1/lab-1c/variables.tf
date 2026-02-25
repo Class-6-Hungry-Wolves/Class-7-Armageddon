@@ -11,7 +11,7 @@ variable "aws_region" {
 variable "project_name" {
   description = "Prefix for naming. Students should change from 'chewbacca' to their own."
   type        = string
-  default     = "lab-1"
+  default     = "lab-1c"
 }
 
 variable "environment" {
