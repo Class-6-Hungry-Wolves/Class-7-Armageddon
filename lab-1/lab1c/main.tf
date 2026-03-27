@@ -749,13 +749,13 @@ resource "aws_cloudwatch_log_group" "lab1_log_group01" {
 resource "aws_cloudwatch_metric_alarm" "rds01_db_alarm01" {
   alarm_name          = "${local.project_name_prefix}-db-connection-failure"
   comparison_operator = "GreaterThanOrEqualToThreshold"
-  evaluation_periods  = 2
+  evaluation_periods  = 1
   metric_name         = "DBConnectionErrors"
   namespace           = "Lab/RDSApp"
   period              = 60
   statistic           = "Sum"
   threshold           = 3
-  datapoints_to_alarm = 2
+  datapoints_to_alarm = 1
   treat_missing_data  = "notBreaching"       # By default, data is treated as missing which causes alarm to display in the insufficient data state. Setting to "notBreaching" treats missing data as not breaching and alarm will be displayed in "OK" state.
 
   alarm_actions = [aws_sns_topic.armageddon_sns_topic01.arn]
