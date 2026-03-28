@@ -1,58 +1,46 @@
 # Explanation: Outputs are your mission report—what got built and where to find it.
-output "shinjuku_vpc_id" {
-  value = aws_vpc.shinjuku-vpc.id
+output "liberdade_vpc_id" {
+  value = aws_vpc.liberdade-vpc.id
 }
 
-output "shinjuku_vpc_cidr_block" {
-  value = aws_vpc.shinjuku-vpc.cidr_block
+output "liberdade_vpc_cidr_block" {
+  value = aws_vpc.liberdade-vpc.cidr_block
 }
 
-output "shinjuku_public_subnet_ids" {
-  value = [for i in aws_subnet.shinjuku-public-subnet : i.id]
+output "liberdade_public_subnet_ids" {
+  value = [for i in aws_subnet.liberdade-public-subnet : i.id]
 }
 
-output "shinjuku_private_subnet_ids" {
-  value = [for i in aws_subnet.shinjuku-private-subnet : i.id]
+output "liberdade_private_subnet_ids" {
+  value = [for i in aws_subnet.liberdade-private-subnet : i.id]
 }
 
-output "shinjuku_database_subnet_ids" {
-  value = [for i in aws_subnet.shinjuku-database-subnet : i.id]
+output "liberdade_tgw_id" {
+  value = aws_ec2_transit_gateway.liberdade_tgw01.id
 }
 
-output "shinjuku_tgw_id" {
-  value = aws_ec2_transit_gateway.shinjuku_tgw01.id
+output "liberdade_tgw_vpc_attachment_id" {
+  value = aws_ec2_transit_gateway_vpc_attachment.liberdade_attach_lib_vpc01.id
 }
 
-output "shinjuku_tgw_rtb_id" {
-  value = aws_ec2_transit_gateway_route_table.shinjuku_tgw01_rtb01.id 
+output "liberdade_tgw_rtb_id" {
+  value = aws_ec2_transit_gateway_route_table.liberdade_tgw01_rtb01.id
 }
 
-output "shinjuku_tgw_vpc_attachment_id" {
-  value = aws_ec2_transit_gateway_vpc_attachment.shinjuku_attach_tokyo_vpc01.id
-}
-
-
-# output "shinjuku_ec2_security_group_id" {
-#   value = aws_security_group.shinjuku_ec2_sg.id
+# output "liberdade_ec2_security_group_id" {
+#   value = aws_security_group.liberdade_ec2_sg.id
 # }
 
-# output "shinjuku_rds_security_group_id" {
-#   value = aws_security_group.shinjuku_rds_sg.id
+# output "liberdade_packer_security_group_id" {
+#   value = aws_security_group.liberdade_packer_sg.id
 # }
 
-# output "shinjuku_packer_security_group_id" {
-#   value = aws_security_group.shinjuku_packer_sg.id
+# output "liberdade_ec2_instance_id" {
+#   value = var.enable_runtime_instance_creation ? aws_instance.liberdade_ec2_instance[0].id : null
 # }
 
-# output "shinjuku_ec2_instance_id" {
-#   value = var.enable_runtime_instance_creation ? aws_instance.shinjuku_ec2_instance[0].id : null
-# }
-
-# output "shinjuku_ec2_private_ip" {
-#   value = var.enable_runtime_instance_creation ? aws_instance.shinjuku_ec2_instance[0].private_ip : null
-# }
-# output "shinjuku_rds_endpoint" {
-#   value = aws_db_instance.shinjuku_rds01.address
+# output "liberdade_ec2_private_ip" {
+#   value = var.enable_runtime_instance_creation ? aws_instance.liberdade_ec2_instance[0].private_ip : null
 # }
 
 # output "cloudwatch_sns_topic_arn" {
@@ -60,7 +48,7 @@ output "shinjuku_tgw_vpc_attachment_id" {
 # }
 
 # output "armageddon_log_group_name" {
-#   value = aws_cloudwatch_log_group.shinjuku_log_group01.name
+#   value = aws_cloudwatch_log_group.liberdade_log_group01.name
 # }
 
 # output "packer_builder_instance_profile_name" {
@@ -69,19 +57,19 @@ output "shinjuku_tgw_vpc_attachment_id" {
 
 
 # output "armageddon_vpce_ssm_id" {
-#   value = aws_vpc_endpoint.shinjuku_vpce_ssm01.id
+#   value = aws_vpc_endpoint.liberdade_vpce_ssm01.id
 # }
 
 # output "armageddon_vpce_logs_id" {
-#   value = aws_vpc_endpoint.shinjuku_vpce_logs01.id
+#   value = aws_vpc_endpoint.liberdade_vpce_logs01.id
 # }
 
 # output "armageddon_vpce_secrets_id" {
-#   value = aws_vpc_endpoint.shinjuku_vpce_secrets01.id
+#   value = aws_vpc_endpoint.liberdade_vpce_secrets01.id
 # }
 
 # output "armageddon_vpce_s3_id" {
-#   value = aws_vpc_endpoint.shinjuku_vpce_s3_gw01.id
+#   value = aws_vpc_endpoint.liberdade_vpce_s3_gw01.id
 # }
 
 # output "rds_app_alb_dns_name" {

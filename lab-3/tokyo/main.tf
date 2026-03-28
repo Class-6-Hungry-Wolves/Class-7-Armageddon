@@ -118,7 +118,11 @@ resource "aws_route_table" "shinjuku_private_rtb" {
 }
 
 
-
+resource "aws_route" "shinjuku_to_liberdade_route01" {
+  route_table_id         = aws_route_table.shinjuku_private_rtb.id
+  destination_cidr_block = "10.81.0.0/16" # Liberdade VPC CIDR block
+  transit_gateway_id     = aws_ec2_transit_gateway.shinjuku_tgw01.id
+}
 
 # Public Route Table association for public subnets
 resource "aws_route_table_association" "shinjuku_public_rtb_association" {

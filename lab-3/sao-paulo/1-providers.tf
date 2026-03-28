@@ -1,6 +1,7 @@
 # Default Tokyo region for stateful Shinjuku architecture: ap-northeast-1 
 provider "aws" {
   region = var.aws_region
+  alias = "saopaulo"
 }
 
 
