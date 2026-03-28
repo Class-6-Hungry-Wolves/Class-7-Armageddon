@@ -32,17 +32,21 @@ output "shinjuku_tgw_vpc_attachment_id" {
 }
 
 
-# output "shinjuku_ec2_security_group_id" {
-#   value = aws_security_group.shinjuku_ec2_sg.id
-# }
+output "shinjuku_app_security_group_id" {
+  value = aws_security_group.shinjuku_app_sg.id
+}
 
-# output "shinjuku_rds_security_group_id" {
-#   value = aws_security_group.shinjuku_rds_sg.id
-# }
+output "shinjuku_rds_security_group_id" {
+  value = aws_security_group.shinjuku_rds_sg.id
+}
 
-# output "shinjuku_packer_security_group_id" {
-#   value = aws_security_group.shinjuku_packer_sg.id
-# }
+output "shinjuku_packer_security_group_id" {
+  value = aws_security_group.shinjuku_packer_sg.id
+}
+
+output "packer_builder_instance_profile_name" {
+  value = aws_iam_instance_profile.packer_builder_instance_profile.name
+}
 
 # output "shinjuku_ec2_instance_id" {
 #   value = var.enable_runtime_instance_creation ? aws_instance.shinjuku_ec2_instance[0].id : null
@@ -62,11 +66,6 @@ output "shinjuku_tgw_vpc_attachment_id" {
 # output "armageddon_log_group_name" {
 #   value = aws_cloudwatch_log_group.shinjuku_log_group01.name
 # }
-
-# output "packer_builder_instance_profile_name" {
-#   value = aws_iam_instance_profile.packer_builder_instance_profile.name
-# }
-
 
 # output "armageddon_vpce_ssm_id" {
 #   value = aws_vpc_endpoint.shinjuku_vpce_ssm01.id
