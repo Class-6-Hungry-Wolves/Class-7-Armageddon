@@ -327,7 +327,7 @@ data "aws_iam_policy_document" "ec2_read_instance_metadata" {
     sid       = "GetInstanceProfile"
     effect    = "Allow"
     actions   = ["iam:GetInstanceProfile"]
-    resources = ["arn:aws:iam::082258817095:instance-profile/lab1-dev-ec2-instance-profile"]
+    resources = ["arn:aws:iam::082258817095:instance-profile/shinjuku-dev-ec2-instance-profile"]
   }
 }
 
@@ -483,12 +483,287 @@ resource "aws_iam_role_policy_attachment" "ec2_session_manager_role_attachment" 
 }
 
 # IAM instance profile for EC2 RDS Notes App to use to perform Secrets Manager, SSM, and Cloudwatch operations
-resource "aws_iam_instance_profile" "lab1_ec2_instance_profile" {
+resource "aws_iam_instance_profile" "shinjuku_ec2_instance_profile" {
   role = aws_iam_role.ec2_app_role.name
-  name = "lab1-${local.environment}-ec2-instance-profile"
+  name = "shinjuku-${local.environment}-ec2-instance-profile"
 }
 
 resource "aws_iam_instance_profile" "packer_builder_instance_profile" {
   role = aws_iam_role.packer_role.name
   name = "${local.project_name_prefix}-${local.environment}-packer-builder-instance-profile"
+}
+
+
+
+# # AMI data block to get the latest AMI built from our Packer build.pkr.hcl. 
+# # AMI is outputted upon creation of the Packer build but we want to get it dynamically.
+data "aws_ami" "rdsapp_latest" {
+  most_recent = true
+  owners      = ["self"]
+
+  filter {
+    name   = "tag:purpose"
+    values = ["class7-armageddon-rdsapp"] # Use tags from build.pkr.hcl in the filters to get the correct AMI
+  }
+
+  filter {
+    name   = "tag:builtby"
+    values = ["packer"]
+  }
+}
+
+
+
+# # EC2 instance that will house our RDS Notes App
+# resource "aws_instance" "_ec2_instance" {
+#   count                  = var.enable_asg_creation ? 1 : 0
+#   ami                    = data.aws_ami.rdsapp_latest.id
+#   instance_type          = var.instance_type
+#   subnet_id              = aws_subnet.shinjuku-private-subnet["shinjuku_private_subnet_1"].id
+#   iam_instance_profile   = aws_iam_instance_profile.shinjuku_ec2_instance_profile.name
+#   vpc_security_group_ids = [aws_security_group.shinjuku_app_sg.id]
+#   tags = {
+#     Name = "${local.project_name_prefix}-${local.environment}-ec2-labapp-instance"
+#   }
+#   lifecycle {
+#     create_before_destroy = true
+#   }
+# }
+
+
+resource "aws_launch_template" "shinjuku-LT01" {
+  name_prefix            = "shinjuku-LT01"
+  image_id               = data.aws_ami.rdsapp_latest.id
+  instance_type          = var.instance_type
+  vpc_security_group_ids = [aws_security_group.shinjuku_app_sg.id]
+  iam_instance_profile {
+    name = aws_iam_instance_profile.shinjuku_ec2_instance_profile.name
+  }
+
+  tag_specifications {
+    resource_type = "instance"
+    tags = {
+      Name    = "shinjuku-asg-instance"
+      Service = "Auto Scaling"
+      Owner   = "Nick"
+      Planet  = "ZDR"
+    }
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+
+#################################
+######### DATABASE ##############
+#################################
+
+# Private Database Subnet group for our RDS database
+resource "aws_db_subnet_group" "shinjuku_rds_subnet_group01" {
+  name       = "${local.project_name_prefix}-${local.environment}-rds-subnet-group01"
+  subnet_ids = [for i in aws_subnet.shinjuku-database-subnet : i.id]
+
+  tags = {
+    Name = "${local.project_name_prefix}-${local.environment}-rds-subnet-group01"
+  }
+}
+
+# RDS MYSQL Database that will house our notes table
+resource "aws_db_instance" "shinjuku_rds01" {
+  identifier        = "${local.environment}rds01"
+  engine            = var.db_engine
+  instance_class    = var.db_instance_class
+  allocated_storage = 20
+  db_name           = var.db_name
+  username          = var.db_username
+  password          = random_password.shinjuku_db_password.result
+  multi_az          = true
+
+  db_subnet_group_name   = aws_db_subnet_group.shinjuku_rds_subnet_group01.name
+  vpc_security_group_ids = [aws_security_group.shinjuku_rds_sg.id]
+
+  publicly_accessible = false
+  skip_final_snapshot = true
+  lifecycle {
+    ignore_changes = [password] # Prevents overwriting state when rotation occurs
+  }
+}
+
+############################################
+# PARAMETER STORE (SSM Parameters)
+############################################
+
+# Explanation: Parameter Store is the database's map. Endpoints and config live here for fast recovery.
+resource "aws_ssm_parameter" "shinjuku_db_endpoint_param" {
+  name  = "/armageddon/rds/mysql/host"
+  type  = "SecureString"
+  value = aws_db_instance.shinjuku_rds01.address
+
+  tags = {
+    Name = "${local.project_name_prefix}-param-db-endpoint"
+  }
+}
+
+# Explanation: DB port is the secret handshake. Without it, no entry.
+resource "aws_ssm_parameter" "shinjuku_db_port_param" {
+  name  = "/armageddon/rds/mysql/port"
+  type  = "SecureString"
+  value = tostring(aws_db_instance.shinjuku_rds01.port)
+
+  tags = {
+    Name = "${local.project_name_prefix}-param-db-port"
+  }
+}
+
+# Explanation: DB name is the label on the crate—without it, you’re rummaging in the dark.
+resource "aws_ssm_parameter" "shinjuku_db_name_param" {
+  name  = "/armageddon/rds/mysql/dbname"
+  type  = "SecureString"
+  value = var.db_name
+
+  tags = {
+    Name = "${local.project_name_prefix}-param-db-name"
+  }
+}
+
+
+
+###########################
+##### SECRETS MANAGER #####
+###########################
+
+
+
+
+
+
+# Explanation: Secrets Manager are our locked holster—credentials go here, not in code.
+resource "aws_secretsmanager_secret" "shinjuku_db_secret01" {
+  name                    = "armageddon/rds/mysql"
+  recovery_window_in_days = 0
+}
+
+resource "random_password" "shinjuku_db_password" {
+  length           = 16
+  special          = true
+  override_special = "_%@"
+}
+
+
+# Explanation: Secret payload—students should align this structure with their app (and support rotation later).
+resource "aws_secretsmanager_secret_version" "shinjuku_db_secret_version01" {
+  secret_id = aws_secretsmanager_secret.shinjuku_db_secret01.id
+
+  secret_string = jsonencode({
+    engine   = var.db_engine
+    username = var.db_username
+    password = random_password.shinjuku_db_password.result
+  })
+  lifecycle {
+    ignore_changes = [secret_string] # Prevents overwriting state when rotation occurs
+  }
+}
+
+
+
+resource "aws_secretsmanager_secret_rotation" "rotation" {
+  secret_id           = aws_secretsmanager_secret.shinjuku_db_secret01.id
+  rotation_lambda_arn = aws_lambda_function.shinjuku_lambda_secret_rotation_function.arn
+  rotate_immediately  = true # For lab testing purposes only; remove for production
+
+  rotation_rules {
+    automatically_after_days = 30
+  }
+}
+
+
+
+##############################
+###### LAMBDA FUNCTION #######
+##############################
+data "archive_file" "rotation_zip" {
+  type        = "zip"
+  source_file = "lambda/rotation_lambda.py"
+  output_path = "rotation_lambda.zip"
+}
+
+
+
+resource "aws_lambda_function" "shinjuku_lambda_secret_rotation_function" {
+  function_name    = "shinjuku_lambda_secret_rotation_function"
+  role             = aws_iam_role.lambda_secret_rotation_function_role.arn
+  architectures    = ["x86_64"]
+  filename         = data.archive_file.rotation_zip.output_path
+  runtime          = "python3.13"
+  handler          = "rotation_lambda.lambda_handler"
+  source_code_hash = data.archive_file.rotation_zip.output_base64sha256
+
+  timeout = 30
+
+  vpc_config {
+    subnet_ids         = [for i in aws_subnet.shinjuku-private-subnet : i.id]
+    security_group_ids = [aws_security_group.shinjuku_lambda_sg.id]
+  }
+}
+
+
+
+resource "aws_lambda_permission" "secretsmanager_invoke" {
+  statement_id  = "AllowExecutionFromSecretsManager"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.shinjuku_lambda_secret_rotation_function.function_name
+  principal     = "secretsmanager.amazonaws.com"
+  source_arn    = "arn:aws:secretsmanager:ap-northeast-1:082258817095:secret:armageddon/rds/mysql*"
+}
+
+
+
+############################################
+# CLOUDWATCH LOGS (Log Group)
+############################################
+
+# Log Group for RDS Notes App
+resource "aws_cloudwatch_log_group" "shinjuku_log_group01" {
+  name              = "/aws/ec2/armageddon-rds-app"
+  retention_in_days = 7
+
+  tags = {
+    Name = "${local.project_name_prefix}-log-group01"
+  }
+}
+
+
+resource "aws_cloudwatch_metric_alarm" "rds01_db_alarm01" {
+  alarm_name          = "${local.project_name_prefix}-db-connection-failure"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = 1
+  metric_name         = "DBConnectionErrors"
+  namespace           = "Lab/RDSApp"
+  period              = 60
+  statistic           = "Sum"
+  threshold           = 3
+  datapoints_to_alarm = 1
+  treat_missing_data  = "notBreaching" # By default, data is treated as missing which causes alarm to display in the insufficient data state. Setting to "notBreaching" treats missing data as not breaching and alarm will be displayed in "OK" state.
+
+
+  alarm_actions = [aws_sns_topic.armageddon_sns_topic01.arn]
+
+  tags = {
+    Name = "${local.project_name_prefix}-alarm-db-fail"
+  }
+}
+
+
+# Explanation: SNS is the distress beacon—when the DB dies, the galaxy (your inbox) must hear about it.
+resource "aws_sns_topic" "armageddon_sns_topic01" {
+  name = "${local.project_name_prefix}-db-incidents01"
+}
+
+# Explanation: Email subscription = “poor man’s PagerDuty”—still enough to wake you up at 3AM.
+resource "aws_sns_topic_subscription" "armageddon_sns_sub01" {
+  topic_arn = aws_sns_topic.armageddon_sns_topic01.arn
+  protocol  = "email"
+  endpoint  = var.sns_email_endpoint
 }

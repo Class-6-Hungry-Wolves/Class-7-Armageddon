@@ -523,6 +523,15 @@ def api_add():
     resp.headers["Cache-Control"] = "no-store"
     return resp
 
+@app.route("/health")
+def health():
+    try:
+        conn = get_conn()
+        conn.close()
+        return jsonify({"status": "healthy"}), 200
+    except Exception as e:
+        return jsonify({"status": "unhealthy", "error": str(e)}), 503
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=80)

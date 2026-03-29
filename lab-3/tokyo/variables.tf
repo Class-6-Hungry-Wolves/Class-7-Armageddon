@@ -132,13 +132,6 @@ variable "db_username" {
   default     = "admin"
 }
 
-variable "db_password" {
-  description = "DB master password (DO NOT hardcode in real life; for lab only)."
-  type        = string
-  sensitive   = true
-  default     = "X4uU2UFiWgZA3x59S8we"
-}
-
 
 variable "sns_email_endpoint" {
   description = "Email endpoint for SNS topic subscription"
@@ -152,9 +145,9 @@ variable "packer_ami_name_prefix" {
   default     = "class7-armageddon-ami"
 }
 
-variable "enable_runtime_instance_creation" {
-  description = "Enable runtime instance for Packer builds"
-  # ^ Set to false first time so that AMI can be built. Once AMI is built, set to true.
+variable "enable_asg_creation" {
+  description = "Enable ASG creation for application layer (set to false first time to avoid issues with AMI creation, then set to true for ASG creation in subsequent runs)"
+  # ^ Set to false first time so that Packer AMI can be built. Once AMI is built, set to true.
   type    = bool
   default = true
 }
