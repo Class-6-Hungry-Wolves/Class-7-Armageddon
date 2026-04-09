@@ -14,25 +14,33 @@ output "armageddon_private_subnet_ids" {
   value = aws_subnet.armageddon-private-subnets[*].id
 }
 
-output "armageddon_ec2_instance_id" {
-  value = aws_instance.armageddon-ec2.id
+# output "armageddon_ec2_instance_id" {
+#   value = aws_instance.armageddon-ec2.id
+# }
+
+# output "ec2_public_ip" {
+#   value = aws_instance.armageddon-ec2.public_ip
+# }
+
+output "armageddon_ec2_private_instance_id" {
+  value = aws_instance.armageddon-ec2-private-bonus.id
 }
 
-output "ec2_public_ip" {
-  value = "${aws_instance.armageddon-ec2.public_ip}"
+output "ec2_private_ip" {
+  value = aws_instance.armageddon-ec2-private-bonus.private_ip
 }
 
-output "note_app_initialization" {
-  value = "http://${aws_instance.armageddon-ec2.public_ip}/init"
-}
+# output "note_app_initialization" {
+#   value = "http://${aws_instance.armageddon-ec2.public_ip}/init"
+# }
 
-output "note_app_edits" {
-  value = "http://${aws_instance.armageddon-ec2.public_ip}/add?note=Savalouwe!"
-}
+# output "note_app_edits" {
+#   value = "http://${aws_instance.armageddon-ec2.public_ip}/add?note=Savalouwe!"
+# }
 
-output "note_app_list" {
-  value = "http://${aws_instance.armageddon-ec2.public_ip}/list"
-}
+# output "note_app_list" {
+#   value = "http://${aws_instance.armageddon-ec2.public_ip}/list"
+# }
 
 output "armageddon_rds_endpoint" {
   value = aws_db_instance.armageddon-rds.address
@@ -48,4 +56,12 @@ output "armageddon_log_group_name" {
 
 output "armageddon_cw_alarm_name" {
   value = aws_cloudwatch_metric_alarm.armageddon-db-alarm.namespace
+}
+
+output "load_balancer_arn" {
+  value = aws_lb.armageddon-alb.arn
+}
+
+output "target_group_arn" {
+  value = aws_lb_target_group.armageddon-tg.arn
 }

@@ -11,7 +11,7 @@ variable "aws_region" {
 variable "project_name" {
   description = "Prefix for naming. Students should change from 'chewbacca' to their own."
   type        = string
-  default     = "lab-1c"
+  default     = "lab-1"
 }
 
 variable "environment" {
@@ -157,3 +157,98 @@ variable "sns_email_endpoint" {
   type        = string
   default     = "aahdjehuty.365@gmail.com" # TODO: student supplies
 }
+
+#######################
+#### DNS Variables ####
+#######################
+
+variable "domain_name" {
+  description = "Base domain students registered (e.g., chewbacca-growl.com)."
+  type        = string
+  default     = "lonbraj.click"
+}
+
+variable "app_subdomain" {
+  description = "App hostname prefix (e.g., app.chewbacca-growl.com)."
+  type        = string
+  default     = "app"
+}
+
+variable "certificate_validation_method" {
+  description = "ACM validation method. Students can do DNS (Route53) or EMAIL."
+  type        = string
+  default     = "DNS"
+}
+
+#######################
+#### WAF Variables ####
+#######################
+
+variable "enable_waf" {
+  description = "Toggle WAF creation."
+  type        = bool
+  default     = true
+}
+
+variable "waf_log_destination" {
+  description = "Destination for the WAF logs.Choose the Web ACL for either: 'cloudwatch', 's3', or 'kinesis'."
+  type        = string
+  default     = "cloudwatch"
+}
+
+# Optional - only use if WAF log destination is 'cloudwatch'
+variable "waf_log_retention_days" {
+  description = "The number of days to retain the logs if log destination is 'cloudwatch'."
+  type        = number
+  default     = 1
+}
+
+##################################
+#### Load Balancing Variables ####
+##################################
+
+variable "alb_5xx_threshold" {
+  description = "Alarm threshold for ALB 5xx count."
+  type        = number
+  default     = 10
+}
+
+variable "alb_5xx_period_seconds" {
+  description = "CloudWatch alarm period."
+  type        = number
+  default     = 300
+}
+
+variable "alb_5xx_evaluation_periods" {
+  description = "Evaluation periods for alarm."
+  type        = number
+  default     = 1
+}
+
+variable "alb_access_logs_prefix" {
+  description = ""
+  type        = string
+  default     = "alb-access-logs"
+}
+
+variable "enable_alb_access_logs" {
+  description = "Provisions ccess logs to an S3 bucket"
+  type        = bool
+  default     = true
+}
+
+# ############################
+# #### Route 53 Vairables ####
+# ############################
+
+# variable "manage_route53_in_terraform" {
+#   description = "Set to true to manage the Route 53 zone"
+#   type        = bool
+#   default     = true
+# }
+
+# variable "route53_hosted_zone_id" {
+#   description = "ID of an existing Route 53 Hosted Zone. Required if 'manage_route53_in_terraform' is set to false"
+#   type        = string
+#   default     = "" # Keep this optioaal so Terraform doesn't think you are creating a NEW one. 
+# }

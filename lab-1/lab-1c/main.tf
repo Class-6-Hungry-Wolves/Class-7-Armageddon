@@ -167,22 +167,23 @@ resource "aws_security_group" "armageddon-ec2-sg" {
   }
 }
 
-# Allow SSH ingress from My IP
-data "http" "my_ip" {
-  url = "https://ipv4.icanhazip.com" # Make sure to use https in URL to prevent modification by attackers
-}
+# commented out since we are using SSM
+# # Allow SSH ingress from My IP
+# data "http" "my_ip" {
+#   url = "https://ipv4.icanhazip.com" # Make sure to use https in URL to prevent modification by attackers
+# }
 
-resource "aws_vpc_security_group_ingress_rule" "ec2-ssh-ingress" {
-  security_group_id = aws_security_group.armageddon-ec2-sg.id
-  cidr_ipv4         = "${chomp(data.http.my_ip.response_body)}/32" # You can use either the chomp or trimspace function to use your IP.
-  from_port         = 22
-  ip_protocol       = "tcp"
-  to_port           = 22
+# resource "aws_vpc_security_group_ingress_rule" "ec2-ssh-ingress" {
+#   security_group_id = aws_security_group.armageddon-ec2-sg.id
+#   cidr_ipv4         = "${chomp(data.http.my_ip.response_body)}/32" # You can use either the chomp or trimspace function to use your IP.
+#   from_port         = 22
+#   ip_protocol       = "tcp"
+#   to_port           = 22
 
-  tags = {
-    Name = "Allow SSH form my IP"
-  }
-}
+#   tags = {
+#     Name = "Allow SSH form my IP"
+#   }
+# }
 
 # Allow all ingress traffic to EC2 via HTTP
 resource "aws_vpc_security_group_ingress_rule" "ec2-http-ingress" {
@@ -199,17 +200,17 @@ resource "aws_vpc_security_group_ingress_rule" "ec2-http-ingress" {
 
 # TODO: student ensures outbound allows DB port to RDS SG (or allow all outbound)
 # Allow Outbound Traffic to Backend Server
-# resource "aws_vpc_security_group_egress_rule" "ec2-http-egress" { # This is redunent as the outbound rule below allows traffic to all ports and IPs
-#   security_group_id            = aws_security_group.armageddon-ec2-sg.id
-#   referenced_security_group_id = aws_security_group.armageddon-rds-sg.id # Reference the Destination SG -- Allows Outbound traffic to RDS SG
-#   from_port                    = 80
-#   ip_protocol                  = "tcp"
-#   to_port                      = 80
+resource "aws_vpc_security_group_egress_rule" "ec2-http-egress" { # This is redunent as the outbound rule below allows traffic to all ports and IPs
+  security_group_id            = aws_security_group.armageddon-ec2-sg.id
+  referenced_security_group_id = aws_security_group.armageddon-rds-sg.id # Reference the Destination SG -- Allows Outbound traffic to RDS SG
+  from_port                    = 80
+  ip_protocol                  = "tcp"
+  to_port                      = 80
 
-#   tags = {
-#     Name = "Allow all outbound HTTP traffic to Backend Server"
-#   }
-# }
+  tags = {
+    Name = "Allow all outbound HTTP traffic to Backend Server"
+  }
+}
 
 # Default -- Allow outbound traffic to all ports and IPs
 resource "aws_vpc_security_group_egress_rule" "allow-egress-to-all" {
@@ -270,27 +271,27 @@ data "aws_ami" "amzn-linux-2023-ami" {
   }                                       # Retuns a broader range of AMIs
 }
 
-# Explanation: This is your “Han Solo box”—it talks to RDS and complains loudly when the DB is down.
-resource "aws_instance" "armageddon-ec2" {
-  ami                         = data.aws_ami.amzn-linux-2023-ami.id
-  instance_type               = var.ec2_instance_type
-  subnet_id                   = aws_subnet.armageddon-public-subnets[0].id
-  vpc_security_group_ids      = [aws_security_group.armageddon-ec2-sg.id]
-  iam_instance_profile        = aws_iam_instance_profile.armageddon-instance-profile.name
-  associate_public_ip_address = true # Best to attach to EC2 as you need to retrive the public IP to run the test
+# # Explanation: This is your “Han Solo box”—it talks to RDS and complains loudly when the DB is down.
+# resource "aws_instance" "armageddon-ec2" {
+#   ami                         = data.aws_ami.amzn-linux-2023-ami.id
+#   instance_type               = var.ec2_instance_type
+#   subnet_id                   = aws_subnet.armageddon-public-subnets[0].id
+#   vpc_security_group_ids      = [aws_security_group.armageddon-ec2-sg.id]
+#   iam_instance_profile        = aws_iam_instance_profile.armageddon-instance-profile.name
+#   associate_public_ip_address = true # Best to attach to EC2 as you need to retrive the public IP to run the test
 
-  # TODO: student supplies user_data to install app + CW agent + configure log shipping
-  user_data = file("${path.module}/1c_user_data.sh")
-  key_name  = aws_key_pair.armageddon-key-pair.id
+#   # TODO: student supplies user_data to install app + CW agent + configure log shipping
+#   user_data = file("${path.module}/1c_user_data.sh")
+#   key_name  = aws_key_pair.armageddon-key-pair.id
 
-  lifecycle {
-    create_before_destroy = true
-  }
+#   lifecycle {
+#     create_before_destroy = true
+#   }
 
-  tags = {
-    Name = "${local.name_prefix}-ec2"
-  }
-}
+#   tags = {
+#     Name = "${local.name_prefix}-ec2"
+#   }
+# }
 
 ##########################################################################################
 #### ================================= RDS Instance ================================= ####
@@ -361,9 +362,9 @@ resource "aws_iam_role" "armageddon-ec2-iam-role" {
     Version = "2012-10-17"
     Statement = [
       {
-        Action = "sts:AssumeRole"
+        Sid    = "ArmageddonEC2Role"
         Effect = "Allow"
-        Sid    = ""
+        Action = "sts:AssumeRole"
         Principal = {
           Service = [
             "ec2.amazonaws.com",
@@ -406,7 +407,7 @@ resource "aws_iam_role_policy_attachment" "chewbacca_ec2_cw_attach" {
 # Policiy permissions for least-priviledge pricicple
 resource "aws_iam_policy" "armageddon-iam-policy" {
   name        = "armageddon-iam-policy"
-  description = "Provides permissions to retrieve secrets from Secrets Manager"
+  description = "Provides Least-priviledge paramets to retrieve secrets from Secrets Manager and read from SSM parameter Store under/lab/db/*"
 
   # Terraform's "jsonencode" function converts a
   # Terraform expression result to valid JSON syntax.
@@ -414,15 +415,17 @@ resource "aws_iam_policy" "armageddon-iam-policy" {
     Version = "2012-10-17"
     Statement = [
       {
+        Sid    = "ReadSpecificSecret"
+        Effect = "Allow"
         Action = [
           "secretsmanager:GetSecretValue",
           "secretsmanager:DescribeSecret"
         ]
-        Effect   = "Allow"
-        Sid      = "ReadSpecificSecret"
         Resource = ["arn:aws:secretsmanager:us-east-1:*:secret:*"] # Resouces are referneced in ARN format -- Not as hardcoded as Theo's
       },
       {
+        Sid    = "SSMPolicyPermissions"
+        Effect = "Allow"
         Action = [
           "ssm:GetParameter",
           "ssm:GetParameters",
@@ -436,21 +439,21 @@ resource "aws_iam_policy" "armageddon-iam-policy" {
           "ec2messages:*",
           "iam:PassRole"
         ]
-        Effect   = "Allow"
-        Sid      = "SSMPolicyPermissions"
         Resource = ["*"]
       },
       {
+        Sid    = "CloudWatchPolicyPermissions"
+        Effect = "Allow"
         Action = [
           "cloudwatch:PutMetricData",
           "cloudwatch:PutMetricAlarm",
           "cloudwatch:DescribeAlarms"
         ]
-        Effect   = "Allow"
-        Sid      = "CloudWatchPolicyPermissions"
         Resource = ["*"]
       },
       {
+        Sid    = "CloudWatchLogsPermissions"
+        Effect = "Allow"
         Action = [
           "logs:CreateLogStream",
           "logs:CreateLogGroup",
@@ -460,10 +463,14 @@ resource "aws_iam_policy" "armageddon-iam-policy" {
           "logs:PutRetentionPolicy",
           "logs:FilterLogEvents"
         ]
-        Effect   = "Allow"
-        Sid      = "CloudWatchLogsPermissions"
         Resource = ["*"]
       },
+      {
+        Sid = "ElasticLoadBalancingPermmisions"
+        Effect = "Allow"
+        Action = ["elasticloadbalancing:*"]
+        Resource = ["*"]
+      }
     ]
   })
 }
@@ -504,9 +511,10 @@ resource "aws_secretsmanager_secret_version" "armageddon-db-secret-version" {
 
 # Explanation: Parameter Store is lab_1a’s map—endpoints and config live here for fast recovery.
 resource "aws_ssm_parameter" "armageddon-db-endpoint-param" {
-  name  = "/lab/db/endpoint"
-  type  = "String"
-  value = aws_db_instance.armageddon-rds.address
+  name      = "/lab/db/endpoint"
+  type      = "String"
+  value     = aws_db_instance.armageddon-rds.address
+  overwrite = true # To fix StatusCode: 400 'ParameterAlreadyExists' error
 
   tags = {
     Name = "${local.name_prefix}-param-db-endpoint"
@@ -515,9 +523,10 @@ resource "aws_ssm_parameter" "armageddon-db-endpoint-param" {
 
 # Explanation: Ports are boring, but even Wookiees need to know which door number to kick in.
 resource "aws_ssm_parameter" "armageddon-db-port-param" {
-  name  = "/lab/db/port"
-  type  = "String"
-  value = tostring(aws_db_instance.armageddon-rds.port)
+  name      = "/lab/db/port"
+  type      = "String"
+  value     = tostring(aws_db_instance.armageddon-rds.port)
+  overwrite = true # To fix StatusCode: 400 'ParameterAlreadyExists' error
 
   tags = {
     Name = "${local.name_prefix}-param-db-port"
@@ -613,3 +622,14 @@ resource "aws_sns_topic_subscription" "armageddon-sns-sub" {
   endpoint  = var.sns_email_endpoint
 }
 
+# #################################################################################################
+# #### ================================= KMS (Single-Region) ================================= ####
+# #################################################################################################
+
+# resource "aws_kms_key" "asym-key" {
+#   description              = "Asymmetric KMS key for VPC Endpoint"
+#   customer_master_key_spec = "RSA_3072"
+#   key_usage                = "SIGN_VERIFY"
+#   deletion_window_in_days  = 7
+#   enable_key_rotation      = false
+# }
